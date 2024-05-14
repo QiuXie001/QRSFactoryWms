@@ -5,14 +5,15 @@ using Microsoft.EntityFrameworkCore;
 using IResponsitory;
 using System.Text.Json;
 using System.Reflection;
+using DB.Models;
 
 namespace Responsitory
 {
-    public class BaseResponsitory<TEntity> : IBaseResponsitory<TEntity> where TEntity : class
+    public class BaseResponsitory<TEntity> : IBaseResponsitory<TEntity> where TEntity : class, new()
     {
-        private readonly DbContext _dbContext;
+        private readonly QrsfactoryWmsContext _dbContext;
 
-        public BaseResponsitory(DbContext dbContext)
+        public BaseResponsitory(QrsfactoryWmsContext dbContext)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }

@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace IResponsitory
 {
-    public interface IBaseResponsitory<T> where T : class
+    public interface IBaseResponsitory<T> where T : class, new()
     {
 
         #region Add Operations

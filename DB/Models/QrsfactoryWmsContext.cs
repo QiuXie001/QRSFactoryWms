@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace DB.Models;
 
 public partial class QrsfactoryWmsContext : DbContext

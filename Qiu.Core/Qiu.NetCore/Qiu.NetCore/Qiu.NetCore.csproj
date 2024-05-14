@@ -10,6 +10,8 @@
     <PackageReference Include="codeessentials.AspNetCore.Diagnostics.Demystifier" Version="1.1.66" />
     <PackageReference Include="EntityFrameworkCore.RepositoryInfrastructure" Version="8.0.0" />
     <PackageReference Include="HtmlSanitizer" Version="8.1.866-beta" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="6.0.0-preview.4.21253.5" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.0-preview.3.24172.9" />
     <PackageReference Include="System.Runtime.Caching" Version="9.0.0-preview.3.24172.9" />
   </ItemGroup>

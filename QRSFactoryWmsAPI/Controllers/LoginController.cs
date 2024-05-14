@@ -9,19 +9,19 @@ namespace QRSFactoryWmsAPI.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly ISys_UserServices _userServices;
+        private readonly ISys_UserService _userServices;
         private readonly IHttpContextAccessor _httpContext;
-        private readonly ISys_LogServices _logServices;
+        private readonly ISys_LogService _logService;
         private readonly IConfiguration _configuration;
         private readonly Xss _xss;
         private readonly IMediator _mediator;
 
-        public LoginController(Xss xss, ISys_LogServices logServices, IHttpContextAccessor httpContext, IConfiguration configuration, ISys_UserServices sys_User, IMediator mediator)
+        public LoginController(Xss xss, ISys_LogService logService, IHttpContextAccessor httpContext, IConfiguration configuration, ISys_UserService userServices, IMediator mediator)
         {
             _httpContext = httpContext;
             _configuration = configuration;
-            _userServices = sys_User;
-            _logServices = logServices;
+            _userServices = userServices;
+            _logService = logService;
             _xss = xss;
             _mediator = mediator;
         }

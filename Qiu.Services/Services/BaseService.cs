@@ -8,7 +8,7 @@ using IResponsitory;
 
 namespace Services
 {
-    public class BaseService<TEntity> : IBaseServices<TEntity> where TEntity : class
+    public class BaseService<TEntity> : IBaseService<TEntity> where TEntity : class, new()
     {
         public IBaseResponsitory<TEntity> _baseRepository;
         public BaseService(IBaseResponsitory<TEntity> repository)

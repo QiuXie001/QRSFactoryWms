@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace IServices
 {
-    public interface IBaseServices<T> where T : class
+    public interface IBaseService<T> where T : class, new()
     {
         #region Add Operations
 

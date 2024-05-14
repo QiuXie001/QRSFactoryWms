@@ -23,6 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Qiu.Core\Qiu.NetCoreApp\Qiu.NetCoreApp.csproj" />
+    <ProjectReference Include="..\Qiu.Core\Qiu.NetCore\Qiu.NetCore\Qiu.NetCore.csproj" />
     <ProjectReference Include="..\Qiu.Responsity\IResponsity\IResponsitory.csproj" />
     <ProjectReference Include="..\Qiu.Responsity\Responsity\Responsitory.csproj" />
     <ProjectReference Include="..\Qiu.Services\IServices\IServices.csproj" />

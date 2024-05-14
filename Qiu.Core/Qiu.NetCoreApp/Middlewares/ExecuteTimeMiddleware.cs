@@ -31,7 +31,7 @@ namespace Qiu.NetCore.Middlewares
 
         private async Task<string> FormatRequest(HttpRequest request)
         {
-            request.EnableBuffering();
+            //request.EnableBuffering();
             request.Body.Seek(0, SeekOrigin.Begin);
             var text = await new StreamReader(request.Body).ReadToEndAsync();
             request.Body.Seek(0, SeekOrigin.Begin);
