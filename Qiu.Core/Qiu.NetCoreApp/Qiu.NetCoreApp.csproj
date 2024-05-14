@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	  <EnablePreviewFeatures>True</EnablePreviewFeatures>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="codeessentials.AspNetCore.Diagnostics.Demystifier" Version="1.1.66" />
+    <PackageReference Include="EntityFrameworkCore.RepositoryInfrastructure" Version="8.0.0" />
+    <PackageReference Include="HtmlSanitizer" Version="8.1.866-beta" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.0-preview.3.24172.9" />
+    <PackageReference Include="System.Runtime.Caching" Version="9.0.0-preview.3.24172.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Qiu.Utils\Qiu.Utils.csproj" />
+    <ProjectReference Include="..\Qiu.NetCore\Qiu.NetCore\Qiu.NetCore.csproj" />
+  </ItemGroup>
+
+</Project>
