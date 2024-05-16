@@ -40,7 +40,7 @@ namespace QRSFactoryWmsAPI.Controllers
             bootstrap.order = "desc";
             bootstrap.sort = "CreateDate";
 
-            var item = await _userServices.PageList(bootstrap);
+            var item = await _userServices.PageListAsync(bootstrap);
 
             return item;
         }

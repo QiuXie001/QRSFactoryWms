@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace DB.Models;
 
@@ -11,15 +12,12 @@ public class SysUser
     [Key]
     public long UserId { get; set; }
 
-    [Required]
     [StringLength(50)]
     public string UserName { get; set; }
 
-    [Required]
     [StringLength(50)]
     public string UserNickname { get; set; }
 
-    [Required]
     [StringLength(32)]
     public string Pwd { get; set; }
 
@@ -34,12 +32,9 @@ public class SysUser
     [StringLength(12)]
     public string Mobile { get; set; }
 
-    [Required]
     public byte Sex { get; set; }
 
-    [Required]
     public long RoleId { get; set; }
-    [Required]
     public long DeptId { get; set; }
 
     [StringLength(15)]
@@ -51,7 +46,6 @@ public class SysUser
 
     public string HeadImg { get; set; }
 
-    [Required]
     public byte IsEabled { get; set; }
 
     [Required]
@@ -72,8 +66,10 @@ public class SysUser
     public virtual SysDept Dept { get; set; }
     [ForeignKey("RoleId")]
     public virtual SysRole Role { get; set; }
+
     [ForeignKey("ModifiedBy")]
     public virtual SysUser ModifiedByUser { get; set; }
+
     [ForeignKey("CreateBy")]
     public virtual SysUser CreateByUser { get; set; }
 

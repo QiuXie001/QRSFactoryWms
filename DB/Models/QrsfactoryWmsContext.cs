@@ -221,6 +221,8 @@ public partial class QrsfactoryWmsContext : DbContext
 
         modelBuilder.Entity<SysUser>(entity =>
         {
+            entity.Ignore(c => c.ModifiedByUser);
+            entity.Ignore(c => c.CreateByUser);
             entity
         .HasOne(u => u.Role)
         .WithMany(r => r.Users) // 假设 SysRole 类有一个名为 Users 的集合属性

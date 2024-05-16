@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="Microsoft.NETCore.Targets" Version="3.0.0" PrivateAssets="all" />
     <PackageReference Include="codeessentials.AspNetCore.Diagnostics.Demystifier" Version="1.1.66" />
     <PackageReference Include="HtmlSanitizer" Version="8.0.843" />
     <PackageReference Include="Jil" Version="2.17.0" />

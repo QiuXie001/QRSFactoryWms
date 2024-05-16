@@ -10,8 +10,8 @@ namespace IServices
 {
     public interface ISys_UserService : IBaseService<SysUser>
     {
-        Task<(bool, string, SysUser)> CheckLogin(SysUser dto);
+        Task<(bool, string, SysUser)> CheckLoginAsync(SysUser dto);
 
-        Task<string> PageList(Bootstrap.BootstrapParams bootstrap);
+        Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
     }
 }

@@ -28,7 +28,7 @@ namespace Services
 
         }
 
-        public async Task<(bool, string, SysUser)> CheckLogin(SysUser dto)
+        public async Task<(bool, string, SysUser)> CheckLoginAsync(SysUser dto)
         {
             var flag = true;
             if (dto.IsNullT())
@@ -36,7 +36,10 @@ namespace Services
                 flag = false;
                 return (flag, PubConst.Login2, null);
             }
-            var sys = await _repository.QueryableToSingleAsync(c => c.UserNickname == dto.UserNickname && c.IsDel == 1);
+
+            Console.WriteLine(dto.UserName);
+
+            var sys = await _repository.QueryableToSingleAsync(c => c.UserName == dto.UserName && c.IsDel == 1);
 
             if (sys.IsNullT())
             {
@@ -63,7 +66,7 @@ namespace Services
             });
         }
 
-        public async Task<string> PageList(Bootstrap.BootstrapParams bootstrap)
+        public async Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap)
         {
             var totalNumber = 0;
             int pageNumber = bootstrap.offset == 0 ? 1 : bootstrap.offset / bootstrap.limit + 1;

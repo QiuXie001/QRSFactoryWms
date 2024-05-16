@@ -146,11 +146,11 @@ namespace Responsitory
         {
             return await _dbContext.Set<TEntity>().Where(expression).ToListAsync();
         }
-
         public async Task<TEntity> QueryableToSingleAsync(Expression<Func<TEntity, bool>> expression)
         {
             return await _dbContext.Set<TEntity>().Where(expression).SingleOrDefaultAsync();
         }
+
 
         public async Task<string> QueryableToJsonAsync(string select, Expression<Func<TEntity, bool>> expressionWhere)
         {
