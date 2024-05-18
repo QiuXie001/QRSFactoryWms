@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DB.Models;
 
-public partial class QrsfactoryWmsContext : DbContext
+public partial class QrsfactoryWmsContext : DbContext 
 {
     public QrsfactoryWmsContext()
     {
@@ -21,8 +21,9 @@ public partial class QrsfactoryWmsContext : DbContext
     public virtual DbSet<SysDict> SysDicts { get; set; }
 
     public virtual DbSet<SysLog> SysLogs { get; set; }
+    public virtual DbSet<SysIdentity> SysIdentity { get; set; }
 
-    public virtual DbSet<SysMenuWms> SysMenuWms { get; set; }
+    public virtual DbSet<SysMenu> SysMenu { get; set; }
 
     public virtual DbSet<SysRole> SysRoles { get; set; }
 
@@ -141,7 +142,7 @@ public partial class QrsfactoryWmsContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<SysMenuWms>(entity =>
+        modelBuilder.Entity<SysMenu>(entity =>
         {
             entity.HasKey(e => e.MenuId).HasName("PK__sys_menu__C99ED2309A83DC78");
 
@@ -219,7 +220,29 @@ public partial class QrsfactoryWmsContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<SysUser>(entity =>
+        modelBuilder.Entity<SysIdentity>(entity =>
+        {
+            entity.ToTable("sys_identity");
+            entity.HasKey(p => p.Id);
+
+            entity.Property(p => p.Token)
+                .HasColumnType("VARCHAR(255)");
+
+            entity.Property(p => p.GeneratedTime)
+                .HasColumnType("DATETIME");
+
+            entity.Property(p => p.ExpirationTime)
+                .HasColumnType("DATETIME");
+
+            entity.Property(p => p.UserId)
+                .HasColumnType("BIGINT");
+
+            entity.HasOne(p => p.User)
+                .WithMany(p => p.Identities)
+                .HasForeignKey(p => p.UserId);
+
+        });
+            modelBuilder.Entity<SysUser>(entity =>
         {
             entity.Ignore(c => c.ModifiedByUser);
             entity.Ignore(c => c.CreateByUser);

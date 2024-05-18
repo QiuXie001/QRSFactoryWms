@@ -20,15 +20,20 @@ namespace Services
     {
         private readonly QrsfactoryWmsContext _dbContext;
         private readonly ISys_UserResponsitory _repository;
-
-        public Sys_UserService(QrsfactoryWmsContext dbContext, ISys_UserResponsitory repository) : base(repository)
+        private readonly ISys_IdentityService _sys_identityservice;
+        public Sys_UserService(
+            QrsfactoryWmsContext dbContext,
+            ISys_UserResponsitory repository,
+            ISys_IdentityService sys_identityservice
+            ) : base(repository)
         {
             _dbContext = dbContext;
             _repository = repository;
+            _sys_identityservice = sys_identityservice;
 
         }
 
-        public async Task<(bool, string, SysUser)> CheckLoginAsync(SysUser dto)
+        public async Task<(bool, string, SysUser?)> CheckLoginAsync(SysUser dto)
         {
             var flag = true;
             if (dto.IsNullT())
@@ -56,14 +61,17 @@ namespace Services
                 flag = false;
                 return (flag, PubConst.Login2, null);
             }
-            return (flag, PubConst.Login1, new SysUser
+            else
             {
-                UserId = sys.UserId,
-                UserName = sys.UserName,
-                UserNickname = sys.UserNickname,
-                RoleId = sys.RoleId,
-                HeadImg = sys.HeadImg
-            });
+                return (flag, PubConst.Login1, new SysUser
+                {
+                    UserId = sys.UserId,
+                    UserName = sys.UserName,
+                    UserNickname = sys.UserNickname,
+                    RoleId = sys.RoleId,
+                    HeadImg = sys.HeadImg
+                });
+            }
         }
 
         public async Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap)

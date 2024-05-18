@@ -7,7 +7,7 @@ using Qiu.Utils.Table;
 
 namespace QRSFactoryWmsAPI.Controllers
 {
-    public class LoginController : Controller
+    public class UserController : Controller
     {
         private readonly ISys_UserService _userServices;
         private readonly IHttpContextAccessor _httpContext;
@@ -16,7 +16,7 @@ namespace QRSFactoryWmsAPI.Controllers
         private readonly Xss _xss;
         private readonly IMediator _mediator;
 
-        public LoginController(Xss xss, ISys_LogService logService, IHttpContextAccessor httpContext, IConfiguration configuration, ISys_UserService userServices, IMediator mediator)
+        public UserController(Xss xss, ISys_LogService logService, IHttpContextAccessor httpContext, IConfiguration configuration, ISys_UserService userServices, IMediator mediator)
         {
             _httpContext = httpContext;
             _configuration = configuration;
@@ -28,7 +28,7 @@ namespace QRSFactoryWmsAPI.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        [Route("Login/GetAllUser")]
+        [Route("User/GetAllUser")]
         public async Task<string> GetAllUser()
         {
             var bootstrap = new Bootstrap.BootstrapParams();

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DB.Models;
 
-public class SysMenuWms
+public class SysMenu
 {
     [Key]
     public long MenuId { get; set; }

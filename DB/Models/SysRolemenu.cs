@@ -18,7 +18,7 @@ public class SysRoleMenu
     [ForeignKey("RoleId")]
     public SysRole Role { get; set; }
     [ForeignKey("MenuId")]
-    public SysMenuWms Menu { get; set; }
+    public SysMenu Menu { get; set; }
 
     public long? CreateBy { get; set; }
 
