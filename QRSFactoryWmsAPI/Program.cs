@@ -1,10 +1,6 @@
-using IResponsitory;
-using IServices;
 using DB.Models;
 using Microsoft.AspNetCore.Hosting;
 using Qiu.Utils.Security;
-using Responsitory;
-using Services;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +10,10 @@ using System.Text;
 using System;
 using Microsoft.Extensions.Caching.Memory;
 using Qiu.Utils.Env;
+using Services.Sys;
+using IServices.Sys;
+using Responsitory.Sys;
+using IResponsitory.Sys;
 
 var builder = WebApplication.CreateBuilder(args);
 

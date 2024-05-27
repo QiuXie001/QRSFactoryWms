@@ -26,6 +26,8 @@ public class SysRole
     public string Remark { get; set; }
 
     public virtual ICollection<SysUser> Users { get; set; }
+    public virtual ICollection<SysRoleMenu> RoleMenus { get; set; }
+    
     public long? CreateBy { get; set; }
 
     public DateTime? CreateDate { get; set; }

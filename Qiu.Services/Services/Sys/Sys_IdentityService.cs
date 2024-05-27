@@ -1,9 +1,8 @@
 ﻿using DB.Models;
 using EntityFrameworkCore.RepositoryInfrastructure;
-using IResponsitory;
-using IServices;
+using IResponsitory.Sys;
+using IServices.Sys;
 using Qiu.Utils.Env;
-using Services;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
@@ -11,14 +10,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services
+namespace Services.Sys
 {
     public class Sys_IdentityService : BaseService<SysIdentity>, ISys_IdentityService
     {
         private readonly QrsfactoryWmsContext _dbContext;
         private readonly ISys_IdentityResponsitory _repository;
         public Sys_IdentityService(
-            QrsfactoryWmsContext dbContext, 
+            QrsfactoryWmsContext dbContext,
             ISys_IdentityResponsitory repository
             ) : base(repository)
         {
@@ -49,34 +48,34 @@ namespace Services
         {
             var flag = true;
             var identity = await _repository.QueryableToSingleAsync(
-                p => p.Token == token 
-                && p.UserId == userId 
+                p => p.Token == token
+                && p.UserId == userId
                 && p.LoginIp == GlobalCore.GetIp()
                 && p.IsEabled == 1);
             if (identity == null)
-            { 
+            {
                 flag = false;
             }
             else if (DateTime.UtcNow > identity.ExpirationTime)
-            { 
+            {
                 flag = false;
             }
             return flag;
         }
 
         //刷新
-        public async Task<(bool,string)> RefreshToken(string token)
+        public async Task<(bool, string)> RefreshToken(string token)
         {
             var flag = true;
             var identity = await _repository.QueryableToSingleAsync(p => p.Token == token && p.IsEabled == 1);
             if (identity == null)
             {
                 flag = false;
-                return (flag,"");
+                return (flag, "");
             }
             identity.ExpirationTime = DateTime.UtcNow.AddDays(1);
             await _repository.UpdateAsync(identity);
-            return (flag,identity.Token);
+            return (flag, identity.Token);
         }
 
         //禁用token

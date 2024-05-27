@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IResponsitory
+namespace IResponsitory.Sys
 {
-    public interface ISys_UserResponsitory : IBaseResponsitory<SysUser>
+    public interface ISys_MenuResponsitory : IBaseResponsitory<SysMenu>
     {
-
     }
 }

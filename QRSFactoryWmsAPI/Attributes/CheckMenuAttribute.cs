@@ -1,11 +1,11 @@
-﻿using IServices;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Security.Claims;
 using Qiu.Utils.Extensions;
+using IServices.Sys;
 
 namespace Qiu.NetCore.Attributes
 {
@@ -29,7 +29,7 @@ namespace Qiu.NetCore.Attributes
                 if (context.HttpContext.User != null)
                 {
                     var UserId = claims.SingleOrDefault(c => c.Type == ClaimTypes.Sid).Value;
-                    viewData["menu"] = cache.Get("menu_" + UserId) ?? roleServices?.GetMenu(claims.SingleOrDefault(c => c.Type == ClaimTypes.Role).Value.ToInt64());
+                    viewData["menu"] = cache.Get("menu_" + UserId) ?? roleServices?.GetMenuAsync(claims.SingleOrDefault(c => c.Type == ClaimTypes.Role).Value.ToInt64());
                 }
                 // ReSharper disable once PossibleNullReferenceException
             }

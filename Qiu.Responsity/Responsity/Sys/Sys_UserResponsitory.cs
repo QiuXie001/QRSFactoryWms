@@ -1,5 +1,5 @@
 ﻿using DB.Models;
-using IResponsitory;
+using IResponsitory.Sys;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Responsitory
+namespace Responsitory.Sys
 {
     public class Sys_UserRespository : BaseResponsitory<SysUser>, ISys_UserResponsitory
     {

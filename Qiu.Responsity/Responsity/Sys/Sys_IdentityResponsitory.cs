@@ -1,13 +1,12 @@
 ﻿using DB.Models;
-using IResponsitory;
-using Responsitory;
+using IResponsitory.Sys;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Responsitory
+namespace Responsitory.Sys
 {
     public class Sys_IdentityResponsitory : BaseResponsitory<SysIdentity>, ISys_IdentityResponsitory
     {

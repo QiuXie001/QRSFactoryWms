@@ -1,6 +1,4 @@
 ﻿using DB.Models;
-using IResponsitory;
-using IServices;
 using Microsoft.EntityFrameworkCore;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
@@ -13,10 +11,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
+using IServices.Sys;
+using IResponsitory.Sys;
 
-namespace Services
+namespace Services.Sys
 {
-    public class Sys_UserService : BaseService<SysUser>,ISys_UserService
+    public class Sys_UserService : BaseService<SysUser>, ISys_UserService
     {
         private readonly QrsfactoryWmsContext _dbContext;
         private readonly ISys_UserResponsitory _repository;
@@ -90,8 +90,8 @@ namespace Services
                     UserId = s.UserId.ToString(),
                     s.UserName,
                     s.UserNickname,
-                    DeptName = s.Dept.DeptName,
-                    RoleName = s.Role.RoleName,
+                    s.Dept.DeptName,
+                    s.Role.RoleName,
                     s.Tel,
                     s.Email,
                     s.Sex,

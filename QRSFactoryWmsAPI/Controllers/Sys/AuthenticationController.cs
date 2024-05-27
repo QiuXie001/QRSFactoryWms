@@ -1,6 +1,6 @@
 ﻿using DB.Models;
 using Humanizer;
-using IServices;
+using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ using Services;
 using SqlSugar;
 using System.Linq.Expressions;
 
-namespace QRSFactoryWmsAPI.Controllers
+namespace QRSFactoryWmsAPI.Controllers.Sys
 {
     public class AuthenticationController : BaseController
     {
@@ -31,7 +31,7 @@ namespace QRSFactoryWmsAPI.Controllers
             ISys_LogService logService,
             IHttpContextAccessor httpContext,
             IConfiguration configuration,
-            ISys_UserService userService, 
+            ISys_UserService userService,
             ISys_IdentityService identityService,
             IMediator mediator)
         {
@@ -46,33 +46,33 @@ namespace QRSFactoryWmsAPI.Controllers
         }
 
 
-        //[HttpGet]
-        //[Authorize]
-        //[AllowAnonymous]
-        //[Route("Authentication/CheckLogin")]
-        //public async Task<string> CheckLogin()
-        //{
-        //    string clientIp = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
-        //    // 处理代理服务器
-        //    if (clientIp.Equals("127.0.0.1")) // 假设代理服务器IP地址是127.0.0.1
-        //    {
-        //        clientIp = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-        //    }
+        [HttpGet]
+        [Authorize]
+        [AllowAnonymous]
+        [Route("Authentication/CheckLogin")]
+        public async Task<string> CheckLogin()
+        {
+            string clientIp = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+            // 处理代理服务器
+            if (clientIp.Equals("127.0.0.1")) // 假设代理服务器IP地址是127.0.0.1
+            {
+                clientIp = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            }
 
-        //    var user = new SysUser
-        //    {
-        //        UserName = "admin",
-        //        Pwd = "kopsoft",
-        //        LoginIp = clientIp
-        //    };
-        //    var flag = await _userService.CheckLoginAsync(user);
-        //    if (flag.Item1)
-        //    {
-        //        string token = await _identityService.GenerateToken(flag.Item3.UserId, clientIp);
-        //        return (flag, token).ToJson();
-        //    }
-        //    return flag.ToJson();
-        //}
+            var user = new SysUser
+            {
+                UserName = "admin",
+                Pwd = "kopsoft",
+                LoginIp = clientIp
+            };
+            var flag = await _userService.CheckLoginAsync(user);
+            if (flag.Item1)
+            {
+                string token = await _identityService.GenerateToken(flag.Item3.UserId);
+                return (flag, token).ToJson();
+            }
+            return flag.ToJson();
+        }
 
         [HttpPost]
         [AllowAnonymous]
@@ -103,7 +103,7 @@ namespace QRSFactoryWmsAPI.Controllers
                 string token = await _identityService.GenerateToken(flag.Item3.UserId);
                 return (flag, token).ToJson();
             }
-            else 
+            else
             {
                 await _logService.InsertAsync(new SysLog
                 {

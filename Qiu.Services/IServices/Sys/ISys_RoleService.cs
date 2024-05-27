@@ -4,15 +4,15 @@ using DB.Models;
 using Qiu.Utils.Table;
 using Qiu.Core.Dto;
 
-namespace IServices
+namespace IServices.Sys
 {
     public interface ISys_RoleService : IBaseService<SysRole>
     {
-        string PageList(Bootstrap.BootstrapParams bootstrap);
+        Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
 
-        List<PermissionMenu> GetMenu();
+        Task<List<PermissionMenu>> GetMenuAsync();
 
-        List<PermissionMenu> GetMenu(long roleId, string menuType = "menu");
+        Task<List<PermissionMenu>> GetMenuAsync(long roleId, string menuType = "menu");
 
         Task<bool> Insert(SysRole role, long userId, string[] menuId);
 

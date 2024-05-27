@@ -1,5 +1,5 @@
 ﻿using DB.Models;
-using IResponsitory;
+using IResponsitory.Sys;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Responsitory
+namespace Responsitory.Sys
 {
     public class Sys_LogResponsitory : BaseResponsitory<SysLog>, ISys_LogResponsitory
     {

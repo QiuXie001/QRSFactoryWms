@@ -1,9 +1,9 @@
-﻿using IServices;
+﻿using IServices.Sys;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
 
-namespace QRSFactoryWmsAPI.Controllers
+namespace QRSFactoryWmsAPI.Controllers.Sys
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -23,7 +23,7 @@ namespace QRSFactoryWmsAPI.Controllers
         {
             // 获取用户信息，获取菜单数据等逻辑
             var userId = User.FindFirst(ClaimTypes.Sid)?.Value;
-            var menu = _cache.Get("menu_" + userId) ?? _roleServices.GetMenu(long.Parse(userId));
+            var menu = _cache.Get("menu_" + userId) ?? _roleServices.GetMenuAsync(long.Parse(userId));
             return menu.ToString();
         }
 

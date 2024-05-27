@@ -1,6 +1,6 @@
 ﻿using DB.Models;
-using IResponsitory;
-using IServices;
+using IResponsitory.Sys;
+using IServices.Sys;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Qiu.Utils.Extensions;
@@ -14,9 +14,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Services
+namespace Services.Sys
 {
-    public class Sys_LogService : BaseService<SysLog>,ISys_LogService
+    public class Sys_LogService : BaseService<SysLog>, ISys_LogService
     {
         private readonly QrsfactoryWmsContext _dbContext;
         private readonly IConfiguration _configuration;

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IServices
+namespace IServices.Sys
 {
     public interface ISys_UserService : IBaseService<SysUser>
     {
