@@ -59,10 +59,12 @@ namespace Services.Sys
             {
                 query = query.Where(s => s.CreateDate > bootstrap.datemin.ToDateTimeB() && s.CreateDate <= bootstrap.datemax.ToDateTimeE());
             }
+
             var list = await query.Skip((pageNumber - 1) * bootstrap.limit)
                                   .Take(bootstrap.limit)
                                   .ToListAsync();
-            if (bootstrap.order.Equals("desc", StringComparison.OrdinalIgnoreCase))
+
+            if (bootstrap.order != null && bootstrap.order.Equals("desc", StringComparison.OrdinalIgnoreCase))
             {
                 list.Reverse();
             }

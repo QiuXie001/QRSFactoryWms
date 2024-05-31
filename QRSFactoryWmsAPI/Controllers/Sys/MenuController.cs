@@ -1,30 +1,33 @@
 ﻿using IServices.Sys;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Qiu.NetCore.NetCoreApp;
+using Qiu.Utils.Table;
 using System.Security.Claims;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class MenuController : ControllerBase
+    public class MenuController : BaseController
     {
         private readonly IMemoryCache _cache;
-        private readonly ISys_RoleService _roleServices;
+        private readonly ISys_MenuService _menuServices;
 
-        public MenuController(IMemoryCache cache, ISys_RoleService roleServices)
+        public MenuController(IMemoryCache cache, ISys_MenuService menuServices)
         {
             _cache = cache;
-            _roleServices = roleServices;
+            _menuServices = menuServices;
         }
 
-        [HttpGet("menu")]
-        public string GetMenu()
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("Menu/GetPageList")]
+        public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap)
         {
-            // 获取用户信息，获取菜单数据等逻辑
-            var userId = User.FindFirst(ClaimTypes.Sid)?.Value;
-            var menu = _cache.Get("menu_" + userId) ?? _roleServices.GetMenuAsync(long.Parse(userId));
-            return menu.ToString();
+
+            var item = await _menuServices.PageListAsync(bootstrap);
+
+            return item;
         }
 
     }

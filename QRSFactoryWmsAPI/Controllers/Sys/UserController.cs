@@ -2,12 +2,13 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Security;
 using Qiu.Utils.Table;
 
 namespace QRSFactoryWmsAPI.Controllers
 {
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly ISys_UserService _userServices;
         private readonly IHttpContextAccessor _httpContext;
@@ -46,8 +47,8 @@ namespace QRSFactoryWmsAPI.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        [Route("User/GetAllUser")]
-        public async Task<string> GetAllUser(Bootstrap.BootstrapParams bootstrap)
+        [Route("User/GetPageList")]
+        public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap)
         {
 
             var item = await _userServices.PageListAsync(bootstrap);

@@ -65,13 +65,14 @@ namespace Services.Sys
                 query = query.Where(s => s.CreateDate > bootstrap.datemin.ToDateTimeB() && s.CreateDate <= bootstrap.datemax.ToDateTimeE());
             }
 
-            query = bootstrap.order.Equals("desc", StringComparison.OrdinalIgnoreCase) ?
-                query.OrderByDescending(s => EF.Property<object>(s, bootstrap.sort)) :
-                query.OrderBy(s => EF.Property<object>(s, bootstrap.sort));
-
             var list = await query.Skip((pageNumber - 1) * bootstrap.limit)
                                   .Take(bootstrap.limit)
                                   .ToListAsync();
+
+            if (bootstrap.order != null && bootstrap.order.Equals("desc", StringComparison.OrdinalIgnoreCase))
+            {
+                list.Reverse();
+            }
 
             totalNumber = await query.CountAsync();
 

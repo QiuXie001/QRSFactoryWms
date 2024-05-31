@@ -47,10 +47,16 @@ builder.Services.AddScoped<Xss>();
 builder.Services.AddScoped<ISys_LogResponsitory, Sys_LogResponsitory>();
 builder.Services.AddScoped<ISys_UserResponsitory, Sys_UserRespository>();
 builder.Services.AddScoped<ISys_IdentityResponsitory, Sys_IdentityResponsitory>();
+builder.Services.AddScoped<ISys_MenuResponsitory, Sys_MenuResponsitory>();
+builder.Services.AddScoped<ISys_RoleResponsitory, Sys_RoleResponsitory>();
+builder.Services.AddScoped<ISys_RoleMenuResponsitory, Sys_RoleMenuResponsitory>();
+
 builder.Services.AddScoped<ISys_LogService, Sys_LogService>();
 builder.Services.AddScoped<ISys_UserService, Sys_UserService>();
 builder.Services.AddScoped<ISys_IdentityService, Sys_IdentityService>();
-
+builder.Services.AddScoped<ISys_MenuService, Sys_MenuService>();
+builder.Services.AddScoped<ISys_RoleService, Sys_RoleService>();
+builder.Services.AddScoped<ISys_RoleMenuService, Sys_RoleMenuService>();
 var app = builder.Build();
 
 GlobalCore.Configure(app);
