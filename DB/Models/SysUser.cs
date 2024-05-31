@@ -59,9 +59,9 @@ public class SysUser
     public DateTime? CreateDate { get; set; }
 
     public long ModifiedBy { get; set; }
-    public virtual ICollection<SysDept> CreateDepts { get; set; }
-    public virtual ICollection<SysDept> ModifiedDepts { get; set; }
-    public virtual ICollection<SysIdentity> Identities { get; set; }
+    public virtual ICollection<SysDept> CreateDepts { get; set; } = new List<SysDept>();
+    public virtual ICollection<SysDept> ModifiedDepts { get; set; } = new List<SysDept>();
+    public virtual ICollection<SysIdentity> Identities { get; set; } = new List<SysIdentity>();
     public DateTime? ModifiedDate { get; set; }
     [ForeignKey("DeptId")]
     public virtual SysDept Dept { get; set; }

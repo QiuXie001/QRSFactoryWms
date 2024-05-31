@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using DB.Models;
 
-namespace Qiu.Core.Dto
+namespace DB.Dto
 {
     public class PermissionMenu
     {

@@ -2,7 +2,7 @@ using SqlSugar;
 using System.Collections.Generic;
 using DB.Models;
 using Qiu.Utils.Table;
-using Qiu.Core.Dto;
+using DB.Dto;
 
 namespace IServices.Sys
 {

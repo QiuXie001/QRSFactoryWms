@@ -244,12 +244,22 @@ public partial class QrsfactoryWmsContext : DbContext
         });
             modelBuilder.Entity<SysUser>(entity =>
         {
-            entity.Ignore(c => c.ModifiedByUser);
-            entity.Ignore(c => c.CreateByUser);
             entity
         .HasOne(u => u.Role)
         .WithMany(r => r.Users) // 假设 SysRole 类有一个名为 Users 的集合属性
         .HasForeignKey(u => u.RoleId);
+
+            entity
+        .HasOne(s => s.CreateByUser)
+        .WithMany()
+        .HasForeignKey(s => s.CreateBy)
+        .OnDelete(DeleteBehavior.Restrict);
+
+            entity
+        .HasOne(s => s.ModifiedByUser)
+        .WithMany()
+        .HasForeignKey(s => s.ModifiedBy)
+        .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasKey(e => e.UserId).HasName("PK__sys_user__1788CC4CA4A660F0");
 

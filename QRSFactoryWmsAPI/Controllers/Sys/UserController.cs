@@ -28,8 +28,8 @@ namespace QRSFactoryWmsAPI.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        [Route("User/GetAllUser")]
-        public async Task<string> GetAllUser()
+        [Route("User/GetUsers")]
+        public async Task<string> GetUsers()
         {
             var bootstrap = new Bootstrap.BootstrapParams();
             bootstrap.offset = 0; // 设置为0以获取第一页的数据
@@ -39,6 +39,16 @@ namespace QRSFactoryWmsAPI.Controllers
             bootstrap.datemax = "2024-05-31";
             bootstrap.order = "desc";
             bootstrap.sort = "CreateDate";
+
+            var item = await _userServices.PageListAsync(bootstrap);
+
+            return item;
+        }
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("User/GetAllUser")]
+        public async Task<string> GetAllUser(Bootstrap.BootstrapParams bootstrap)
+        {
 
             var item = await _userServices.PageListAsync(bootstrap);
 
