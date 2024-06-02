@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using IServices.Sys;
 using IResponsitory.Sys;
+using System.Linq.Expressions;
 
 namespace Services.Sys
 {
@@ -19,16 +20,19 @@ namespace Services.Sys
         private readonly ISys_RoleResponsitory _responsitory;
         private readonly ISys_RoleMenuService _rolemenuService;
         private readonly ISys_MenuService _menuService;
+        private readonly ISys_UserService _userService;
         private readonly QrsfactoryWmsContext _dbContext;
         public Sys_RoleService(
             ISys_MenuService menuServices,
             ISys_RoleMenuService rolemenuService,
+            ISys_UserService userService,
             QrsfactoryWmsContext dbContext,
             ISys_RoleResponsitory responsitory
             ) : base(responsitory)
         {
             _responsitory = responsitory;
             _dbContext = dbContext;
+            _userService = userService;
             _rolemenuService = rolemenuService;
             _menuService = menuServices;
         }
@@ -103,32 +107,71 @@ namespace Services.Sys
             return ret;
         }
 
+
         public async Task<List<PermissionMenu>> GetMenuAsync(long roleId, string menuType = "menu")
         {
-            var listAll = await _dbContext.Set<SysRoleMenu>()
+
+            // 使用Include方法加载相关联的Sys_menu数据
+            var roleMenus = _dbContext.SysRolemenus
                 .Include(rm => rm.Menu)
-                .Where(rm => rm.RoleId == roleId && rm.Menu.IsDel == 1 && rm.Menu.MenuType == menuType && rm.Menu.Status == 1)
-                .ToListAsync();
-            var listParent = listAll.Where(s => s.Menu.MenuParent == -1).ToList();
-            List<PermissionMenu> ret = new List<PermissionMenu>();
-            listParent.ForEach(p =>
+                .Include(rm => rm.Role)
+                .Where(rm => rm.Menu != null && rm.Menu.IsDel == 1 && rm.Menu.MenuType == menuType && rm.Menu.Status == 1 && rm.RoleId == roleId)
+                .Select(rm =>new SysRoleMenu
+                {
+                    RoleMenuId = rm.RoleMenuId,
+                    MenuId = rm.MenuId,
+                    RoleId = rm.RoleId,
+                    Menu = rm.Menu,
+                    Role = rm.Role,
+                    CreateByUser = rm.CreateByUser,
+                    ModifiedByUser = rm.ModifiedByUser
+
+                }).OrderBy(rm => rm.Menu.Sort)
+                .ToList();
+
+            // 过滤出所有父菜单
+            var parentMenus = roleMenus.Where(rm => rm.Menu.MenuParent == -1).ToList();
+
+            // 构建PermissionMenu树结构
+            List<PermissionMenu> permissionMenus = new List<PermissionMenu>();
+            foreach (var parentMenu in parentMenus)
             {
-                PermissionMenu permissionMenu = PermissionMenu.Create(p.Menu);
-                permissionMenu.Children = listAll
-                    .Where(c => c.Menu.MenuParent == p.MenuId)
-                    .Select(m => new PermissionMenu
+                PermissionMenu permissionMenu = PermissionMenu.Create(parentMenu.Menu);
+                permissionMenu.Children = roleMenus
+                    .Where(rm => rm.Menu.MenuParent == parentMenu.Menu.MenuId)
+                    .Select(rm => new PermissionMenu
                     {
-                        Id = m.MenuId.ToString(),
-                        Name = m.Menu.MenuName,
-                        Icon = m.Menu.MenuIcon,
-                        Url = m.Menu.MenuUrl,
-                        ParentId = m.Menu.MenuParent.ToString()
-                    }).ToList();
-                ret.Add(permissionMenu);
-            });
-            return ret;
+                        Id = rm.Menu.MenuId.ToString(),
+                        Name = rm.Menu.MenuName,
+                        Icon = rm.Menu.MenuIcon,
+                        Url = rm.Menu.MenuUrl,
+                        ParentId = rm.Menu.MenuParent.ToString()
+                    })
+                    .ToList();
+                permissionMenus.Add(permissionMenu);
+            }
+
+            return permissionMenus;
         }
 
+
+        public async Task<long> GetRoleAsync(long userId)
+        {
+            Expression<Func<SysUser, bool>> userExpression = user => user.UserId == userId;
+            var user = await _userService.QueryableToSingleAsync(userExpression);
+
+            // 确保查询到了用户
+            if (user == null)
+            {
+                throw new ArgumentException($"User with ID {userId} not found.");
+            }
+
+            // 获取用户的角色
+            var roleId = user.RoleId;
+
+            // 返回角色列表
+            return roleId;
+        }
         public async Task<bool> Insert(SysRole role, long userId, string[] menuId)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())

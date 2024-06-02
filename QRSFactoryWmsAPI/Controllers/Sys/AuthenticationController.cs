@@ -50,7 +50,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [Authorize]
         [AllowAnonymous]
         [Route("Authentication/CheckLogin")]
-        public async Task<string> CheckLogin()
+        public async Task<JsonResult> CheckLogin()
         {
             string clientIp = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
             // 处理代理服务器
@@ -69,15 +69,15 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             if (flag.Item1)
             {
                 string token = await _identityService.GenerateToken(flag.Item3.UserId);
-                return (flag, token).ToJson();
+                return Json(flag, token);
             }
-            return flag.ToJson();
+            return Json(flag);
         }
 
         [HttpPost]
         [AllowAnonymous]
         [Route("Authentication/CheckLogin")]
-        public async Task<string> CheckLogin(string username, string password)
+        public async Task<JsonResult> CheckLogin(string username, string password)
         {
             var user = new SysUser
             {
@@ -101,7 +101,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                     LogType = LogType.login.EnumToString(),
                 });
                 string token = await _identityService.GenerateToken(flag.Item3.UserId);
-                return (flag, token).ToJson();
+                return Json(flag, token);
             }
             else
             {
@@ -115,7 +115,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                     Url = GetUrl(),
                     LogType = LogType.login.EnumToString()
                 });
-                return flag.ToJson();
+                return Json(flag);
             }
         }
 

@@ -1,9 +1,11 @@
 ﻿using IServices.Sys;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Security;
 using Qiu.Utils.Table;
-using System.Web.Mvc;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {
@@ -33,7 +35,6 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
 
             var item = await _roleServices.PageListAsync(bootstrap);
-
             return item;
         }
     }

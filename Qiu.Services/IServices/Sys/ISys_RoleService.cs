@@ -14,6 +14,8 @@ namespace IServices.Sys
 
         Task<List<PermissionMenu>> GetMenuAsync(long roleId, string menuType = "menu");
 
+        Task<long> GetRoleAsync(long userId);
+
         Task<bool> Insert(SysRole role, long userId, string[] menuId);
 
         Task<bool> Update(SysRole role, long userId, string[] menuId);

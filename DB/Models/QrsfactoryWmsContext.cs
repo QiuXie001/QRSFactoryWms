@@ -148,6 +148,16 @@ public partial class QrsfactoryWmsContext : DbContext
 
             entity.ToTable("sys_menu_wms");
 
+            entity
+                .HasOne(rm => rm.CreateByUser)
+                .WithMany(u => u.CreateMenus)
+                .HasForeignKey(rm => rm.CreateBy);
+
+            entity
+                .HasOne(rm => rm.ModifiedByUser)
+                .WithMany(u => u.ModifiedMenus)
+                .HasForeignKey(rm => rm.ModifiedBy);
+
             entity.Property(e => e.MenuId).ValueGeneratedNever();
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.MenuIcon)
@@ -173,6 +183,16 @@ public partial class QrsfactoryWmsContext : DbContext
             entity.HasKey(r => r.RoleId);
             entity.ToTable("sys_role");
 
+            entity
+                .HasOne(rm => rm.CreateByUser)
+                .WithMany(u => u.CreateRoles)
+                .HasForeignKey(rm => rm.CreateBy);
+
+            entity
+                .HasOne(rm => rm.ModifiedByUser)
+                .WithMany(u => u.ModifiedRoles)
+                .HasForeignKey(rm => rm.ModifiedBy);
+
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.Remark)
@@ -191,6 +211,28 @@ public partial class QrsfactoryWmsContext : DbContext
             entity.HasKey(e => e.RoleMenuId).HasName("PK__sys_role__F86287B6C7F29634");
 
             entity.ToTable("sys_rolemenu");
+
+
+            entity
+                .HasOne(rm => rm.Menu)
+                .WithMany(m => m.RoleMenus) 
+                .HasForeignKey(rm => rm.MenuId);
+
+            entity
+                .HasOne(rm => rm.Role)
+                .WithMany(r => r.RoleMenus) 
+                .HasForeignKey(rm => rm.RoleId);
+
+            entity
+                .HasOne(rm => rm.CreateByUser)
+                .WithMany(u => u.CreateRoleMenus) 
+                .HasForeignKey(rm => rm.CreateBy);
+
+            entity
+                .HasOne(rm => rm.ModifiedByUser)
+                .WithMany(u => u.ModifiedRoleMenus) 
+                .HasForeignKey(rm => rm.ModifiedBy);
+
 
             entity.Property(e => e.RoleMenuId).ValueGeneratedNever();
             entity.Property(e => e.CreateDate).HasColumnType("datetime");

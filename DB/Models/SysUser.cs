@@ -61,6 +61,12 @@ public class SysUser
     public long ModifiedBy { get; set; }
     public virtual ICollection<SysDept> CreateDepts { get; set; } = new List<SysDept>();
     public virtual ICollection<SysDept> ModifiedDepts { get; set; } = new List<SysDept>();
+    public virtual ICollection<SysRole> CreateRoles { get; set; } = new LinkedList<SysRole>();
+    public virtual ICollection<SysRole> ModifiedRoles { get; set; } = new LinkedList<SysRole>();
+    public virtual ICollection<SysMenu> CreateMenus { get; set; } = new LinkedList<SysMenu>();
+    public virtual ICollection<SysMenu> ModifiedMenus { get; set; } = new LinkedList<SysMenu>();
+    public virtual ICollection<SysRoleMenu> CreateRoleMenus { get; set; } = new LinkedList<SysRoleMenu>();
+    public virtual ICollection<SysRoleMenu> ModifiedRoleMenus { get; set; } = new LinkedList<SysRoleMenu>();
     public virtual ICollection<SysIdentity> Identities { get; set; } = new List<SysIdentity>();
     public DateTime? ModifiedDate { get; set; }
     [ForeignKey("DeptId")]

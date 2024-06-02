@@ -15,8 +15,10 @@ public class SysRoleMenu
 
     [Required]
     public long MenuId { get; set; }
+
     [ForeignKey("RoleId")]
     public SysRole Role { get; set; }
+
     [ForeignKey("MenuId")]
     public SysMenu Menu { get; set; }
 
