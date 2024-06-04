@@ -1,5 +1,6 @@
 using DB.Models;
 using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
 using Qiu.Utils.Security;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using Services.Sys;
 using IServices.Sys;
 using Responsitory.Sys;
 using IResponsitory.Sys;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddMvc().AddNewtonsoftJson(options => {
+    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+});
+builder.Services.AddControllers().AddNewtonsoftJson(options => {
+    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+});
+builder.Services.AddControllersWithViews().AddNewtonsoftJson(options => {
+    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+});
+
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<IMemoryCache, MemoryCache>();

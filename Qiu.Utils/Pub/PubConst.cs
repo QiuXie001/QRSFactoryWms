@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Qiu.Utils.Table;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,20 @@ namespace Qiu.Utils.Pub
 {
     public static class PubConst
     {
+        public static readonly Bootstrap.BootstrapParams DefaultBootstrapParams = new Bootstrap.BootstrapParams
+        {
+            offset = 0,
+            limit = 20,
+            search = string.Empty,
+            datemin = string.Empty,
+            datemax = "2024-05-31",
+            order = "desc",
+            sort = "CreateDate"
+        };
+
+        public const string ValidateToken1 = "验证通过";
+        public const string ValidateToken2 = "登陆状态异常，请重新登录";
+
         public const string Login1 = "登录成功";
         public const string Login2 = "账号或密码错误";
         public const string Login3 = "账号被禁用，请联系管理员";

@@ -16,13 +16,19 @@ namespace Services.Sys
     {
         private readonly QrsfactoryWmsContext _dbContext;
         private readonly ISys_IdentityResponsitory _repository;
+        private readonly ISys_RoleService _roleService;
+        private readonly ISys_UserService _userService;
         public Sys_IdentityService(
             QrsfactoryWmsContext dbContext,
-            ISys_IdentityResponsitory repository
+            ISys_IdentityResponsitory repository,
+            ISys_RoleService roleService,
+            ISys_UserService userService
             ) : base(repository)
         {
             _dbContext = dbContext;
             _repository = repository;
+            _roleService = roleService;
+            _userService = userService;
         }
 
         //生成
@@ -44,23 +50,34 @@ namespace Services.Sys
         }
 
         //验证
-        public async Task<bool> ValidateToken(string token, long userId)
+        public async Task<bool> ValidateToken(string token, long userId, string requestUrl)
         {
-            var flag = true;
             var identity = await _repository.QueryableToSingleAsync(
                 p => p.Token == token
                 && p.UserId == userId
                 && p.LoginIp == GlobalCore.GetIp()
                 && p.IsEabled == 1);
+
             if (identity == null)
             {
-                flag = false;
+                return false;
             }
-            else if (DateTime.UtcNow > identity.ExpirationTime)
+
+            if (DateTime.UtcNow > identity.ExpirationTime)
             {
-                flag = false;
+                return false;
             }
-            return flag;
+
+            // 获取用户的角色ID
+            var roleId = await _userService.GetRoleAsync(userId);
+
+            // 检查角色是否有权限访问请求的URL
+            if (!await _roleService.CheckRoleAccessToUrl(roleId, requestUrl))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         //刷新

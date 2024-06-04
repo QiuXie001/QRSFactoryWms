@@ -12,6 +12,7 @@ using System.Text.Json;
 using IServices.Sys;
 using IResponsitory.Sys;
 using System.Linq.Expressions;
+using SqlSugar.Extensions;
 
 namespace Services.Sys
 {
@@ -20,19 +21,16 @@ namespace Services.Sys
         private readonly ISys_RoleResponsitory _responsitory;
         private readonly ISys_RoleMenuService _rolemenuService;
         private readonly ISys_MenuService _menuService;
-        private readonly ISys_UserService _userService;
         private readonly QrsfactoryWmsContext _dbContext;
         public Sys_RoleService(
             ISys_MenuService menuServices,
             ISys_RoleMenuService rolemenuService,
-            ISys_UserService userService,
             QrsfactoryWmsContext dbContext,
             ISys_RoleResponsitory responsitory
             ) : base(responsitory)
         {
             _responsitory = responsitory;
             _dbContext = dbContext;
-            _userService = userService;
             _rolemenuService = rolemenuService;
             _menuService = menuServices;
         }
@@ -83,7 +81,7 @@ namespace Services.Sys
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
-
+        //获取所有菜单
         public async Task<List<PermissionMenu>> GetMenuAsync()
         {
             var permissionMenus = await _menuService.QueryableToListAsync(m => m.IsDel == 1 && m.MenuType == "menu" && m.Status == 1);
@@ -107,7 +105,7 @@ namespace Services.Sys
             return ret;
         }
 
-
+        //获取菜单权限
         public async Task<List<PermissionMenu>> GetMenuAsync(long roleId, string menuType = "menu")
         {
 
@@ -154,38 +152,30 @@ namespace Services.Sys
             return permissionMenus;
         }
 
-
-        public async Task<long> GetRoleAsync(long userId)
-        {
-            Expression<Func<SysUser, bool>> userExpression = user => user.UserId == userId;
-            var user = await _userService.QueryableToSingleAsync(userExpression);
-
-            // 确保查询到了用户
-            if (user == null)
-            {
-                throw new ArgumentException($"User with ID {userId} not found.");
-            }
-
-            // 获取用户的角色
-            var roleId = user.RoleId;
-
-            // 返回角色列表
-            return roleId;
-        }
-        public async Task<bool> Insert(SysRole role, long userId, string[] menuId)
+        //插入新角色并设置初始权限
+        public async Task<bool> InsertRole(SysRole role, long userId, string[] menuId)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
                 try
                 {
                     role.RoleId = PubId.SnowflakeId;
+
                     role.CreateBy = userId;
+                    role.CreateDate = DateTime.UtcNow;
+
+                    role.ModifiedBy = userId;
+                    role.ModifiedDate = DateTime.UtcNow;
+
                     role.RoleType = "#";
+
                     await InsertAsync(role);
 
+                    // 根据传入的menuId数组创建新的角色菜单关联列表
                     var roleMenuList = menuId.Select(menuId => new SysRoleMenu
                     {
                         CreateBy = userId,
+                        CreateDate = DateTime.UtcNow,
                         MenuId = long.Parse(menuId),
                         RoleId = role.RoleId,
                         RoleMenuId = PubId.SnowflakeId
@@ -202,18 +192,22 @@ namespace Services.Sys
                 }
             }
         }
-
-        public async Task<bool> Update(SysRole role, long userId, string[] menuId)
+        public async Task<bool> InsertMenu(SysMenu menu, long userId)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    role.ModifiedBy = userId;
-                    role.ModifiedDate = DateTime.UtcNow;
-                    await UpdateAsync(role);
+                    // 设置菜单属性
+                    menu.CreateBy = userId;
+                    menu.CreateDate = DateTime.UtcNow;
+                    menu.ModifiedBy = userId;
+                    menu.ModifiedDate = DateTime.UtcNow;
+                    menu.IsDel = 1; // 假设新菜单默认是启用的
 
-                    // 处理角色菜单关系的更新逻辑
+                    // 插入菜单
+                    _dbContext.Add(menu);
+                    await _dbContext.SaveChangesAsync();
 
                     await transaction.CommitAsync();
                     return true;
@@ -224,6 +218,177 @@ namespace Services.Sys
                     return false;
                 }
             }
+        }
+
+        public async Task<bool> UpdateRole(SysRole role, long userId, string[] menuId)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 删除该角色现有的所有菜单关联
+                    await _rolemenuService.DeleteByRoleIdAsync(role.RoleId);
+
+                    // 根据传入的menuId数组创建新的角色菜单关联列表
+                    var roleMenuList = menuId.Select(menuId => new SysRoleMenu
+                    {
+                        CreateBy = userId,
+                        CreateDate = DateTime.UtcNow,
+                        MenuId = long.Parse(menuId),
+                        RoleId = role.RoleId,
+                        RoleMenuId = PubId.SnowflakeId
+                    }).ToList();
+
+                    // 将新的角色菜单关联列表插入到数据库中
+                    await _rolemenuService.InsertIgnoreNullColumnsBatchAsync(roleMenuList);
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> UpdateMenu(SysMenu menu, long userId)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 设置菜单属性
+                    menu.ModifiedBy = userId;
+                    menu.ModifiedDate = DateTime.UtcNow;
+
+                    // 更新菜单
+                    _dbContext.Update(menu);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> DisableRole(SysRole role, long userId)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 更新角色的状态为禁用
+                    role.IsDel = 0;
+                    role.ModifiedBy = userId;
+                    role.ModifiedDate = DateTime.UtcNow;
+
+                    // 更新角色实体
+                    _dbContext.Update(role);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> DisableMenu(SysMenu menu, long userId)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 更新菜单的状态为禁用
+                    menu.IsDel = 0;
+                    menu.ModifiedBy = userId;
+                    menu.ModifiedDate = DateTime.UtcNow;
+
+                    // 更新菜单实体
+                    _dbContext.Update(menu);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
+
+        public async Task<bool> DeleteRole(SysRole role)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 删除与角色关联的所有菜单关联
+                    await _rolemenuService.DeleteByRoleIdAsync(role.RoleId);
+
+                    // 删除角色本身
+                    _dbContext.Remove(role);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> DeleteMenu(SysMenu menu)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 删除与菜单关联的所有角色关联
+                    await _rolemenuService.DeleteByMenuIdAsync(menu.MenuId);
+
+                    // 删除菜单本身
+                    _dbContext.Remove(menu);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
+
+        public async Task<bool> CheckRoleAccessToUrl(long roleId, string requestUrl)
+        {
+            var roleMenus = await _dbContext.Set<SysRoleMenu>()
+                .Include(rm => rm.Menu)
+                .Where(rm => rm.RoleId == roleId && rm.Menu.MenuUrl == requestUrl && rm.Menu.IsDel == 1 )
+                .Select(rm => rm.Menu)
+                .ToListAsync();
+
+            return roleMenus.Any();
         }
     }
 }

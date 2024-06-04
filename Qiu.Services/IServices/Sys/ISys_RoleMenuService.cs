@@ -9,6 +9,8 @@ namespace IServices.Sys
 {
     public interface ISys_RoleMenuService : IBaseService<SysRoleMenu>
     {
+        public Task DeleteByRoleIdAsync(long roleId);
+        public Task DeleteByMenuIdAsync(long menuId);
 
     }
 }

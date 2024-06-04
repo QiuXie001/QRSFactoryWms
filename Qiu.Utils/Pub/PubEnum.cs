@@ -106,37 +106,40 @@ namespace Qiu.Utils.Pub
         [Description("登录")]
         login = 1,
 
+        [Description("查看")]
+        getList = 2,
+
         [Description("添加")]
-        add = 2,
+        add = 3,
 
         [Description("修改")]
-        update = 3,
+        update = 4,
 
         [Description("添加或修改")]
         addOrUpdate = add | update,
 
         [Description("删除")]
-        delete = 4,
+        delete = 5,
 
         [Description("删除")]
-        select = 5,
+        select = 6,
 
         [Description("异常")]
-        exception = 6,
+        exception = 7,
 
         [Description("错误")]
-        error = 7,
+        error = 8,
 
         [Description("导出")]
-        export = 8,
+        export = 9,
 
         [Description("导入")]
-        import = 9,
+        import = 10,
 
         [Description("上传")]
-        upload = 10,
+        upload = 11,
 
         [Description("下载")]
-        download = 11,
+        download = 12,
     }
 }

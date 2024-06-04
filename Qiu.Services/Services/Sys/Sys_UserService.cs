@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using IServices.Sys;
 using IResponsitory.Sys;
+using System.Linq.Expressions;
 
 namespace Services.Sys
 {
@@ -20,16 +21,13 @@ namespace Services.Sys
     {
         private readonly QrsfactoryWmsContext _dbContext;
         private readonly ISys_UserResponsitory _repository;
-        private readonly ISys_IdentityService _sys_identityservice;
         public Sys_UserService(
             QrsfactoryWmsContext dbContext,
-            ISys_UserResponsitory repository,
-            ISys_IdentityService sys_identityservice
+            ISys_UserResponsitory repository
             ) : base(repository)
         {
             _dbContext = dbContext;
             _repository = repository;
-            _sys_identityservice = sys_identityservice;
 
         }
 
@@ -126,6 +124,24 @@ namespace Services.Sys
 
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
+        }
+
+        public async Task<long> GetRoleAsync(long userId)
+        {
+            Expression<Func<SysUser, bool>> userExpression = user => user.UserId == userId;
+            var user = await _repository.QueryableToSingleAsync(userExpression);
+
+            // 确保查询到了用户
+            if (user == null)
+            {
+                throw new ArgumentException($"User with ID {userId} not found.");
+            }
+
+            // 获取用户的角色
+            var roleId = user.RoleId;
+
+            // 返回角色列表
+            return roleId;
         }
 
     }

@@ -50,7 +50,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [Authorize]
         [AllowAnonymous]
         [Route("Authentication/CheckLogin")]
-        public async Task<JsonResult> CheckLogin()
+        public async Task<IActionResult> CheckLogin()
         {
             string clientIp = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
             // 处理代理服务器
@@ -62,22 +62,23 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             var user = new SysUser
             {
                 UserName = "admin",
-                Pwd = "kopsoft",
+                Pwd = "123456",
                 LoginIp = clientIp
             };
             var flag = await _userService.CheckLoginAsync(user);
             if (flag.Item1)
             {
                 string token = await _identityService.GenerateToken(flag.Item3.UserId);
-                return Json(flag, token);
+                return new JsonResult((flag, token));
             }
-            return Json(flag);
+            return new JsonResult(flag);
         }
 
         [HttpPost]
+        [Authorize]
         [AllowAnonymous]
         [Route("Authentication/CheckLogin")]
-        public async Task<JsonResult> CheckLogin(string username, string password)
+        public async Task<IActionResult> CheckLogin(string username, string password)
         {
             var user = new SysUser
             {
@@ -101,7 +102,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                     LogType = LogType.login.EnumToString(),
                 });
                 string token = await _identityService.GenerateToken(flag.Item3.UserId);
-                return Json(flag, token);
+                return new JsonResult((flag, token));
             }
             else
             {
@@ -115,7 +116,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                     Url = GetUrl(),
                     LogType = LogType.login.EnumToString()
                 });
-                return Json(flag);
+                return new JsonResult(flag);
             }
         }
 
