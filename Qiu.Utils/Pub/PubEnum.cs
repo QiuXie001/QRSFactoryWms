@@ -141,5 +141,8 @@ namespace Qiu.Utils.Pub
 
         [Description("下载")]
         download = 12,
+
+        [Description("禁用")]
+        disable = 13,
     }
 }

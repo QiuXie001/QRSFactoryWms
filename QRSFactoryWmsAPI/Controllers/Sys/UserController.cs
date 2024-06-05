@@ -95,7 +95,7 @@ namespace QRSFactoryWmsAPI.Controllers
                 Description = userId + "用户新增新用户"+user.UserId,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.add.ToString()
             });
             return new JsonResult((item, PubConst.Add1));
         }
@@ -119,7 +119,7 @@ namespace QRSFactoryWmsAPI.Controllers
                 Description = userId + "用户修改用户" + user.UserId,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.update.ToString()
             });
             return new JsonResult((item, PubConst.Add1));
         }
@@ -143,7 +143,7 @@ namespace QRSFactoryWmsAPI.Controllers
                 Description = userId + "用户删除用户" + user.UserId,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.delete.ToString()
             });
             return new JsonResult((item, PubConst.Add1));
         }
@@ -166,7 +166,7 @@ namespace QRSFactoryWmsAPI.Controllers
                 Description = userId + "用户禁用用户" + user.UserId,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.disable.ToString()
             });
             return new JsonResult((item, PubConst.Add1));
         }

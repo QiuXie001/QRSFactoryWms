@@ -55,7 +55,17 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             var roleId = await _userService.GetRoleAsync(userId);
 
             var roleMenu = await _roleServices.GetMenuAsync(roleId);
-
+            await _logService.InsertAsync(new SysLog
+            {
+                LogId = PubId.SnowflakeId,
+                Browser = GetBrowser(),
+                CreateBy = userId,
+                CreateDate = DateTime.UtcNow,
+                Description = userId + "用户登录",
+                LogIp = GetIp(),
+                Url = GetUrl(),
+                LogType = LogType.login.ToString()
+            });
             return new JsonResult(roleMenu);
         }
     }

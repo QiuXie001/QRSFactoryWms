@@ -76,7 +76,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 Description = userId + "用户新增新菜单" + menu.MenuName,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.add.ToString()
             });
             return new JsonResult((flag, PubConst.Add1));
         }
@@ -101,7 +101,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 Description = userId + "用户修改菜单" + menu.MenuName,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.update.ToString()
             });
             return new JsonResult((flag, PubConst.Update1));
         }
@@ -126,7 +126,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 Description = userId + "用户删除菜单" + menu.MenuName,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.delete.ToString()
             });
             return new JsonResult((flag, PubConst.Delete1));
         }
@@ -151,7 +151,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 Description = userId + "用户禁用菜单" + menu.MenuName,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.disable.ToString()
             });
             return new JsonResult((flag, PubConst.Enable3));
         }

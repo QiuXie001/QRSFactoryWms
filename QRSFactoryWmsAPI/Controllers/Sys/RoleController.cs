@@ -86,7 +86,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 Description = userId + "用户增加新角色" + role.RoleName,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.add.ToString()
             });
             return new JsonResult((flag, PubConst.Add1));
 
@@ -112,7 +112,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 Description = userId + "用户更新角色" + role.RoleName,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.update.ToString()
             });
             return new JsonResult((flag, PubConst.Update1));
 
@@ -138,7 +138,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 Description = userId + "用户删除角色" + role.RoleName,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.delete.ToString()
             });
             return new JsonResult((flag, PubConst.Delete1));
 
@@ -164,7 +164,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 Description = userId + "用户禁用角色" + role.RoleName,
                 LogIp = GetIp(),
                 Url = GetUrl(),
-                LogType = LogType.getList.ToString()
+                LogType = LogType.disable.ToString()
             });
             return new JsonResult((flag, PubConst.Enable3));
 
