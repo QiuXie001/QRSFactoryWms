@@ -28,7 +28,7 @@ namespace Services.Sys
             _configuration = configuration;
         }
         //数据分页
-        public async Task<string> PageList(Bootstrap.BootstrapParams bootstrap)
+        public async Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap)
         {
             int totalNumber = 0;
             int pageNumber = bootstrap.offset == 0 ? 1 : bootstrap.offset / bootstrap.limit + 1;
