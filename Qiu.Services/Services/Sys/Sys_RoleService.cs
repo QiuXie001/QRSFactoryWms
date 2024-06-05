@@ -82,27 +82,54 @@ namespace Services.Sys
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
         //获取所有菜单
-        public async Task<List<PermissionMenu>> GetMenuAsync()
+        public async Task<string> GetMenuAsync(Bootstrap.BootstrapParams bootstrap)
         {
-            var permissionMenus = await _menuService.QueryableToListAsync(m => m.IsDel == 1 && m.MenuType == "menu" && m.Status == 1);
-            var parentPermissions = permissionMenus.Where(a => a.MenuParent == -1).ToList();
-            var ret = new List<PermissionMenu>();
-            parentPermissions.ForEach(p =>
+            var totalNumber = 0;
+            int pageNumber = bootstrap.offset == 0 ? 1 : bootstrap.offset / bootstrap.limit + 1;
+
+            var query = _dbContext.Set<SysMenu>()
+                .Include(r => r.CreateByUser)
+                .Include(r => r.ModifiedByUser)
+                .Where(r => r.IsDel == 1)
+                .Select(r => new 
+                {
+                    MenuId = r.MenuId,
+                    r.MenuName,
+                    r.MenuParent,
+                    r.MenuType,
+                    r.MenuUrl,
+                    r.MenuIcon,
+                    r.IsDel,
+                    r.Remark,
+                    CName = r.CreateByUser.UserNickname,
+                    r.CreateDate,
+                    MName = r.ModifiedByUser.UserNickname,
+                    r.ModifiedDate
+                });
+
+            if (!bootstrap.search.IsEmpty())
             {
-                PermissionMenu permissionMenu = PermissionMenu.Create(p);
-                permissionMenu.Children = permissionMenus
-                    .Where(c => c.MenuParent == p.MenuId)
-                    .Select(m => new PermissionMenu
-                    {
-                        Id = m.MenuId.ToString(),
-                        Name = m.MenuName,
-                        Icon = m.MenuIcon,
-                        Url = m.MenuUrl,
-                        ParentId = m.MenuParent.ToString()
-                    }).ToList();
-                ret.Add(permissionMenu);
-            });
-            return ret;
+                query = query.Where(s => s.MenuName.Contains(bootstrap.search) || s.MenuType.Contains(bootstrap.search));
+            }
+
+            if (!bootstrap.datemin.IsEmpty() && !bootstrap.datemax.IsEmpty())
+            {
+                query = query.Where(s => s.CreateDate > bootstrap.datemin.ToDateTimeB() && s.CreateDate <= bootstrap.datemax.ToDateTimeE());
+            }
+
+            var list = await query.Skip((pageNumber - 1) * bootstrap.limit)
+                                  .Take(bootstrap.limit)
+                                  .ToListAsync();
+
+            if (bootstrap.order != null && bootstrap.order.Equals("desc", StringComparison.OrdinalIgnoreCase))
+            {
+                list.Reverse();
+            }
+
+            totalNumber = await query.CountAsync();
+
+            // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
+            return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
 
         //获取菜单权限

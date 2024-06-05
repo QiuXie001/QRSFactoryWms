@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using NetTaste;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
+using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
@@ -16,9 +17,11 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         private readonly IHttpContextAccessor _httpContext;
         private readonly ISys_LogService _logService;
         private readonly ISys_UserService _userService;
+        private readonly ISys_IdentityService _identityService;
         private readonly IConfiguration _configuration;
         private readonly Xss _xss;
         private readonly IMediator _mediator;
+        private readonly string NowUrl = "#";
 
         public PermissionController(
             Xss xss, 
@@ -27,6 +30,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             IConfiguration configuration, 
             ISys_RoleService roleServices,
             ISys_UserService userService,
+            ISys_IdentityService identityService,
             IMediator mediator)
         {
             _httpContext = httpContext;
@@ -34,6 +38,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             _roleServices = roleServices;
             _logService = logService;
             _userService = userService;
+            _identityService = identityService;
             _xss = xss;
             _mediator = mediator;
         }
@@ -41,8 +46,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [HttpGet]
         [AllowAnonymous]
         [Route("Permission/GetPermissions")]
-        public async Task<IActionResult> GetPermissions(long userId/*,string token = null*/)
+        public async Task<IActionResult> GetPermissions(long userId, string token )
         {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return new JsonResult(false, PubConst.ValidateToken2);
+            }
             var roleId = await _userService.GetRoleAsync(userId);
 
             var roleMenu = await _roleServices.GetMenuAsync(roleId);

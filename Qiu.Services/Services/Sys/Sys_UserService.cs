@@ -144,5 +144,104 @@ namespace Services.Sys
             return roleId;
         }
 
+        public async Task<bool> Insert(SysUser user, long userId)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 设置创建者和创建日期
+                    user.CreateBy = userId;
+                    user.CreateDate = DateTime.UtcNow;
+
+                    user.ModifiedBy = userId;
+                    user.ModifiedDate = DateTime.UtcNow;
+                    // 插入用户
+                    _dbContext.Add(user);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> Update(SysUser user, long userId)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 设置最后修改者和最后修改日期
+                    user.ModifiedBy = userId;
+                    user.ModifiedDate = DateTime.UtcNow;
+
+                    // 更新用户
+                    _dbContext.Update(user);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> Disable(SysUser user, long userId)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 禁用用户
+                    user.IsDel = 0; // 假设SysUser类中有IsEnabled属性
+                    user.ModifiedBy = userId;
+                    user.ModifiedDate = DateTime.UtcNow;
+
+                    // 更新用户
+                    _dbContext.Update(user);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> Delete(SysUser user)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 删除用户
+                    _dbContext.Remove(user);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+
     }
 }

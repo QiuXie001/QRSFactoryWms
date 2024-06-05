@@ -10,7 +10,7 @@ namespace IServices.Sys
     {
         Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
 
-        Task<List<PermissionMenu>> GetMenuAsync();
+        Task<string> GetMenuAsync(Bootstrap.BootstrapParams bootstrap);
 
         Task<List<PermissionMenu>> GetMenuAsync(long roleId, string menuType = "menu");
 
