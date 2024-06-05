@@ -22,7 +22,9 @@ namespace Services.Sys
         private readonly IConfiguration _configuration;
         public Sys_LogService(
             IConfiguration configuration,
-            QrsfactoryWmsContext dbContext, ISys_LogRepository repository) : base(repository)
+            QrsfactoryWmsContext dbContext,
+            ISys_LogRepository repository
+            ) : base(repository)
         {
             _dbContext = dbContext;
             _configuration = configuration;
