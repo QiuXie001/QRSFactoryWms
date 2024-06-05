@@ -1,6 +1,7 @@
 ﻿using DB.Models;
 using IRepository.Sys;
 using IServices.Sys;
+using Qiu.Utils.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,33 @@ namespace Services.Sys
             _dbContext = dbContext;
             _repository = repository;
         }
+        public async Task<string> GetSerialnumAsync(long userId, string tableName)
+        {
+            var dt = DateTimeExt.GetDateTimeS(DateTimeExt.DateTimeShortFormat);
+            var model = await _repository.QueryableToSingleAsync(c => c.TableName == tableName && c.IsDel == 1);
+            if (dt == null || model.ModifiedDate == null || dt != model.ModifiedDate.Value.ToString(DateTimeExt.DateTimeShortFormat))
+            {
+                model.SerialCount = 0;
+            }
+            model.SerialCount++;
+            var num = model.Prefix + DateTimeExt.GetDateTimeS(DateTimeExt.DateTimeFormatString) + model.SerialCount.ToString().PadLeft(model.Mantissa, '0');
+            var flag =await _repository.UpdateAsync(new SysSerialNum { SerialNumberId = model.SerialNumberId, SerialNumber = num, SerialCount = model.SerialCount, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.SerialNumber, c.SerialCount, c.ModifiedBy, c.ModifiedDate });
+            return num;
+        }
 
+        public async Task<SysSerialNum> GetSerialnumEntityAsync(long userId, string tableName)
+        {
+            var dt = DateTimeExt.GetDateTimeS(DateTimeExt.DateTimeShortFormat);
+            var model =await _repository.QueryableToSingleAsync(c => c.TableName == tableName && c.IsDel == 1);
+            if (dt == null || model.ModifiedDate == null || dt != model.ModifiedDate.Value.ToString(DateTimeExt.DateTimeShortFormat))
+            {
+                model.SerialCount = 0;
+            }
+            model.SerialCount++;
+            var num = model.Prefix + DateTimeExt.GetDateTimeS(DateTimeExt.DateTimeFormatString) + model.SerialCount.ToString().PadLeft(model.Mantissa, '0');
+            model.SerialNumber = num;
+            await _repository.UpdateAsync(new SysSerialNum { SerialNumberId = model.SerialNumberId, SerialCount = model.SerialCount, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.SerialNumber, c.SerialCount, c.ModifiedBy, c.ModifiedDate });
+            return model;
+        }
     }
 }
