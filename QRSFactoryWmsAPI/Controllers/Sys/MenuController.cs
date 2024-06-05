@@ -1,6 +1,7 @@
 ﻿using DB.Models;
 using IServices.Sys;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Qiu.NetCore.NetCoreApp;
@@ -32,6 +33,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Menu/GetPageList")]
         public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap, string token, long userId)
@@ -57,6 +59,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             return item;
         }
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Menu/InsertMenu")]
         public async Task<IActionResult> InsertMenu(string token, long userId, SysMenu menu)
@@ -82,6 +85,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Menu/UpdateMenu")]
         public async Task<IActionResult> UpdateMenu(string token, long userId, SysMenu menu)
@@ -107,6 +111,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Menu/DeleteMenu")]
         public async Task<IActionResult> DeleteMenu(string token, long userId, SysMenu menu)
@@ -132,6 +137,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Menu/DisableMenu")]
         public async Task<IActionResult> DisableMenu(string token, long userId, SysMenu menu)

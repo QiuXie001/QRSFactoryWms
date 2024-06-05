@@ -3,6 +3,7 @@ using Humanizer;
 using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Qiu.NetCore.NetCoreApp;
@@ -47,6 +48,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
 
 
         [HttpGet]
+        [EnableCors]
         [Authorize]
         [AllowAnonymous]
         [Route("Authentication/CheckLogin")]
@@ -75,6 +77,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpPost]
+        [EnableCors]
         [Authorize]
         [AllowAnonymous]
         [Route("Authentication/CheckLogin")]

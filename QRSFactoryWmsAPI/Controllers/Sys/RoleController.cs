@@ -2,6 +2,7 @@
 using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using NetTaste;
 using Qiu.NetCore.NetCoreApp;
@@ -41,6 +42,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Role/GetPageList")]
         public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap, string token, long userId)
@@ -67,6 +69,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Role/InsertRole")]
         public async Task<IActionResult> InsertRole(string token, long userId, SysRole role, string[] menuId)
@@ -93,6 +96,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Role/UpdateRole")]
         public async Task<IActionResult> UpdateRole(string token, long userId, SysRole role, string[] menuId)
@@ -119,6 +123,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Role/DeleteRole")]
         public async Task<IActionResult> DeleteRole(string token, long userId, SysRole role)
@@ -145,6 +150,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Role/DisableRole")]
         public async Task<IActionResult> DisableRole(string token, long userId, SysRole role)

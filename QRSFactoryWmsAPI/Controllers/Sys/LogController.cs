@@ -2,6 +2,7 @@
 using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
@@ -35,6 +36,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             _mediator = mediator;
         }
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Log/GetPageList")]
         public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap, string token, long userId)

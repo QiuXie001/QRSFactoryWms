@@ -26,14 +26,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddCors();
 
-builder.Services.AddMvc().AddNewtonsoftJson(options => {
+builder.Services.AddMvc().AddNewtonsoftJson(options =>
+{
     options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
 });
-builder.Services.AddControllers().AddNewtonsoftJson(options => {
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
     options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
 });
-builder.Services.AddControllersWithViews().AddNewtonsoftJson(options => {
+builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
+{
     options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
 });
 
@@ -73,12 +77,15 @@ builder.Services.AddScoped<ISys_RoleMenuService, Sys_RoleMenuService>();
 var app = builder.Build();
 
 GlobalCore.Configure(app);
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseCors(builder =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    builder.AllowAnyOrigin() // 允许任何来源
+            .AllowAnyMethod() // 允许任何方法
+            .AllowAnyHeader(); // 允许任何头部
+});
+
 
 app.UseHttpsRedirection();
 

@@ -2,6 +2,7 @@
 using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using NetTaste;
 using Qiu.NetCore.NetCoreApp;
@@ -41,6 +42,7 @@ namespace QRSFactoryWmsAPI.Controllers
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("User/GetUsers")]
         public async Task<string> GetUsers()
@@ -52,6 +54,7 @@ namespace QRSFactoryWmsAPI.Controllers
             return item;
         }
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("User/GetPageList")]
         public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap, string token, long userId)
@@ -77,6 +80,7 @@ namespace QRSFactoryWmsAPI.Controllers
             return item;
         }
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("User/Insert")]
         public async Task<IActionResult> Insert(SysUser user, string token, long userId)
@@ -101,6 +105,7 @@ namespace QRSFactoryWmsAPI.Controllers
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("User/Update")]
         public async Task<IActionResult> Update(SysUser user, string token, long userId)
@@ -125,6 +130,7 @@ namespace QRSFactoryWmsAPI.Controllers
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("User/Delete")]
         public async Task<IActionResult> Delete(SysUser user, string token, long userId)
@@ -148,6 +154,7 @@ namespace QRSFactoryWmsAPI.Controllers
             return new JsonResult((item, PubConst.Add1));
         }
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("User/Disable")]
         public async Task<IActionResult> Disable(SysUser user, string token, long userId)

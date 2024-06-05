@@ -2,6 +2,7 @@
 using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using NetTaste;
 using Qiu.NetCore.NetCoreApp;
@@ -44,6 +45,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
+        [EnableCors]
         [AllowAnonymous]
         [Route("Permission/GetPermissions")]
         public async Task<IActionResult> GetPermissions(long userId, string token )
