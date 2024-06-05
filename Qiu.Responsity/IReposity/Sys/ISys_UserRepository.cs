@@ -5,9 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IResponsitory.Sys
+namespace IRepository.Sys
 {
-    public interface ISys_IdentityResponsitory : IBaseResponsitory<SysIdentity>
+    public interface ISys_UserRepository : IBaseRepository<SysUser>
     {
+
     }
 }

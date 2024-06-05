@@ -1,5 +1,5 @@
 ﻿using DB.Models;
-using IResponsitory.Sys;
+using IRepository.Sys;
 using IServices.Sys;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +22,7 @@ namespace Services.Sys
         private readonly IConfiguration _configuration;
         public Sys_LogService(
             IConfiguration configuration,
-            QrsfactoryWmsContext dbContext, ISys_LogResponsitory repository) : base(repository)
+            QrsfactoryWmsContext dbContext, ISys_LogRepository repository) : base(repository)
         {
             _dbContext = dbContext;
             _configuration = configuration;

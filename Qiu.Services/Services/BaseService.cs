@@ -4,14 +4,14 @@ using System.Data;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using IResponsitory;
+using IRepository;
 
 namespace Services
 {
     public class BaseService<TEntity> : IBaseService<TEntity> where TEntity : class, new()
     {
-        public IBaseResponsitory<TEntity> _baseRepository;
-        public BaseService(IBaseResponsitory<TEntity> repository)
+        public IBaseRepository<TEntity> _baseRepository;
+        public BaseService(IBaseRepository<TEntity> repository)
         {
             _baseRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }

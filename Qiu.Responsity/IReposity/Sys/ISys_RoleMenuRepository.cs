@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IResponsitory.Sys
+namespace IRepository.Sys
 {
-    public interface ISys_UserResponsitory : IBaseResponsitory<SysUser>
+    public interface ISys_RoleMenuRepository : IBaseRepository<SysRoleMenu>
     {
 
     }

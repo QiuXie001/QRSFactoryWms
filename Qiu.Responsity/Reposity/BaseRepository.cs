@@ -2,18 +2,18 @@
 using System.Data;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using IResponsitory;
+using IRepository;
 using System.Text.Json;
 using System.Reflection;
 using DB.Models;
 
-namespace Responsitory
+namespace Repository
 {
-    public class BaseResponsitory<TEntity> : IBaseResponsitory<TEntity> where TEntity : class, new()
+    public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class, new()
     {
         private readonly QrsfactoryWmsContext _dbContext;
 
-        public BaseResponsitory(QrsfactoryWmsContext dbContext)
+        public BaseRepository(QrsfactoryWmsContext dbContext)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }

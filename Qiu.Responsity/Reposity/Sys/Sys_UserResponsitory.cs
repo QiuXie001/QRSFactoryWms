@@ -1,5 +1,5 @@
 ﻿using DB.Models;
-using IResponsitory.Sys;
+using IRepository.Sys;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Responsitory.Sys
+namespace Repository.Sys
 {
-    public class Sys_UserRespository : BaseResponsitory<SysUser>, ISys_UserResponsitory
+    public class Sys_UserRespository : BaseRepository<SysUser>, ISys_UserRepository
     {
         public Sys_UserRespository(QrsfactoryWmsContext dbContext) : base(dbContext)
         {

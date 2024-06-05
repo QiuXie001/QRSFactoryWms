@@ -1,5 +1,5 @@
 ﻿using DB.Models;
-using IResponsitory.Sys;
+using IRepository.Sys;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Responsitory.Sys
+namespace Repository.Sys
 {
-    public class Sys_LogResponsitory : BaseResponsitory<SysLog>, ISys_LogResponsitory
+    public class Sys_LogRepository : BaseRepository<SysLog>, ISys_LogRepository
     {
         private readonly QrsfactoryWmsContext _context;
-        public Sys_LogResponsitory(QrsfactoryWmsContext dbContext) : base(dbContext)
+        public Sys_LogRepository(QrsfactoryWmsContext dbContext) : base(dbContext)
         {
             _context = dbContext;
         }

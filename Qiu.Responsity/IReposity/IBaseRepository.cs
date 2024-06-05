@@ -2,9 +2,9 @@
 using System.Data;
 using System.Linq.Expressions;
 
-namespace IResponsitory
+namespace IRepository
 {
-    public interface IBaseResponsitory<T> where T : class, new()
+    public interface IBaseRepository<T> where T : class, new()
     {
 
         #region Add Operations

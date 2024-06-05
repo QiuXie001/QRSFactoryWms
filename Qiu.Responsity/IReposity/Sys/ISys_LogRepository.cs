@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IResponsitory.Sys
+namespace IRepository.Sys
 {
-    public interface ISys_LogResponsitory : IBaseResponsitory<SysLog>
+    public interface ISys_LogRepository : IBaseRepository<SysLog>
     {
     }
 }

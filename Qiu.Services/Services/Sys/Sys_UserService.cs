@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 using IServices.Sys;
-using IResponsitory.Sys;
+using IRepository.Sys;
 using System.Linq.Expressions;
 
 namespace Services.Sys
@@ -20,10 +20,10 @@ namespace Services.Sys
     public class Sys_UserService : BaseService<SysUser>, ISys_UserService
     {
         private readonly QrsfactoryWmsContext _dbContext;
-        private readonly ISys_UserResponsitory _repository;
+        private readonly ISys_UserRepository _repository;
         public Sys_UserService(
             QrsfactoryWmsContext dbContext,
-            ISys_UserResponsitory repository
+            ISys_UserRepository repository
             ) : base(repository)
         {
             _dbContext = dbContext;

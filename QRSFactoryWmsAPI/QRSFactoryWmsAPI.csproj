@@ -20,8 +20,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Qiu.Core\Qiu.NetCoreApp\Qiu.NetCoreApp.csproj" />
     <ProjectReference Include="..\Qiu.Core\Qiu.NetCore\Qiu.NetCore\Qiu.NetCore.csproj" />
-    <ProjectReference Include="..\Qiu.Responsity\IResponsity\IResponsitory.csproj" />
-    <ProjectReference Include="..\Qiu.Responsity\Responsity\Responsitory.csproj" />
+    <ProjectReference Include="..\Qiu.Responsity\IReposity\IRepository.csproj" />
+    <ProjectReference Include="..\Qiu.Responsity\IResponsity\IRepository.csproj" />
+    <ProjectReference Include="..\Qiu.Responsity\Reposity\Repository.csproj" />
+    <ProjectReference Include="..\Qiu.Responsity\Responsity\Repository.csproj" />
     <ProjectReference Include="..\Qiu.Services\IServices\IServices.csproj" />
     <ProjectReference Include="..\Qiu.Services\Services\Services.csproj" />
     <ProjectReference Include="..\Qiu.Utils\Qiu.Utils.csproj" />

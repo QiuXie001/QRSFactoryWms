@@ -1,6 +1,6 @@
 ﻿using DB.Models;
 using EntityFrameworkCore.RepositoryInfrastructure;
-using IResponsitory.Sys;
+using IRepository.Sys;
 using IServices.Sys;
 using Qiu.Utils.Env;
 using SqlSugar;
@@ -15,12 +15,12 @@ namespace Services.Sys
     public class Sys_IdentityService : BaseService<SysIdentity>, ISys_IdentityService
     {
         private readonly QrsfactoryWmsContext _dbContext;
-        private readonly ISys_IdentityResponsitory _repository;
+        private readonly ISys_IdentityRepository _repository;
         private readonly ISys_RoleService _roleService;
         private readonly ISys_UserService _userService;
         public Sys_IdentityService(
             QrsfactoryWmsContext dbContext,
-            ISys_IdentityResponsitory repository,
+            ISys_IdentityRepository repository,
             ISys_RoleService roleService,
             ISys_UserService userService
             ) : base(repository)

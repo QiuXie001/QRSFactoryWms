@@ -10,7 +10,7 @@ using Qiu.Utils.Table;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using IServices.Sys;
-using IResponsitory.Sys;
+using IRepository.Sys;
 using System.Linq.Expressions;
 using SqlSugar.Extensions;
 
@@ -18,7 +18,7 @@ namespace Services.Sys
 {
     public class Sys_RoleService : BaseService<SysRole>, ISys_RoleService
     {
-        private readonly ISys_RoleResponsitory _responsitory;
+        private readonly ISys_RoleRepository _repository;
         private readonly ISys_RoleMenuService _rolemenuService;
         private readonly ISys_MenuService _menuService;
         private readonly QrsfactoryWmsContext _dbContext;
@@ -26,10 +26,10 @@ namespace Services.Sys
             ISys_MenuService menuServices,
             ISys_RoleMenuService rolemenuService,
             QrsfactoryWmsContext dbContext,
-            ISys_RoleResponsitory responsitory
-            ) : base(responsitory)
+            ISys_RoleRepository repository
+            ) : base(repository)
         {
-            _responsitory = responsitory;
+            _repository = repository;
             _dbContext = dbContext;
             _rolemenuService = rolemenuService;
             _menuService = menuServices;

@@ -1,5 +1,5 @@
 ﻿using DB.Models;
-using IResponsitory.Sys;
+using IRepository.Sys;
 using IServices.Sys;
 using Microsoft.EntityFrameworkCore;
 using Qiu.Utils.Extensions;
@@ -15,16 +15,16 @@ namespace Services.Sys
 {
     public class Sys_MenuService : BaseService<SysMenu>, ISys_MenuService
     {
-        private readonly ISys_MenuResponsitory _responsitory;
+        private readonly ISys_MenuRepository _repository;
         private readonly ISys_RoleMenuService _rolemenuService;
         private readonly QrsfactoryWmsContext _dbContext;
         public Sys_MenuService(
             ISys_RoleMenuService rolemenuService,
             QrsfactoryWmsContext dbContext,
-            ISys_MenuResponsitory responsitory
-            ) : base(responsitory)
+            ISys_MenuRepository repository
+            ) : base(repository)
         {
-            _responsitory = responsitory;
+            _repository = repository;
             _dbContext = dbContext;
             _rolemenuService = rolemenuService;
         }

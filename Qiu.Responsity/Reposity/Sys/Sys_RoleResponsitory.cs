@@ -1,6 +1,6 @@
 using DB.Models;
-using IResponsitory;
-using IResponsitory.Sys;
+using IRepository;
+using IRepository.Sys;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
@@ -9,11 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Responsitory.Sys
+namespace Repository.Sys
 {
-    public class Sys_RoleResponsitory : BaseResponsitory<SysRole>, ISys_RoleResponsitory
+    public class Sys_RoleRepository : BaseRepository<SysRole>, ISys_RoleRepository
     {
-        public Sys_RoleResponsitory(QrsfactoryWmsContext dbContext) : base(dbContext)
+        public Sys_RoleRepository(QrsfactoryWmsContext dbContext) : base(dbContext)
         {
         }
     }

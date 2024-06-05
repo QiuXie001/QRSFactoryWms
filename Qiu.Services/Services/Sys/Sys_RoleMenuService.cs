@@ -1,8 +1,8 @@
 ﻿using DB.Models;
-using IResponsitory.Sys;
+using IRepository.Sys;
 using IServices.Sys;
 using Microsoft.EntityFrameworkCore;
-using IResponsitory;
+using IRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +13,14 @@ namespace Services.Sys
 {
     public class Sys_RoleMenuService : BaseService<SysRoleMenu>, ISys_RoleMenuService
     {
-        private readonly ISys_RoleMenuResponsitory _responsitory;
+        private readonly ISys_RoleMenuRepository _repository;
         private readonly QrsfactoryWmsContext _dbContext;
         public Sys_RoleMenuService(
             QrsfactoryWmsContext dbContext,
-            ISys_RoleMenuResponsitory responsitory
-            ) : base(responsitory)
+            ISys_RoleMenuRepository repository
+            ) : base(repository)
         {
-            _responsitory = responsitory;
+            _repository = repository;
             _dbContext = dbContext;
         }
 

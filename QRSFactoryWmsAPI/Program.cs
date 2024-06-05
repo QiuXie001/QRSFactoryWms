@@ -13,8 +13,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Qiu.Utils.Env;
 using Services.Sys;
 using IServices.Sys;
-using Responsitory.Sys;
-using IResponsitory.Sys;
+using Repository.Sys;
+using IRepository.Sys;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,12 +57,12 @@ builder.Services.AddDbContext<QrsfactoryWmsContext>(options =>
 
 builder.Services.AddScoped<Xss>();
 // зЂВс ISys ЗўЮё
-builder.Services.AddScoped<ISys_LogResponsitory, Sys_LogResponsitory>();
-builder.Services.AddScoped<ISys_UserResponsitory, Sys_UserRespository>();
-builder.Services.AddScoped<ISys_IdentityResponsitory, Sys_IdentityResponsitory>();
-builder.Services.AddScoped<ISys_MenuResponsitory, Sys_MenuResponsitory>();
-builder.Services.AddScoped<ISys_RoleResponsitory, Sys_RoleResponsitory>();
-builder.Services.AddScoped<ISys_RoleMenuResponsitory, Sys_RoleMenuResponsitory>();
+builder.Services.AddScoped<ISys_LogRepository, Sys_LogRepository>();
+builder.Services.AddScoped<ISys_UserRepository, Sys_UserRespository>();
+builder.Services.AddScoped<ISys_IdentityRepository, Sys_IdentityRepository>();
+builder.Services.AddScoped<ISys_MenuRepository, Sys_MenuRepository>();
+builder.Services.AddScoped<ISys_RoleRepository, Sys_RoleRepository>();
+builder.Services.AddScoped<ISys_RoleMenuRepository, Sys_RoleMenuRepository>();
 
 builder.Services.AddScoped<ISys_LogService, Sys_LogService>();
 builder.Services.AddScoped<ISys_UserService, Sys_UserService>();
