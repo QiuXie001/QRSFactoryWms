@@ -85,14 +85,14 @@ namespace Qiu.NetCore.NetCoreApp
                 var isAuthenticated = HttpContext.User.Identity.IsAuthenticated;
                 if (isAuthenticated)
                 {
-                    var claims = User.Claims;
+                    var user = HttpContext.User;
                     var sys = new SysUser
                     {
-                        UserId = claims.SingleOrDefault(c => c.Type == ClaimTypes.Sid).Value.ToInt64(),
-                        UserName = claims.SingleOrDefault(c => c.Type == ClaimTypes.Surname).Value,
-                        UserNickname = claims.SingleOrDefault(c => c.Type == ClaimTypes.Name).Value,
-                        RoleId = claims.SingleOrDefault(c => c.Type == ClaimTypes.Role).Value.ToInt64(),
-                        HeadImg = claims.SingleOrDefault(c => c.Type == ClaimTypes.Uri).Value
+                        UserId = user.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Sid).Value.ToInt64(),
+                        UserName = user.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Surname).Value,
+                        UserNickname = user.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Name).Value,
+                        RoleId = user.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Role).Value.ToInt64(),
+                        HeadImg = user.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Uri).Value
                     };
                     return sys;
                 }

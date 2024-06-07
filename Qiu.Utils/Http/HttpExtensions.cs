@@ -80,36 +80,39 @@ namespace Qiu.Utils.Http
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static (string, string, string) ReadResultExecutingContext(this ResultExecutingContext context)
+        public static async Task<(string, string, string)> ReadResultExecutingContextAsync(this ResultExecutingContext context)
         {
             var req = context.HttpContext.Request;
-            req.EnableBuffering();
             var method = req.Method;
             var url = $"{req.Scheme}://{req.Host}{req.PathBase}{req.Path}{req.QueryString}";
             var urlParam = req.QueryString.ToUriComponent();
+
             if (!urlParam.IsNull2())
             {
                 var qs = QueryHelpers.ParseQuery(req.QueryString.ToUriComponent());
                 return (qs.ToJsonL(), url, method);
             }
+
             if (req.HasFormContentType)
             {
-                var result = req.ReadFormAsync().Result;
+                var formData = await req.ReadFormAsync();
                 var pairs = new Dictionary<string, string>();
-                foreach (var item in result.Keys)
+                foreach (var item in formData.Keys)
                 {
-                    pairs.Add(item, result[item]);
+                    pairs.Add(item, formData[item]);
                 }
                 return (pairs.ToJsonL(), url, method);
             }
+
             using (var ms = new MemoryStream())
             {
-                req.Body.Position = 0;
-                req.Body.CopyTo(ms);
+                await req.Body.CopyToAsync(ms);
+                ms.Position = 0;
                 var b = ms.ToArray();
                 return (b.ByteToString(), url, method);
             }
         }
+
 
         public static string ReadFromResultExecutingContext(this ResultExecutingContext context)
         {

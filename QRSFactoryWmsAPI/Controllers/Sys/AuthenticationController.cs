@@ -2,10 +2,13 @@
 using Humanizer;
 using IServices.Sys;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Json;
@@ -14,6 +17,9 @@ using Qiu.Utils.Security;
 using Services;
 using SqlSugar;
 using System.Linq.Expressions;
+using System.Security.Claims;
+using Qiu.Utils.Jwt;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {
@@ -26,6 +32,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         private readonly IConfiguration _configuration;
         private readonly Xss _xss;
         private readonly IMediator _mediator;
+        private readonly Jwt _jwt;
 
         public AuthenticationController(
             Xss xss,
@@ -34,7 +41,8 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             IConfiguration configuration,
             ISys_UserService userService,
             ISys_IdentityService identityService,
-            IMediator mediator)
+            IMediator mediator,
+            Jwt jwt)
         {
             _httpContext = httpContext;
             _configuration = configuration;
@@ -43,13 +51,13 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             _logService = logService;
             _xss = xss;
             _mediator = mediator;
+            _jwt = jwt;
 
         }
 
 
         [HttpGet]
         [EnableCors]
-        [Authorize]
         [AllowAnonymous]
         [Route("Authentication/CheckLogin")]
         public async Task<IActionResult> CheckLogin()
@@ -64,7 +72,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             var user = new SysUser
             {
                 UserName = "admin",
-                Pwd = "123456",
+                Pwd = "12345678",
                 LoginIp = clientIp
             };
             var flag = await _userService.CheckLoginAsync(user);
@@ -77,8 +85,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpPost]
-        [EnableCors]
-        [Authorize]
+        [EnableCors("CorsPolicy")]
         [AllowAnonymous]
         [Route("Authentication/CheckLogin")]
         public async Task<IActionResult> CheckLogin(string username, string password)
@@ -93,6 +100,36 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             var flag = await _userService.CheckLoginAsync(user);
             if (flag.Item1)
             {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                var claims = new List<Claim>
+                  {
+                      new Claim(ClaimTypes.Name, flag.Item3.UserName),
+                      new Claim(ClaimTypes.Sid, flag.Item3.UserId.ToString()),
+                      new Claim(ClaimTypes.Surname, flag.Item3.UserNickname),
+                      new Claim(ClaimTypes.Role, flag.Item3.RoleId.ToString()),
+                      new Claim(ClaimTypes.Uri, string.IsNullOrWhiteSpace(flag.Item3.HeadImg)?Path.Combine("upload","head","4523c812eb2047c39ad91f8c5de3fb31.jpg"):flag.Item3.HeadImg)
+                  };
+                var claimsIdentitys = new ClaimsIdentity(
+               claims,
+               CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsPrincipal = new ClaimsPrincipal(claimsIdentitys);
+                Task.Run(async () =>
+                {
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, new AuthenticationProperties
+                    {
+                        IssuedUtc = DateTime.Now,
+                        IsPersistent = true,
+                        AllowRefresh = true,
+                        ExpiresUtc = DateTime.Now.AddDays(1),
+                    });
+                }).Wait();
+                user.UserId = flag.Item3.UserId;
+                user.UserName = flag.Item3.UserName;
+                user.UserNickname = flag.Item3.UserNickname;
+                user.RoleId = flag.Item3.RoleId;
+                user.HeadImg = flag.Item3.HeadImg;
+                GetMemoryCache.Set("user_" + flag.Item3.UserId, user);
+
                 await _logService.InsertAsync(new SysLog
                 {
                     LogId = PubId.SnowflakeId,
@@ -122,6 +159,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 return new JsonResult(flag);
             }
         }
+
 
     }
 }

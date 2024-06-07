@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using NetTaste;
+using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
@@ -39,11 +40,13 @@ namespace QRSFactoryWmsAPI.Controllers
             _identityService = identityService;
             _xss = xss;
             _mediator = mediator;
-        }
 
+        }
         [HttpGet]
-        [EnableCors]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
         [AllowAnonymous]
+        [OperationLog(LogType.getList)]
         [Route("User/GetUsers")]
         public async Task<string> GetUsers()
         {
@@ -54,8 +57,10 @@ namespace QRSFactoryWmsAPI.Controllers
             return item;
         }
         [HttpGet]
-        [EnableCors]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
         [AllowAnonymous]
+        [OperationLog(LogType.getList)]
         [Route("User/GetPageList")]
         public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap, string token, long userId)
         {
@@ -66,22 +71,13 @@ namespace QRSFactoryWmsAPI.Controllers
             if (bootstrap._ == null)
                 bootstrap =PubConst.DefaultBootstrapParams;
             var item = await _userService.PageListAsync(bootstrap);
-            await _logService.InsertAsync(new SysLog
-            {
-                LogId = PubId.SnowflakeId,
-                Browser = GetBrowser(),
-                CreateBy = userId, 
-                CreateDate = DateTime.UtcNow,
-                Description = userId + "用户获取用户分页列表",
-                LogIp = GetIp(),
-                Url = GetUrl(),
-                LogType = LogType.getList.ToString()
-            });
             return item;
         }
         [HttpGet]
-        [EnableCors]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
         [AllowAnonymous]
+        [OperationLog(LogType.add)]
         [Route("User/Insert")]
         public async Task<IActionResult> Insert(SysUser user, string token, long userId)
         {
@@ -90,23 +86,14 @@ namespace QRSFactoryWmsAPI.Controllers
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
             var item = await _userService.InsertAsync(user);
-            await _logService.InsertAsync(new SysLog
-            {
-                LogId = PubId.SnowflakeId,
-                Browser = GetBrowser(),
-                CreateBy = userId,
-                CreateDate = DateTime.UtcNow,
-                Description = userId + "用户新增新用户"+user.UserId,
-                LogIp = GetIp(),
-                Url = GetUrl(),
-                LogType = LogType.add.ToString()
-            });
             return new JsonResult((item, PubConst.Add1));
         }
 
         [HttpGet]
-        [EnableCors]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
         [AllowAnonymous]
+        [OperationLog(LogType.update)]
         [Route("User/Update")]
         public async Task<IActionResult> Update(SysUser user, string token, long userId)
         {
@@ -115,23 +102,14 @@ namespace QRSFactoryWmsAPI.Controllers
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
             var item = await _userService.InsertAsync(user);
-            await _logService.InsertAsync(new SysLog
-            {
-                LogId = PubId.SnowflakeId,
-                Browser = GetBrowser(),
-                CreateBy = userId, 
-                CreateDate = DateTime.UtcNow,
-                Description = userId + "用户修改用户" + user.UserId,
-                LogIp = GetIp(),
-                Url = GetUrl(),
-                LogType = LogType.update.ToString()
-            });
             return new JsonResult((item, PubConst.Add1));
         }
 
         [HttpGet]
-        [EnableCors]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
         [AllowAnonymous]
+        [OperationLog(LogType.delete)]
         [Route("User/Delete")]
         public async Task<IActionResult> Delete(SysUser user, string token, long userId)
         {
@@ -140,22 +118,13 @@ namespace QRSFactoryWmsAPI.Controllers
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
             var item = await _userService.InsertAsync(user);
-            await _logService.InsertAsync(new SysLog
-            {
-                LogId = PubId.SnowflakeId,
-                Browser = GetBrowser(),
-                CreateBy = userId,
-                CreateDate = DateTime.UtcNow,
-                Description = userId + "用户删除用户" + user.UserId,
-                LogIp = GetIp(),
-                Url = GetUrl(),
-                LogType = LogType.delete.ToString()
-            });
             return new JsonResult((item, PubConst.Add1));
         }
         [HttpGet]
-        [EnableCors]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
         [AllowAnonymous]
+        [OperationLog(LogType.disable)]
         [Route("User/Disable")]
         public async Task<IActionResult> Disable(SysUser user, string token, long userId)
         {
@@ -164,17 +133,6 @@ namespace QRSFactoryWmsAPI.Controllers
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
             var item = await _userService.InsertAsync(user);
-            await _logService.InsertAsync(new SysLog
-            {
-                LogId = PubId.SnowflakeId,
-                Browser = GetBrowser(),
-                CreateBy = userId, 
-                CreateDate = DateTime.UtcNow,
-                Description = userId + "用户禁用用户" + user.UserId,
-                LogIp = GetIp(),
-                Url = GetUrl(),
-                LogType = LogType.disable.ToString()
-            });
             return new JsonResult((item, PubConst.Add1));
         }
     }

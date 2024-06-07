@@ -1,5 +1,6 @@
 ﻿using DB.Models;
 using IServices.Sys;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Qiu.Utils.Env;
@@ -7,6 +8,7 @@ using Qiu.Utils.Extensions;
 using Qiu.Utils.Http;
 using Qiu.Utils.Pub;
 using System.Security.Claims;
+using static Services.Sys.Sys_LogService;
 
 namespace Qiu.NetCore.Attributes
 {
@@ -35,11 +37,11 @@ namespace Qiu.NetCore.Attributes
             LogType = logType;
         }
 
-        public override void OnResultExecuting(ResultExecutingContext context)
+        public override async void OnResultExecuting(ResultExecutingContext context)
         {
             var services = context.HttpContext.RequestServices;
             var config = services.GetService(typeof(IConfiguration)) as IConfiguration;
-            var claims = context.HttpContext.User.Claims;
+            var claims = context.HttpContext.User;
             string flag = config["Log:operationlog"];
             if (string.IsNullOrWhiteSpace(flag))
             {
@@ -49,7 +51,7 @@ namespace Qiu.NetCore.Attributes
             {
                 if (Ignore)
                 {//传入参数
-                    var parameters = context.ReadResultExecutingContext();
+                    var parameters = await context.ReadResultExecutingContextAsync();
                     //result
                     var result = context.Result;
                     object res = null;
@@ -109,7 +111,7 @@ namespace Qiu.NetCore.Attributes
                     var model = new SysLog
                     {
                         Browser = GlobalCore.GetBrowser(),
-                        CreateBy = claims.SingleOrDefault(c => c.Type == ClaimTypes.Sid).Value.ToInt64(),
+                        CreateBy = claims.FindFirstValue(ClaimTypes.NameIdentifier).ToInt64(),
                         CreateDate = DateTimeExt.DateTime,
                         Description = des,
                         LogId = PubId.SnowflakeId,

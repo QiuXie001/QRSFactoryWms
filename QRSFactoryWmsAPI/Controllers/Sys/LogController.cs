@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
@@ -36,8 +37,10 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             _mediator = mediator;
         }
         [HttpGet]
-        [EnableCors]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
         [AllowAnonymous]
+        [OperationLog(LogType.getList)]
         [Route("Log/GetPageList")]
         public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap, string token, long userId)
         {
@@ -48,17 +51,6 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             if (bootstrap._ == null)
                 bootstrap = PubConst.DefaultBootstrapParams;
             var item = await _logService.PageListAsync(bootstrap);
-            await _logService.InsertAsync(new SysLog
-            {
-                LogId = PubId.SnowflakeId,
-                Browser = GetBrowser(),
-                CreateBy = userId,
-                CreateDate = DateTime.UtcNow,
-                Description = userId + "用户获取日志分页列表",
-                LogIp = GetIp(),
-                Url = GetUrl(),
-                LogType = LogType.getList.ToString()
-            });
             return item;
         }
     }

@@ -16,8 +16,15 @@ using IServices.Sys;
 using Repository.Sys;
 using IRepository.Sys;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Qiu.Utils.Jwt;
+using Microsoft.Extensions.DependencyInjection;
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 // Add services to the container.
 
@@ -26,17 +33,54 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policyConfig =>
+    {
+        policyConfig.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+    });
+});
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true, //是否验证Issuer
+        ValidIssuer = configuration["Jwt:Issuer"], //发行人Issuer
+        ValidateAudience = false,
+        ValidAudience = configuration["Jwt:Audience"],
+        ValidateIssuerSigningKey = true, //是否验证SecurityKey
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"])), //SecurityKey
+        ValidateLifetime = true, //是否验证失效时间
+        ClockSkew = TimeSpan.FromSeconds(30), //过期时间容错值，解决服务器端时间不同步问题（秒）
+        RequireExpirationTime = true,
+    };
+    // 启用日志记录
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = context =>
+        {
+            var user = context.Principal;
+            // 记录令牌验证成功时的用户信息
+            Console.WriteLine("Token validated successfully for user: ");
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            // 记录令牌验证失败时的信息
+            Console.WriteLine("Token validation failed: " + context.Exception.Message);
+            return Task.CompletedTask;
+        }
+    };
+}).AddCookie();
+
 
 builder.Services.AddMvc().AddNewtonsoftJson(options =>
-{
-    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
-});
-builder.Services.AddControllers().AddNewtonsoftJson(options =>
-{
-    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
-});
-builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
 });
@@ -45,7 +89,7 @@ builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<IMemoryCache, MemoryCache>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-
+builder.Services.AddSingleton(new Jwt(builder.Configuration));
 
 builder.Services.AddMediatR(configuration =>
 {
@@ -77,14 +121,14 @@ builder.Services.AddScoped<ISys_RoleMenuService, Sys_RoleMenuService>();
 var app = builder.Build();
 
 GlobalCore.Configure(app);
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseCors(builder =>
-{
-    builder.AllowAnyOrigin() // 允许任何来源
-            .AllowAnyMethod() // 允许任何方法
-            .AllowAnyHeader(); // 允许任何头部
-});
+app.UseCors("CorsPolicy");
 
 
 app.UseHttpsRedirection();

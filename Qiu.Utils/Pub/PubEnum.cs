@@ -121,7 +121,7 @@ namespace Qiu.Utils.Pub
         [Description("删除")]
         delete = 5,
 
-        [Description("删除")]
+        [Description("选择")]
         select = 6,
 
         [Description("异常")]

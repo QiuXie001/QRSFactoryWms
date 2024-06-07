@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using NetTaste;
+using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
@@ -45,8 +46,10 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         }
 
         [HttpGet]
-        [EnableCors]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
         [AllowAnonymous]
+        [OperationLog(LogType.getList)]
         [Route("Permission/GetPermissions")]
         public async Task<IActionResult> GetPermissions(long userId, string token )
         {
@@ -57,17 +60,6 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             var roleId = await _userService.GetRoleAsync(userId);
 
             var roleMenu = await _roleServices.GetMenuAsync(roleId);
-            await _logService.InsertAsync(new SysLog
-            {
-                LogId = PubId.SnowflakeId,
-                Browser = GetBrowser(),
-                CreateBy = userId,
-                CreateDate = DateTime.UtcNow,
-                Description = userId + "用户登录",
-                LogIp = GetIp(),
-                Url = GetUrl(),
-                LogType = LogType.login.ToString()
-            });
             return new JsonResult(roleMenu);
         }
     }
