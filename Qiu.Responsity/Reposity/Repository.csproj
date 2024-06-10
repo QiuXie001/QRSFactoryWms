@@ -17,4 +17,8 @@
     <ProjectReference Include="..\IReposity\IRepository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Wms\" />
+  </ItemGroup>
+
 </Project>

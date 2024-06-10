@@ -17,4 +17,8 @@
     <ProjectReference Include="..\IServices\IServices.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Wms\" />
+  </ItemGroup>
+
 </Project>

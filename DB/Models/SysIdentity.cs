@@ -1,29 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
-using System.Text.Json.Serialization;
 
-namespace DB.Models
+namespace DB.Models;
+
+public partial class SysIdentity
 {
-    public class SysIdentity
-    {
-        [Key]
-        public long Id { get; set; }
-        public string Token { get; set; }
+    public long Id { get; set; }
 
-        public DateTime GeneratedTime { get; set; }
+    public string Token { get; set; } = null!;
 
-        public DateTime ExpirationTime { get; set; }
+    public DateTime GeneratedTime { get; set; }
 
-        public long UserId { get; set; }
+    public DateTime ExpirationTime { get; set; }
 
-        [StringLength(15)]
-        public string LoginIp { get; set; }
-        public byte IsEabled {  get; set; }
+    public long UserId { get; set; }
 
-        [ForeignKey("UserId")]
-        public SysUser User { get; set; }
-    }
+    public byte? IsEabled { get; set; }
+
+    public string LoginIp { get; set; } = null!;
 }
