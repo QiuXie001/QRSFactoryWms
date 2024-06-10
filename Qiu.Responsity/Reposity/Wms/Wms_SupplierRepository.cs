@@ -1,0 +1,12 @@
+﻿using IRepository;
+using DB.Models;
+
+namespace Repository
+{
+    public class Wms_SupplierRepository : BaseRepository<WmsSupplier>, IWms_SupplierRepository
+    {
+        public Wms_SupplierRepository(QrsfactoryWmsContext dbContext) : base(dbContext)
+        {
+        }
+    }
+}

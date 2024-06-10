@@ -12,7 +12,6 @@ using System.Text.Json;
 using IServices.Sys;
 using IRepository.Sys;
 using System.Linq.Expressions;
-using SqlSugar.Extensions;
 
 namespace Services.Sys
 {

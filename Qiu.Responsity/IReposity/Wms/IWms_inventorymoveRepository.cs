@@ -1,8 +1,8 @@
-using Qiu.Core.Entity;
+using DB.Models;
 
 namespace IRepository
 {
-    public interface IWms_inventorymoveRepository : IBaseRepository<Wms_inventorymove>
+    public interface IWms_InventorymoveRepository : IBaseRepository<WmsInventorymove>
     {
     }
 }

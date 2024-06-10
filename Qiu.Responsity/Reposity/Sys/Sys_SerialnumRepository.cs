@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Sys
 {
-    public class Sys_SerialnumRepository : BaseRepository<SysSerialNum>, ISys_SerialnumRepository
+    public class Sys_SerialnumRepository : BaseRepository<SysSerialnum>, ISys_SerialnumRepository
     {
         public Sys_SerialnumRepository(QrsfactoryWmsContext dbContext) : base(dbContext)
         {

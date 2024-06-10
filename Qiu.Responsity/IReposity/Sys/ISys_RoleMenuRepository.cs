@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace IRepository.Sys
 {
-    public interface ISys_RoleMenuRepository : IBaseRepository<SysRoleMenu>
+    public interface ISys_RoleMenuRepository : IBaseRepository<SysRolemenu>
     {
 
     }

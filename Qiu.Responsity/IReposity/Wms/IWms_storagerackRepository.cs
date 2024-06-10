@@ -1,8 +1,8 @@
-using Qiu.Core.Entity;
+using DB.Models;
 
 namespace IRepository
 {
-    public interface IWms_storagerackRepository : IBaseRepository<Wms_storagerack>
+    public interface IWms_StoragerackRepository : IBaseRepository<WmsStoragerack>
     {
     }
 }

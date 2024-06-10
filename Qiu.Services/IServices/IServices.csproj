@@ -17,8 +17,4 @@
     <ProjectReference Include="..\..\Qiu.Utils\Qiu.Utils.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Wms\" />
-  </ItemGroup>
-
 </Project>

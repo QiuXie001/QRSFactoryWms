@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace IRepository.Sys
 {
-    public interface ISys_SerialnumRepository : IBaseRepository<SysSerialNum>
+    public interface ISys_SerialnumRepository : IBaseRepository<SysSerialnum>
     {
 
     }

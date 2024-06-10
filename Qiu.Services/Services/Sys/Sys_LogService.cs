@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Linq;

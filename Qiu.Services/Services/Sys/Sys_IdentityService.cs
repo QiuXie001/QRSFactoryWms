@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Qiu.Utils.Env;
-using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;

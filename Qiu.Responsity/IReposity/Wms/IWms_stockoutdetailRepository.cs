@@ -1,8 +1,8 @@
-using Qiu.Core.Entity;
+using DB.Models;
 
 namespace IRepository
 {
-    public interface IWms_stockoutdetailRepository : IBaseRepository<Wms_stockoutdetail>
+    public interface IWms_StockoutdetailRepository : IBaseRepository<WmsStockoutdetail>
     {
     }
 }

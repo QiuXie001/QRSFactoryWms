@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Sys
 {
-    public class Sys_RoleMenuRepository : BaseRepository<SysRoleMenu>, ISys_RoleMenuRepository
+    public class Sys_RoleMenuRepository : BaseRepository<SysRolemenu>, ISys_RoleMenuRepository
     {
         public Sys_RoleMenuRepository(QrsfactoryWmsContext dbContext) : base(dbContext)
         {

@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Wms\**" />
+    <EmbeddedResource Remove="Wms\**" />
+    <None Remove="Wms\**" />
+  </ItemGroup>
+
+  <ItemGroup>
 	  <PackageReference Include="Microsoft.NETCore.Targets" Version="3.0.0" PrivateAssets="all" />
   </ItemGroup>
 
@@ -15,10 +21,6 @@
     <ProjectReference Include="..\..\Qiu.Responsity\IReposity\IRepository.csproj" />
     <ProjectReference Include="..\..\Qiu.Responsity\IResponsity\IRepository.csproj" />
     <ProjectReference Include="..\IServices\IServices.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Wms\" />
   </ItemGroup>
 
 </Project>
