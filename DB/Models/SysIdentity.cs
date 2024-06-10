@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DB.Models;
 
@@ -18,4 +19,8 @@ public partial class SysIdentity
     public byte? IsEabled { get; set; }
 
     public string LoginIp { get; set; } = null!;
+
+
+    [ForeignKey("UserId")]
+    public SysUser User { get; set; }
 }

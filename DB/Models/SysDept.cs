@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DB.Models;
 
@@ -22,4 +23,11 @@ public partial class SysDept
     public long? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
+
+
+    [ForeignKey("CreateBy")]
+    public virtual SysUser CreateByUser { get; set; }
+
+    [ForeignKey("ModifiedBy")]
+    public virtual SysUser ModifiedByUser { get; set; }
 }

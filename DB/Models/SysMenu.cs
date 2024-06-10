@@ -47,7 +47,7 @@ public class SysMenu
 
     public DateTime? ModifiedDate { get; set; }
 
-    public ICollection<SysRoleMenu> RoleMenus { get; set; }
+    public ICollection<SysRolemenu> Rolemenus { get; set; }
 
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
