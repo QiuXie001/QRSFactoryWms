@@ -3,14 +3,13 @@ using IServices;
 using DB.Models;
 using System;
 using Qiu.Core.Dto;
-using Qiu.Core.Entity;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Json;
 using Qiu.Utils.Table;
 
 namespace Services
 {
-    public class Wms_inventoryrecordServices : BaseServices<Wms_inventoryrecord>, IWms_inventoryrecordServices
+    public class Wms_InventoryrecordService : BaseService<WmsInventoryrecord>, IWms_InventoryrecordService
     {
         private readonly IWms_inventoryrecordRepository _repository;
         private readonly DB.ModelsClient _client;

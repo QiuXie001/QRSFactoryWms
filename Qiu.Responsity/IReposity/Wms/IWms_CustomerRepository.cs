@@ -1,6 +1,6 @@
 ﻿using DB.Models;
 
-namespace IRepository
+namespace IRepository.Wms
 {
     public interface IWms_CustomerRepository : IBaseRepository<WmsCustomer>
     {

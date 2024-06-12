@@ -8,12 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Wms\**" />
-    <EmbeddedResource Remove="Wms\**" />
-    <None Remove="Wms\**" />
-  </ItemGroup>
-
-  <ItemGroup>
 	  <PackageReference Include="Microsoft.NETCore.Targets" Version="3.0.0" PrivateAssets="all" />
   </ItemGroup>
 

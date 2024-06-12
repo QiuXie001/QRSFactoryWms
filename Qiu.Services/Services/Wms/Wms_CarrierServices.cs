@@ -6,67 +6,24 @@ using System;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Json;
 using Qiu.Utils.Table;
+using IServices.Wms;
 
 namespace Services
 {
-    public class Wms_CarrierServices : BaseServices<WmsCarrier>, IWms_CarrierServices
+    public class Wms_CarrierServices : BaseService<WmsCarrier>, IWms_CarrierService
     {
         private readonly IWms_CarrierRepository _repository;
-        private readonly DB.ModelsClient _client;
+        private readonly QrsfactoryWmsContext _dbContext;
 
-        public Wms_CarrierServices(DB.ModelsClient client, IWms_CarrierRepository repository) : base(repository)
+        public Wms_CarrierServices(QrsfactoryWmsContext dbContext, IWms_CarrierRepository repository) : base(repository)
         {
             _repository = repository;
-            _client = client;
+            _dbContext = dbContext;
         }
 
-        public string PageList(Bootstrap.BootstrapParams bootstrap)
+        public Task<string> PageList(Bootstrap.BootstrapParams bootstrap)
         {
-            int totalNumber = 0;
-            if (bootstrap.offset != 0)
-            {
-                bootstrap.offset = bootstrap.offset / bootstrap.limit + 1;
-            }
-            var query = _client.Queryable<Wms_Carrier, Sys_user, Sys_user>
-                ((s, c, u) => new object[] {
-                   JoinType.Left,s.CreateBy==c.UserId,
-                   JoinType.Left,s.ModifiedBy==u.UserId
-                 })
-                 .Select((s, c, u) => new
-                 {
-                     CarrierId = s.CarrierId.ToString(),
-                     s.CarrierNo,
-                     s.CarrierName,
-                     s.Address,
-                     s.CarrierPerson,
-                     s.CarrierLevel,
-                     s.Tel,
-                     s.Email,
-                     s.IsDel,
-                     s.Remark,
-                     CName = c.UserNickname,
-                     s.CreateDate,
-                     UName = u.UserNickname,
-                     s.ModifiedDate
-                 }).MergeTable().Where((s) => s.IsDel == 1);
-            if (!bootstrap.search.IsEmpty())
-            {
-                query.Where((s) => s.CarrierName.Contains(bootstrap.search) || s.CarrierNo.Contains(bootstrap.search));
-            }
-            if (!bootstrap.datemin.IsEmpty() && !bootstrap.datemax.IsEmpty())
-            {
-                query.Where(s => s.CreateDate > bootstrap.datemin.ToDateTimeB() && s.CreateDate <= bootstrap.datemax.ToDateTimeE());
-            }
-            if (bootstrap.order.Equals("desc", StringComparison.OrdinalIgnoreCase))
-            {
-                query.OrderBy($"MergeTable.{bootstrap.sort} desc");
-            }
-            else
-            {
-                query.OrderBy($"MergeTable.{bootstrap.sort} asc");
-            }
-            var list = query.ToPageList(bootstrap.offset, bootstrap.limit, ref totalNumber);
-            return Bootstrap.GridData(list, totalNumber).JilToJson();
+            
         }
     }
 }
