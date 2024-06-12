@@ -270,6 +270,16 @@ public partial class QrsfactoryWmsContext : DbContext
         .WithMany(u => u.ModifiedRolemenus)
         .HasForeignKey(d => d.ModifiedBy);
 
+            modelBuilder.Entity<SysRolemenu>()
+        .HasOne(d => d.Role)
+        .WithMany(u => u.Rolemenus)
+        .HasForeignKey(d => d.RoleId);
+
+            modelBuilder.Entity<SysRolemenu>()
+        .HasOne(d => d.Menu)
+        .WithMany(u => u.Rolemenus)
+        .HasForeignKey(d => d.MenuId);
+
             entity.ToTable("sys_rolemenu");
 
             entity.Property(e => e.RoleMenuId).ValueGeneratedNever();

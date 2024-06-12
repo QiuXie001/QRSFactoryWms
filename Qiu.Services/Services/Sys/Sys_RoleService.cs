@@ -39,7 +39,7 @@ namespace Services.Sys
             int pageNumber = bootstrap.offset == 0 ? 1 : bootstrap.offset / bootstrap.limit + 1;
 
             var query = _dbContext.Set<SysRole>()
-                .Include(r => r.RoleMenus)
+                .Include(r => r.Rolemenus)
                 .Include(r => r.CreateByUser)
                 .Include(r => r.ModifiedByUser)
                 .Where(r => r.IsDel == 1)
@@ -140,7 +140,7 @@ namespace Services.Sys
                 .Include(rm => rm.Menu)
                 .Include(rm => rm.Role)
                 .Where(rm => rm.Menu != null && rm.Menu.IsDel == 1 && rm.Menu.MenuType == menuType && rm.Menu.Status == 1 && rm.RoleId == roleId)
-                .Select(rm =>new SysRoleMenu
+                .Select(rm =>new SysRolemenu
                 {
                     RoleMenuId = rm.RoleMenuId,
                     MenuId = rm.MenuId,
@@ -198,7 +198,7 @@ namespace Services.Sys
                     await InsertAsync(role);
 
                     // 根据传入的menuId数组创建新的角色菜单关联列表
-                    var roleMenuList = menuId.Select(menuId => new SysRoleMenu
+                    var roleMenuList = menuId.Select(menuId => new SysRolemenu
                     {
                         CreateBy = userId,
                         CreateDate = DateTime.UtcNow,
@@ -256,7 +256,7 @@ namespace Services.Sys
                     await _rolemenuService.DeleteByRoleIdAsync(role.RoleId);
 
                     // 根据传入的menuId数组创建新的角色菜单关联列表
-                    var roleMenuList = menuId.Select(menuId => new SysRoleMenu
+                    var roleMenuList = menuId.Select(menuId => new SysRolemenu
                     {
                         CreateBy = userId,
                         CreateDate = DateTime.UtcNow,
@@ -408,7 +408,7 @@ namespace Services.Sys
 
         public async Task<bool> CheckRoleAccessToUrl(long roleId, string requestUrl)
         {
-            var roleMenus = await _dbContext.Set<SysRoleMenu>()
+            var roleMenus = await _dbContext.Set<SysRolemenu>()
                 .Include(rm => rm.Menu)
                 .Where(rm => rm.RoleId == roleId && rm.Menu.MenuUrl == requestUrl && rm.Menu.IsDel == 1 )
                 .Select(rm => rm.Menu)

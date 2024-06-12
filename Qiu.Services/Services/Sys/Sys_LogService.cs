@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
+using SqlSugar.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,7 +83,7 @@ namespace Services.Sys
             var query = _dbContext.Set<SysLog>()
                 .Where(s => s.LogType == "login")
                 .Where(s => s.CreateDate > bootstrap.datemin.ToDateTimeB() && s.CreateDate <= bootstrap.datemax.ToDateTimeE())
-                .GroupBy(s => s.CreateDate.Date) // Grouping by date without time
+                .GroupBy(s => s.CreateDate.ObjToDate()) // Grouping by date without time
                 .Select(g => new Log
                 {
                     CreateDate = g.Key.ToString("yyyy-MM-dd"),

@@ -5,7 +5,6 @@ using DB.Models;
 using System;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Json;
-using Qiu.Utils.Table;
 using IServices.Wms;
 using IRepository.Wms;
 

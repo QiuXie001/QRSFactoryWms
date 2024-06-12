@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Services.Sys
 {
-    public class Sys_RoleMenuService : BaseService<SysRoleMenu>, ISys_RoleMenuService
+    public class Sys_RoleMenuService : BaseService<SysRolemenu>, ISys_RoleMenuService
     {
         private readonly ISys_RoleMenuRepository _repository;
         private readonly QrsfactoryWmsContext _dbContext;
@@ -27,7 +27,7 @@ namespace Services.Sys
         public async Task DeleteByRoleIdAsync(long roleId)
         {
             // 使用DbContext的Set<T>方法获取SysRoleMenu表的DbSet
-            var roleMenus = _dbContext.Set<SysRoleMenu>();
+            var roleMenus = _dbContext.Set<SysRolemenu>();
 
             // 查询出所有RoleId等于指定roleId的SysRoleMenu实体
             var roleMenuToDelete = roleMenus.Where(rm => rm.RoleId == roleId);
@@ -42,7 +42,7 @@ namespace Services.Sys
         public async Task DeleteByMenuIdAsync(long menuId)
         {
             // 使用DbContext的Set<T>方法获取SysRoleMenu表的DbSet
-            var roleMenus = _dbContext.Set<SysRoleMenu>();
+            var roleMenus = _dbContext.Set<SysRolemenu>();
 
             // 查询出所有RoleId等于指定roleId的SysRoleMenu实体
             var roleMenuToDelete = roleMenus.Where(rm => rm.MenuId == menuId);

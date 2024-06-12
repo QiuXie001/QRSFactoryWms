@@ -25,4 +25,10 @@ public partial class SysRolemenu
 
     [ForeignKey("ModifiedBy")]
     public SysUser ModifiedByUser { get; set; }
+
+    [ForeignKey("RoleId")]
+    public SysRole Role { get; set; }
+
+    [ForeignKey("MenuId")]
+    public SysMenu Menu { get; set; }
 }

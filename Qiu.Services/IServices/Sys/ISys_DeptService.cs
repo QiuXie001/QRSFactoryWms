@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IService.Sys
+namespace IServices.Sys
 {
     public interface ISys_DeptService : IBaseService<SysDept>
     {

@@ -24,6 +24,8 @@ public partial class SysRole
 
     public DateTime? ModifiedDate { get; set; }
 
+    public virtual ICollection<SysRolemenu> Rolemenus { get; set; } = new List<SysRolemenu>();
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 
