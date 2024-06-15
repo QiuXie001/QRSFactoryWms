@@ -15,6 +15,11 @@ using IRepository.Wms;
 using IServices.Wms;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Qiu.Utils.Files;
+using Qiu.NetCore.DI;
+using Qiu.Utils.Log;
+using DB.Dto;
+using SqlSugar;
 
 namespace Services
 {
@@ -109,15 +114,146 @@ namespace Services
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
 
-
-        public Task<bool> Auditin(long userId, long stockOutId)
+        public string PrintList(long stockOutId)
         {
-            throw new NotImplementedException();
+            var flag1 = true;
+            var flag2 = true;
+            var list2 = new List<PrintListItem.StockOut>();
+
+            try
+            {
+                // 查询 stockout 记录
+                var stockout = _dbContext.Set<WmsStockout>().Where(s => s.IsDel == 1 && s.StockOutId == stockOutId).FirstOrDefault();
+                if (stockout == null)
+                {
+                    flag1 = false;
+                }
+                else
+                {
+                    // 查询 customer 记录
+                    var customer = _dbContext.Set<WmsCustomer>().Where(p => p.IsDel == 1 && p.CustomerId == stockout.CustomerId).FirstOrDefault();
+                    if (customer == null)
+                    {
+                        flag1 = false;
+                    }
+                    else
+                    {
+                        // 查询 stockoutdetail 记录
+                        var stockoutdetailList = _dbContext.Set<WmsStockoutdetail>().Where(s => s.IsDel == 1 && s.StockOutId == stockOutId).ToList();
+                        foreach (var stockoutdetail in stockoutdetailList)
+                        {
+                            // 查询 material 记录
+                            var material = _dbContext.Set<WmsMaterial>().Where(m => m.IsDel == 1 && m.MaterialId == stockoutdetail.MaterialId).FirstOrDefault();
+                            if (material == null)
+                            {
+                                flag2 = false;
+                                break;
+                            }
+
+                            list2.Add(new PrintListItem.StockOut
+                            {
+                                StockOutId = stockout.StockOutId,
+                                StockOutDetailId = stockoutdetail.StockOutDetailId,
+                                MaterialNo = material.MaterialNo,
+                                MaterialName = material.MaterialName,
+                                Status = stockoutdetail.Status,
+                                PlanInQty = stockoutdetail.PlanOutQty,
+                                ActInQty = stockoutdetail.ActOutQty,
+                                Remark = stockoutdetail.Remark,
+                                AuditinTime = stockoutdetail.AuditinTime,
+                                AName = stockoutdetail.AuditinByUser.UserNickname,
+                                CName = stockoutdetail.CreateByUser.UserNickname,
+                                UName = stockoutdetail.ModifiedByUser.UserNickname,
+                                CreateDate = stockoutdetail.CreateDate,
+                                ModifiedDate = stockoutdetail.ModifiedDate
+                            });
+                        }
+                    }
+                }
+
+                // 读取 HTML 模板
+                var html = FileUtil.ReadFileFromPath(Path.Combine(_env.WebRootPath, "upload", "StockOut.html"));
+
+                // 返回包含多个部分的 JSON 字符串
+                return (flag1, flag2, list2, html).JilToJson();
+            }
+            catch (Exception ex)
+            {
+                var _nlog = ServiceResolve.Resolve<ILogUtil>();
+                _nlog.Error("获取出库信息失败" + ex);
+                return false.JilToJson();
+            }
         }
 
-        public Task<string> PrintList(string stockInId)
+        public async Task<bool> AuditinAsync(long userId, long stockOutId)
         {
-            throw new NotImplementedException();
+            // 使用 DbContext 开始事务
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    // 查询 stockoutdetail 记录
+                    var stockOutDetailList = await _dbContext.Set<WmsStockoutdetail>().Where(c => c.StockOutId == stockOutId && c.IsDel == 1).ToListAsync();
+
+                    foreach (var stockOutDetail in stockOutDetailList)
+                    {
+                        // 查询 inventory 记录
+                        var inventory = await _dbContext.Set<WmsInventory>().Where(i => i.MaterialId == stockOutDetail.MaterialId && i.StoragerackId == stockOutDetail.StoragerackId && i.IsDel == 1).FirstOrDefaultAsync();
+                        if (inventory == null)
+                        {
+                            // 如果没有库存记录，则返回错误
+                            throw new Exception("库存记录 not found.");
+                        }
+
+                        if (inventory.Qty < stockOutDetail.ActOutQty)
+                        {
+                            // 如果库存数量不足以出库，则返回错误
+                            throw new Exception("库存不足.");
+                        }
+
+                        // 更新库存数量
+                        inventory.Qty -= stockOutDetail.ActOutQty;
+                        inventory.ModifiedBy = userId;
+                        inventory.ModifiedDate = DateTimeExt.DateTime;
+                        await _dbContext.SaveChangesAsync();
+                    }
+
+                    // 修改 stockoutdetail 状态
+                    var stockOutDetailUpdate = new WmsStockoutdetail
+                    {
+                        Status = (byte)StockInStatus.egis,
+                        AuditinId = userId,
+                        AuditinTime = DateTimeExt.DateTime,
+                        ModifiedBy = userId,
+                        ModifiedDate = DateTimeExt.DateTime
+                    };
+                    await _detail.UpdateAsync(stockOutDetailUpdate);
+
+                    // 修改 stockout 主表状态
+                    var stockOutUpdate = new WmsStockout
+                    {
+                        StockOutStatus = (byte)StockInStatus.egis,
+                        ModifiedBy = userId,
+                        ModifiedDate = DateTimeExt.DateTime
+                    };
+                    await _repository.UpdateAsync(stockOutUpdate);
+
+                    // 提交事务
+                    transaction.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    // 回滚事务
+                    transaction.Rollback();
+
+                    var _nlog = ServiceResolve.Resolve<ILogUtil>();
+                    _nlog.Error("审核失败" + ex);
+                    return false;
+                }
+            }
         }
+
+
     }
 }

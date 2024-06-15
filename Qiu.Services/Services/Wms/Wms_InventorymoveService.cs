@@ -14,6 +14,10 @@ using IRepository.Wms;
 using IServices.Wms;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Qiu.NetCore.DI;
+using Qiu.Utils.Log;
+using DB.Dto;
+using Qiu.Utils.Files;
 
 namespace Services
 {
@@ -91,15 +95,137 @@ namespace Services
         }
 
 
-        public Task<bool> Auditin(long userId, long InventorymoveId)
+        public async Task<bool> AuditinAsync(long userId, long InventorymoveId)
         {
-            throw new NotImplementedException();
+            // 使用 DbContext 开始事务
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    // 查询 inventorymove 记录
+                    var invmove = await _dbContext.Set<WmsInventorymove>().FindAsync(InventorymoveId);
+                    if (invmove == null)
+                    {
+                        throw new Exception("Inventorymove not found.");
+                    }
+
+                    // 查询 inventorymove detail 记录
+                    var invmovedetailList = await _dbContext.Set<WmsInvmovedetail>().Where(c => c.InventorymoveId == InventorymoveId).ToListAsync();
+
+                    foreach (var invmovedetail in invmovedetailList)
+                    {
+                        // 查询目标库存记录
+                        var targetInventory = await _dbContext.Set<WmsInventory>().Where(i => i.MaterialId == invmovedetail.MaterialId && i.StoragerackId == invmove.AimStoragerackId).FirstOrDefaultAsync();
+                        if (targetInventory == null)
+                        {
+                            // 如果没有目标库存记录，则插入新记录
+                            targetInventory = new WmsInventory
+                            {
+                                StoragerackId = invmove.AimStoragerackId,
+                                CreateBy = userId,
+                                InventoryId = PubId.SnowflakeId,
+                                MaterialId = invmovedetail.MaterialId,
+                                Qty = invmovedetail.ActQty
+                            };
+                            await _dbContext.Set<WmsInventory>().AddAsync(targetInventory);
+                        }
+                        else
+                        {
+                            // 如果有目标库存记录，则更新其数量
+                            targetInventory.Qty += invmovedetail.ActQty;
+                        }
+
+                        // 更新库存记录
+                        await _dbContext.SaveChangesAsync();
+
+                        // 更新 inventorymove detail 记录状态
+                        invmovedetail.Status = (byte)StockInStatus.egis;
+                        invmovedetail.AuditinId = userId;
+                        invmovedetail.AuditinTime = DateTimeExt.DateTime;
+                        invmovedetail.ModifiedBy = userId;
+                        invmovedetail.ModifiedDate = DateTimeExt.DateTime;
+                        await _dbContext.SaveChangesAsync();
+                    }
+
+                    // 更新 inventorymove 主表状态
+                    invmove.Status = (byte)StockInStatus.egis;
+                    invmove.ModifiedBy = userId;
+                    invmove.ModifiedDate = DateTimeExt.DateTime;
+                    await _dbContext.SaveChangesAsync();
+
+                    // 提交事务
+                    transaction.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    // 回滚事务
+                    transaction.Rollback();
+                    var _nlog = ServiceResolve.Resolve<ILogUtil>();
+                    _nlog.Error("审核失败" + ex);
+                    return false;
+                }
+            }
         }
 
 
-        public Task<string> PrintList(string InventorymoveId)
+
+        public string PrintList(long InventorymoveId)
         {
-            throw new NotImplementedException();
+            var flag1 = true;
+            var flag2 = true;
+            var list2 = new List<PrintListItem.Inventorymove>();
+
+            try
+            {
+                // 查询 inventorymove 记录
+                var invmove = _dbContext.Set<WmsInventorymove>().Where(s => s.IsDel == 1 && s.InventorymoveId == InventorymoveId).FirstOrDefault();
+                if (invmove == null)
+                {
+                    flag1 = false;
+                }
+                else
+                {
+                    // 查询 inventorymove detail 记录
+                    var invmovedetailList = _dbContext.Set<WmsInvmovedetail>().Where(s => s.IsDel == 1 && s.InventorymoveId == InventorymoveId).ToList();
+                    foreach (var invmovedetail in invmovedetailList)
+                    {
+                        // 查询材料记录
+                        var material = _dbContext.Set<WmsMaterial>().Where(m => m.IsDel == 1 && m.MaterialId == invmovedetail.MaterialId).FirstOrDefault();
+                        if (material == null)
+                        {
+                            flag2 = false;
+                            break;
+                        }
+
+                        list2.Add(new PrintListItem.Inventorymove
+                        {
+                            InventorymoveId = invmove.InventorymoveId,
+                            MoveDetailId = invmovedetail.MoveDetailId,
+                            MaterialNo = material.MaterialNo,
+                            MaterialName = material.MaterialName,
+                            Status = invmovedetail.Status,
+                            PlanQty = invmovedetail.PlanQty,
+                            ActQty = invmovedetail.ActQty,
+                            Remark = invmovedetail.Remark,
+                            AuditinTime = invmovedetail.AuditinTime,
+                            AName = invmovedetail.AuditinByUser.UserNickname,
+                            CName = invmovedetail.CreateByUser.UserNickname,
+                            UName = invmovedetail.ModifiedByUser.UserNickname,
+                            CreateDate = invmovedetail.CreateDate,
+                            ModifiedDate = invmovedetail.ModifiedDate
+                        });
+                    }
+                }
+                // 返回包含多个部分的 JSON 字符串
+                return (flag1,flag2, list2).JilToJson();
+            }
+            catch (Exception ex)
+            {
+                var _nlog = ServiceResolve.Resolve<ILogUtil>();
+                _nlog.Error("查询材料信息失败" + ex.Message);
+                return (false,ex.Message).JilToJson();
+            }
         }
     }
 }

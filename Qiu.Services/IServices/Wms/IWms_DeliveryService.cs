@@ -7,6 +7,6 @@ namespace IServices.Wms
     {
         Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
 
-        Task<bool> Delivery(WmsDelivery delivery);
+        Task<(bool,string)> DeliveryAsync(WmsDelivery delivery);
     }
 }

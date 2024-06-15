@@ -9,11 +9,13 @@ using Qiu.Utils.Json;
 using Qiu.Utils.Log;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
+using Qiu.NetCore.DI;
 using IServices.Wms;
 using IRepository.Wms;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace Services
 {
@@ -84,11 +86,78 @@ namespace Services
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
 
-
-        public Task<(bool, string)> Import(DataTable dt, long userId)
+        public async Task<(bool,string)> ImportAsync(System.Data.DataTable dt, long userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    return (false, PubConst.Import1);
+                }
+                var list = new List<WmsCustomer>();
+                string[] header = { "客户编号", "客户名称", "电话", "邮箱", "联系人", "地址" };
+
+                foreach (var item in header)
+                {
+                    if (!dt.Columns.Contains(item))
+                    {
+                        throw new ArgumentException("不包含Excel表头: " + string.Join(",", header));
+                    }
+                }
+
+                int dtCount = dt.Rows.Count;
+                for (int i = 0; i < dtCount; i++)
+                {
+                    var model = new WmsCustomer
+                    {
+                        CustomerNo = dt.Rows[i]["客户编号"].ToString(),
+                        CustomerName = dt.Rows[i]["客户名称"].ToString(),
+                        Address = dt.Rows[i]["地址"].ToString(),
+                        Tel = dt.Rows[i]["电话"].ToString(),
+                        Email = dt.Rows[i]["邮箱"].ToString(),
+                        CustomerPerson = dt.Rows[i]["联系人"].ToString(),
+                    };
+
+                    if (await _repository.IsAnyAsync(c => c.CustomerNo == model.CustomerNo))
+                    {
+                        throw new Exception("客户编号已存在");
+                    }
+
+                    model.CustomerId = PubId.SnowflakeId;
+                    model.CreateBy = userId;
+                    list.Add(model);
+                }
+
+                // 开始事务
+                var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+                // 执行批量插入
+                var flag = await _repository.InsertBatchAsync(list);
+
+                // 检查插入是否成功
+                if (flag)
+                {
+                    // 提交事务
+                    await transaction.CommitAsync();
+                    return (true, PubConst.Import2);
+                }
+                else
+                {
+                    // 回滚事务
+                    await transaction.RollbackAsync();
+                    throw new Exception("导入失败: " + flag);
+                }
+            }
+            catch (Exception ex)
+            {
+                // 使用日志记录服务记录错误
+                var _nlog = ServiceResolve.Resolve<ILogUtil>();
+                _nlog.Error("导入客户信息失败");
+                return (false, PubConst.Import3);
+            }
         }
+
+
 
     }
 }

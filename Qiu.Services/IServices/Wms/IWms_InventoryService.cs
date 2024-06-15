@@ -7,6 +7,6 @@ namespace IServices.Wms
     {
         Task<string> PageListAsync(PubParams.InventoryBootstrapParams bootstrap);
 
-        Task<string> SearchInventory(PubParams.InventoryBootstrapParams bootstrap);
+        Task<string> SearchInventoryAsync(PubParams.InventoryBootstrapParams bootstrap);
     }
 }

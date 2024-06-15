@@ -10,6 +10,8 @@ using IServices.Wms;
 using IRepository.Wms;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Qiu.NetCore.DI;
+using Qiu.Utils.Log;
 
 namespace Services
 {
@@ -85,9 +87,43 @@ namespace Services
         }
 
 
-        public Task<bool> Delivery(WmsDelivery delivery)
+        public async Task<(bool,string)> DeliveryAsync(WmsDelivery delivery)
         {
-            throw new NotImplementedException();
+            // 使用 DbContext 开始事务
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    // 插入新的 WmsDelivery 记录
+                    await _repository.InsertAsync(delivery);
+
+                    // 更新 WmsStockout 记录
+                    var stockout = await _dbContext.Set<WmsStockout>().FindAsync(delivery.StockOutId);
+                    if (stockout == null)
+                    {
+                        return (false, PubConst.Import1);
+                    }
+
+                    stockout.StockOutStatus = (byte)StockInStatus.delivery;
+                    stockout.ModifiedBy = delivery.ModifiedBy;
+                    stockout.ModifiedDate = delivery.ModifiedDate;
+
+                    await _dbContext.SaveChangesAsync();
+
+                    // 提交事务
+                    transaction.Commit();
+                    return (true,PubConst.Import2);
+                }
+                catch (Exception ex)
+                {
+                    // 回滚事务
+                    transaction.Rollback();
+                    var _nlog = ServiceResolve.Resolve<ILogUtil>();
+                    _nlog.Error("导入客户信息失败"+ex);
+                    return (false, PubConst.Import3);
+                }
+            }
         }
+
     }
 }

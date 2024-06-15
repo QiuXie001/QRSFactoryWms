@@ -23,6 +23,7 @@
     <PackageReference Include="Jil" Version="2.17.0" />
     <PackageReference Include="MessagePack" Version="2.5.140" />
     <PackageReference Include="NLog" Version="5.3.2" />
+    <PackageReference Include="NPOI" Version="2.7.0" />
     <PackageReference Include="SqlSugarCore" Version="5.1.4.152" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Swifter.Json" Version="1.6.0.9" />

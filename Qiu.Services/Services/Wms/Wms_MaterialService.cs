@@ -10,6 +10,8 @@ using IRepository.Wms;
 using IServices.Wms;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Qiu.Utils.Log;
+using Qiu.Utils.Excel;
 
 namespace Services
 {
@@ -91,10 +93,43 @@ namespace Services
         }
 
 
-        public Task<byte[]> ExportList(Bootstrap.BootstrapParams bootstrap)
+        public async Task<byte[]> ExportListAsync(Bootstrap.BootstrapParams bootstrap)
         {
-            throw new NotImplementedException();
+            bootstrap.sort = "CreateDate";
+            bootstrap.order = "desc";
+
+            // 使用 DbContext 开始事务
+            // 由于这个方法没有事务逻辑，所以不需要事务
+
+            var query = _dbContext.Set<WmsMaterial>()
+                .Include(s => s.MaterialType)
+                .Include(s => s.Unit)
+                .Include(s => s.Storagerack)
+                .Include(s => s.Reservoirarea)
+                .Include(s => s.Warehouse)
+                .Include(s => s.CreateByUser)
+                .Include(s => s.ModifiedByUser)
+                .Where(s => s.IsDel == 1 && s.MaterialType.IsDel == 1 && s.Unit.IsDel == 1 && s.Storagerack.IsDel == 1 && s.Reservoirarea.IsDel == 1 && s.Warehouse.IsDel == 1 && s.CreateByUser.IsDel == 1);
+
+            if (!bootstrap.datemin.IsEmpty() && !bootstrap.datemax.IsEmpty())
+            {
+                query = query.Where(s => s.CreateDate > bootstrap.datemin.ToDateTimeB() && s.CreateDate <= bootstrap.datemax.ToDateTimeE());
+            }
+
+            if (bootstrap.order != null && bootstrap.order.Equals("desc", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.OrderByDescending(s => EF.Property<object>(s, bootstrap.sort));
+            }
+            else
+            {
+                query = query.OrderBy(s => EF.Property<object>(s, bootstrap.sort));
+            }
+
+            var list = await query.ToListAsync();
+            var buffer = NpoiUtil.Export(list, ExcelVersion.V2007);
+            return buffer;
         }
+
 
     }
 }

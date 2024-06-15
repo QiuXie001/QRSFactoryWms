@@ -15,6 +15,10 @@ using IServices.Wms;
 using IRepository.Wms;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Qiu.Utils.Files;
+using DB.Dto;
+using Qiu.NetCore.DI;
+using Qiu.Utils.Log;
 
 namespace Services
 {
@@ -41,11 +45,6 @@ namespace Services
             _inventory = inventoryRepository;
             _inventoryrecord = inventoryrecordRepository;
             _env = env;
-        }
-
-        public Task<bool> Auditin(long UserId, long stockInId)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<string> PageListAsync(PubParams.StockInBootstrapParams bootstrap)
@@ -118,9 +117,156 @@ namespace Services
         }
 
 
-        public Task<string> PrintListAsync(string stockInId)
+        public string PrintList(long stockInId)
         {
-            throw new NotImplementedException();
+
+            var flag1 = true;
+            var flag2 = true;
+            var list2 = new List<PrintListItem.StockIn>();
+
+            try
+            {
+                // 查询 stockin 记录
+                var stockin = _dbContext.Set<WmsStockin>().Where(s => s.IsDel == 1 && s.StockInId == stockInId).FirstOrDefault();
+                if (stockin == null)
+                {
+                    flag1 = false;
+                }
+                else
+                {
+                    // 查询 supplier 记录
+                    var supplier = _dbContext.Set<WmsSupplier>().Where(p => p.IsDel == 1 && p.SupplierId == stockin.SupplierId).FirstOrDefault();
+                    if (supplier == null)
+                    {
+                        flag1 = false;
+                    }
+                    else
+                    {
+                        // 查询 stockindetail 记录
+                        var stockindetailList = _dbContext.Set<WmsStockindetail>().Where(s => s.IsDel == 1 && s.StockInId == stockInId).ToList();
+                        foreach (var stockindetail in stockindetailList)
+                        {
+                            // 查询 material 记录
+                            var material = _dbContext.Set<WmsMaterial>().Where(m => m.IsDel == 1 && m.MaterialId == stockindetail.MaterialId).FirstOrDefault();
+                            if (material == null)
+                            {
+                                flag2 = false;
+                                break;
+                            }
+
+                            list2.Add(new PrintListItem.StockIn
+                            {
+                                StockInId = stockin.StockInId,
+                                StockInDetailId = stockindetail.StockInDetailId,
+                                MaterialNo = material.MaterialNo,
+                                MaterialName = material.MaterialName,
+                                Status = stockindetail.Status,
+                                PlanInQty = stockindetail.PlanInQty,
+                                ActInQty = stockindetail.ActInQty,
+                                Remark = stockindetail.Remark,
+                                AuditinTime = stockindetail.AuditinTime,
+                                AName = stockindetail.AuditinByUser.UserNickname,
+                                CName = stockindetail.CreateByUser.UserNickname,
+                                UName = stockindetail.ModifiedByUser.UserNickname,
+                                CreateDate = stockindetail.CreateDate,
+                                ModifiedDate = stockindetail.ModifiedDate
+                            });
+                        }
+                    }
+                }
+
+                // 返回包含多个部分的 JSON 字符串
+                return (flag1, flag2, list2).JilToJson();
+            }
+            catch (Exception ex)
+            {
+                // 记录错误日志
+                var _nlog = ServiceResolve.Resolve<ILogUtil>();
+                _nlog.Error("获取入库信息失败" + ex);
+                return false.JilToJson();
+            }
+        }
+
+        public async Task<bool> AuditinAsync(long UserId, long stockInId)
+        {
+            // 使用 DbContext 开始事务
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    // 查询 stockindetail 记录
+                    var stockInDetailList = await _dbContext.Set<WmsStockindetail>().Where(c => c.StockInId == stockInId && c.IsDel == 1).ToListAsync();
+
+                    foreach (var stockInDetail in stockInDetailList)
+                    {
+                        // 查询 inventory 记录
+                        var inventory = await _dbContext.Set<WmsInventory>().Where(i => i.MaterialId == stockInDetail.MaterialId && i.StoragerackId == stockInDetail.StoragerackId && i.IsDel == 1).FirstOrDefaultAsync();
+                        if (inventory == null)
+                        {
+                            // 如果没有库存记录，则插入新记录
+                            inventory = new WmsInventory
+                            {
+                                InventoryId = PubId.SnowflakeId,
+                                StoragerackId = stockInDetail.StoragerackId,
+                                CreateBy = UserId,
+                                Qty = stockInDetail.ActInQty,
+                                MaterialId = stockInDetail.MaterialId
+                            };
+                            await _dbContext.Set<WmsInventory>().AddAsync(inventory);
+                        }
+                        else
+                        {
+                            // 如果有库存记录，则更新其数量
+                            inventory.Qty += stockInDetail.ActInQty;
+                        }
+
+                        // 更新库存记录
+                        await _dbContext.SaveChangesAsync();
+
+                        // 添加 inventoryrecord 记录
+                        var inventoryRecord = new WmsInventoryrecord
+                        {
+                            InventoryrecordId = PubId.SnowflakeId,
+                            CreateBy = UserId,
+                            Qty = stockInDetail.ActInQty,
+                            StockInDetailId = stockInDetail.StockInDetailId
+                        };
+                        await _dbContext.Set<WmsInventoryrecord>().AddAsync(inventoryRecord);
+                    }
+
+                    // 修改 stockindetail 状态
+                    var stockInDetailUpdate = new WmsStockindetail
+                    {
+                        Status = (byte)StockInStatus.egis,
+                        AuditinId = UserId,
+                        AuditinTime = DateTimeExt.DateTime,
+                        ModifiedBy = UserId,
+                        ModifiedDate = DateTimeExt.DateTime
+                    };
+                    await _detail.UpdateAsync(stockInDetailUpdate);
+
+                    // 修改 stockin 主表状态
+                    var stockInUpdate = new WmsStockin
+                    {
+                        StockInStatus = (byte)StockInStatus.egis,
+                        ModifiedBy = UserId,
+                        ModifiedDate = DateTimeExt.DateTime
+                    };
+                    await _repository.UpdateAsync(stockInUpdate);
+
+                    // 提交事务
+                    transaction.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    // 回滚事务
+                    transaction.Rollback();
+                    var _nlog = ServiceResolve.Resolve<ILogUtil>();
+                    _nlog.Error("审核失败" + ex);
+                    return false;
+                }
+            }
         }
     }
 }

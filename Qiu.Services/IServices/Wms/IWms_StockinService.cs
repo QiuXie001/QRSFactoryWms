@@ -7,8 +7,8 @@ namespace IServices.Wms
     {
         Task<string> PageListAsync(PubParams.StockInBootstrapParams bootstrap);
 
-        Task<string> PrintListAsync(string stockInId);
+        string PrintList(long stockInId);
 
-        Task<bool> Auditin(long UserId, long stockInId);
+        Task<bool> AuditinAsync(long UserId, long stockInId);
     }
 }
