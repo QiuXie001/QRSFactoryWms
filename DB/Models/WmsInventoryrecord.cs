@@ -23,6 +23,9 @@ public partial class WmsInventoryrecord
     public long? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
+    
+    [ForeignKey("StockInDetailId")]
+    public WmsStockindetail Stockindetail { get; set; }
 
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }

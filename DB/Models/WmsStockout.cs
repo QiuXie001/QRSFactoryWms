@@ -12,7 +12,7 @@ public partial class WmsStockout
 
     public string? OrderNo { get; set; }
 
-    public long? StockOutType { get; set; }
+    public long? StockOutTypeId { get; set; }
 
     public long? CustomerId { get; set; }
 
@@ -30,9 +30,17 @@ public partial class WmsStockout
 
     public DateTime? ModifiedDate { get; set; }
 
+    [ForeignKey("StockOutTypeId")]
+    public SysDict StockOutType { get; set; }
+    [ForeignKey("CustomerId")]
+    public WmsCustomer Customer { get; set; }
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 
     [ForeignKey("ModifiedBy")]
     public SysUser ModifiedByUser { get; set; }
+
+    public virtual ICollection<WmsDelivery> Deliveries { get; set; } = new List<WmsDelivery>();
+    public virtual ICollection<WmsStockoutdetail> Stockoutdetails { get; set; } = new List<WmsStockoutdetail>();
 }

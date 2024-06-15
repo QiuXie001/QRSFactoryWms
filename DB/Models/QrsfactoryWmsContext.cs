@@ -467,6 +467,16 @@ public partial class QrsfactoryWmsContext : DbContext
             entity.HasKey(e => e.DeliveryId).HasName("PK__wms_deli__626D8FCE25F89DD0");
 
             modelBuilder.Entity<WmsDelivery>()
+        .HasOne(d => d.Stockout)
+        .WithMany(u => u.Deliveries)
+        .HasForeignKey(d => d.StockOutId);
+
+            modelBuilder.Entity<WmsDelivery>()
+        .HasOne(d => d.Carrier)
+        .WithMany(u => u.Deliveries)
+        .HasForeignKey(d => d.CarrierId);
+
+            modelBuilder.Entity<WmsDelivery>()
         .HasOne(d => d.CreateByUser)
         .WithMany(u => u.CreateDeliveries)
         .HasForeignKey(d => d.CreateBy);
@@ -491,6 +501,16 @@ public partial class QrsfactoryWmsContext : DbContext
             entity.HasKey(e => e.InventoryId).HasName("PK__wms_inve__F5FDE6B3B72ABCDB");
 
             modelBuilder.Entity<WmsInventory>()
+        .HasOne(d => d.Material)
+        .WithMany(u => u.Inventories)
+        .HasForeignKey(d => d.MaterialId);
+
+            modelBuilder.Entity<WmsInventory>()
+        .HasOne(d => d.Storagerack)
+        .WithMany(u => u.Inventories)
+        .HasForeignKey(d => d.StoragerackId);
+
+            modelBuilder.Entity<WmsInventory>()
         .HasOne(d => d.CreateByUser)
         .WithMany(u => u.CreateInventories)
         .HasForeignKey(d => d.CreateBy);
@@ -512,6 +532,16 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsInventorymove>(entity =>
         {
             entity.HasKey(e => e.InventorymoveId).HasName("PK__wms_inve__A1254B8DE9BF5023");
+            
+            modelBuilder.Entity<WmsInventorymove>()
+        .HasOne(d => d.SourceStoragerack)
+        .WithMany(u => u.InventorymoveSource)
+        .HasForeignKey(d => d.SourceStoragerackId);
+
+            modelBuilder.Entity<WmsInventorymove>()
+        .HasOne(d => d.AimStoragerack)
+        .WithMany(u => u.InventorymoveAim)
+        .HasForeignKey(d => d.AimStoragerackId);
 
             modelBuilder.Entity<WmsInventorymove>()
         .HasOne(d => d.CreateByUser)
@@ -537,6 +567,11 @@ public partial class QrsfactoryWmsContext : DbContext
             entity.HasKey(e => e.InventoryrecordId).HasName("PK__wms_inve__E7FFA5BBC5050555");
 
             modelBuilder.Entity<WmsInventoryrecord>()
+        .HasOne(d => d.Stockindetail)
+        .WithMany(u => u.Inventoryrecords)
+        .HasForeignKey(d => d.StockInDetailId);
+
+            modelBuilder.Entity<WmsInventoryrecord>()
         .HasOne(d => d.CreateByUser)
         .WithMany(u => u.CreateInventoryrecords)
         .HasForeignKey(d => d.CreateBy);
@@ -558,6 +593,20 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsInvmovedetail>(entity =>
         {
             entity.HasKey(e => e.MoveDetailId).HasName("PK__wms_invm__7A0D92B1ADB659DB");
+            modelBuilder.Entity<WmsInvmovedetail>()
+        .HasOne(d => d.Inventorymove)
+        .WithMany(u => u.Invmovedetails)
+        .HasForeignKey(d => d.InventorymoveId);
+
+            modelBuilder.Entity<WmsInvmovedetail>()
+        .HasOne(d => d.Material)
+        .WithMany(u => u.Invmovedetails)
+        .HasForeignKey(d => d.MaterialId);
+
+            modelBuilder.Entity<WmsInvmovedetail>()
+        .HasOne(d => d.AuditinByUser)
+        .WithMany(u => u.AuditinInvmovedetails)
+        .HasForeignKey(d => d.AuditinId);
 
             modelBuilder.Entity<WmsInvmovedetail>()
         .HasOne(d => d.CreateByUser)
@@ -585,6 +634,31 @@ public partial class QrsfactoryWmsContext : DbContext
             entity.HasKey(e => e.MaterialId).HasName("PK__wms_mate__C50610F77CDB3140");
 
             modelBuilder.Entity<WmsMaterial>()
+        .HasOne(d => d.Unit)
+        .WithMany(u => u.MaterialsUnit)
+        .HasForeignKey(d => d.UnitId);
+
+            modelBuilder.Entity<WmsMaterial>()
+        .HasOne(d => d.MaterialType)
+        .WithMany(u => u.MaterialsType)
+        .HasForeignKey(d => d.MaterialTypeId);
+
+            modelBuilder.Entity<WmsMaterial>()
+        .HasOne(d => d.Storagerack)
+        .WithMany(u => u.Materials)
+        .HasForeignKey(d => d.StoragerackId);
+
+            modelBuilder.Entity<WmsMaterial>()
+        .HasOne(d => d.Reservoirarea)
+        .WithMany(u => u.Materials)
+        .HasForeignKey(d => d.ReservoirAreaId);
+
+            modelBuilder.Entity<WmsMaterial>()
+        .HasOne(d => d.Warehouse)
+        .WithMany(u => u.Materials)
+        .HasForeignKey(d => d.WarehouseId);
+
+            modelBuilder.Entity<WmsMaterial>()
         .HasOne(d => d.CreateByUser)
         .WithMany(u => u.CreateMaterials)
         .HasForeignKey(d => d.CreateBy);
@@ -609,6 +683,11 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsReservoirarea>(entity =>
         {
             entity.HasKey(e => e.ReservoirAreaId).HasName("PK__wms_rese__0CB017225BB1C64C");
+           
+            modelBuilder.Entity<WmsReservoirarea>()
+        .HasOne(d => d.Warehouse)
+        .WithMany(u => u.Reservoirareas)
+        .HasForeignKey(d => d.WarehouseId);
 
             modelBuilder.Entity<WmsReservoirarea>()
         .HasOne(d => d.CreateByUser)
@@ -633,6 +712,16 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsStockin>(entity =>
         {
             entity.HasKey(e => e.StockInId).HasName("PK__wms_stoc__794DA66C4C6A2224");
+           
+            modelBuilder.Entity<WmsStockin>()
+        .HasOne(d => d.StockInType)
+        .WithMany(u => u.Stockins)
+        .HasForeignKey(d => d.StockInTypeId); 
+
+            modelBuilder.Entity<WmsStockin>()
+        .HasOne(d => d.Supplier)
+        .WithMany(u => u.Stockins)
+        .HasForeignKey(d => d.SupplierId);
 
             modelBuilder.Entity<WmsStockin>()
         .HasOne(d => d.CreateByUser)
@@ -657,6 +746,26 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsStockindetail>(entity =>
         {
             entity.HasKey(e => e.StockInDetailId).HasName("PK__wms_stoc__EEDA1013E1B7D908");
+
+            modelBuilder.Entity<WmsStockindetail>()
+        .HasOne(d => d.Stockin)
+        .WithMany(u => u.Stockindetails)
+        .HasForeignKey(d => d.StockInId);
+
+            modelBuilder.Entity<WmsStockindetail>()
+        .HasOne(d => d.Material)
+        .WithMany(u => u.Stockindetails)
+        .HasForeignKey(d => d.MaterialId);
+
+            modelBuilder.Entity<WmsStockindetail>()
+        .HasOne(d => d.Storagerack)
+        .WithMany(u => u.Stockindetails)
+        .HasForeignKey(d => d.StoragerackId);
+
+            modelBuilder.Entity<WmsStockindetail>()
+        .HasOne(d => d.AuditinByUser)
+        .WithMany(u => u.AuditinStockindetails)
+        .HasForeignKey(d => d.AuditinId);
 
             modelBuilder.Entity<WmsStockindetail>()
         .HasOne(d => d.CreateByUser)
@@ -706,6 +815,26 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsStockoutdetail>(entity =>
         {
             entity.HasKey(e => e.StockOutDetailId).HasName("PK__wms_stoc__EB248E9F733D0330");
+            
+            modelBuilder.Entity<WmsStockoutdetail>()
+        .HasOne(d => d.Stockout)
+        .WithMany(u => u.Stockoutdetails)
+        .HasForeignKey(d => d.StockOutId);
+
+            modelBuilder.Entity<WmsStockoutdetail>()
+        .HasOne(d => d.Material)
+        .WithMany(u => u.Stockoutdetails)
+        .HasForeignKey(d => d.MaterialId);
+
+            modelBuilder.Entity<WmsStockoutdetail>()
+        .HasOne(d => d.Storagerack)
+        .WithMany(u => u.Stockoutdetails)
+        .HasForeignKey(d => d.StoragerackId);
+
+            modelBuilder.Entity<WmsStockoutdetail>()
+        .HasOne(d => d.AuditinByUser)
+        .WithMany(u => u.AuditinStockoutdetails)
+        .HasForeignKey(d => d.AuditinId);
 
             modelBuilder.Entity<WmsStockoutdetail>()
         .HasOne(d => d.CreateByUser)
@@ -731,6 +860,11 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsStoragerack>(entity =>
         {
             entity.HasKey(e => e.StorageRackId).HasName("PK__wms_stor__243CF6DE580F4A87");
+
+            modelBuilder.Entity<WmsStoragerack>()
+        .HasOne(d => d.Reservoirarea)
+        .WithMany(u => u.Storageracks)
+        .HasForeignKey(d => d.ReservoirAreaId);
 
             modelBuilder.Entity<WmsStoragerack>()
         .HasOne(d => d.CreateByUser)

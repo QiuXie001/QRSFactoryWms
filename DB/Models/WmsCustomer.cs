@@ -39,4 +39,7 @@ public partial class WmsCustomer
 
     [ForeignKey("ModifiedBy")]
     public SysUser ModifiedByUser { get; set; }
+
+    public virtual ICollection<WmsStockout> Stockouts { get; set; } = new List<WmsStockout>();
+
 }

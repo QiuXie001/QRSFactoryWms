@@ -6,7 +6,7 @@ namespace IServices.Wms
 {
     public interface IWms_CustomerService : IBaseService<WmsCustomer>
     {
-        Task<string> PageList(Bootstrap.BootstrapParams bootstrap);
+        Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
 
         Task<(bool, string)> Import(DataTable dt, long userId);
     }

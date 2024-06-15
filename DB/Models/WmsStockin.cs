@@ -10,7 +10,7 @@ public partial class WmsStockin
 
     public string? StockInNo { get; set; }
 
-    public long? StockInType { get; set; }
+    public long? StockInTypeId { get; set; }
 
     public long? SupplierId { get; set; }
 
@@ -30,9 +30,17 @@ public partial class WmsStockin
 
     public DateTime? ModifiedDate { get; set; }
 
+    [ForeignKey("StockInTypeId")]
+    public SysDict StockInType { get; set; }
+    [ForeignKey("SupplierId")]
+    public WmsSupplier Supplier { get; set; }
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 
     [ForeignKey("ModifiedBy")]
     public SysUser ModifiedByUser { get; set; }
+
+    public virtual ICollection<WmsStockindetail> Stockindetails { get; set; } = new List<WmsStockindetail>();
+
 }

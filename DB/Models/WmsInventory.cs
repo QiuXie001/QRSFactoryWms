@@ -26,6 +26,12 @@ public partial class WmsInventory
 
     public DateTime? ModifiedDate { get; set; }
 
+    [ForeignKey("MaterialId")]
+    public WmsMaterial Material { get; set; }
+
+    [ForeignKey("StoragerackId")]
+    public WmsStoragerack Storagerack { get; set; }
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 

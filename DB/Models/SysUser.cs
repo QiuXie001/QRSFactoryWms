@@ -105,6 +105,7 @@ public class SysUser
     public virtual ICollection<WmsInventorymove> ModifiedInventorymoves { get; set; } = new List<WmsInventorymove>();
     public virtual ICollection<WmsInventoryrecord> CreateInventoryrecords { get; set; } = new List<WmsInventoryrecord>();
     public virtual ICollection<WmsInventoryrecord> ModifiedInventoryrecords { get; set; } = new List<WmsInventoryrecord>();
+    public virtual ICollection<WmsInvmovedetail> AuditinInvmovedetails { get; set; } = new List<WmsInvmovedetail>();
     public virtual ICollection<WmsInvmovedetail> CreateInvmovedetails { get; set; } = new List<WmsInvmovedetail>();
     public virtual ICollection<WmsInvmovedetail> ModifiedInvmovedetails { get; set; } = new List<WmsInvmovedetail>();
     public virtual ICollection<WmsMaterial> CreateMaterials { get; set; } = new List<WmsMaterial>();
@@ -113,10 +114,12 @@ public class SysUser
     public virtual ICollection<WmsReservoirarea> ModifiedReservorirareas { get; set; } = new List<WmsReservoirarea>();
     public virtual ICollection<WmsStockin> CreateStockins { get; set; } = new List<WmsStockin>();
     public virtual ICollection<WmsStockin> ModifiedStockins { get; set; } = new List<WmsStockin>();
+    public virtual ICollection<WmsStockindetail> AuditinStockindetails { get; set; } = new List<WmsStockindetail>();
     public virtual ICollection<WmsStockindetail> CreateStockindetails { get; set; } = new List<WmsStockindetail>();
     public virtual ICollection<WmsStockindetail> ModifiedStockindetails { get; set; } = new List<WmsStockindetail>();
     public virtual ICollection<WmsStockout> CreateStockouts { get; set; } = new List<WmsStockout>();
     public virtual ICollection<WmsStockout> ModifiedStockouts { get; set; } = new List<WmsStockout>();
+    public virtual ICollection<WmsStockoutdetail> AuditinStockoutdetails { get; set; } = new List<WmsStockoutdetail>();
     public virtual ICollection<WmsStockoutdetail> CreateStockoutdetails { get; set; } = new List<WmsStockoutdetail>();
     public virtual ICollection<WmsStockoutdetail> ModifiedStockoutdetails { get; set; } = new List<WmsStockoutdetail>();
     public virtual ICollection<WmsStoragerack> CreateStorageracks { get; set; } = new List<WmsStoragerack>();

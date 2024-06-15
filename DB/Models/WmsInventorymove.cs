@@ -28,6 +28,15 @@ public partial class WmsInventorymove
 
     public DateTime? ModifiedDate { get; set; }
 
+    public virtual ICollection<WmsInvmovedetail> Invmovedetails { get; set; } = new List<WmsInvmovedetail>();
+
+
+    [ForeignKey("SourceStoragerackId")]
+    public WmsStoragerack SourceStoragerack { get; set; }
+
+    [ForeignKey("AimStoragerackId")]
+    public WmsStoragerack AimStoragerack { get; set; }
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 

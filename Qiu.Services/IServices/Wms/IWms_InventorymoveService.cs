@@ -5,7 +5,7 @@ namespace IServices.Wms
 {
     public interface IWms_InventorymoveService : IBaseService<WmsInventorymove>
     {
-        Task<string> PageList(Bootstrap.BootstrapParams bootstrap);
+        Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
 
         Task<bool> Auditin(long userId, long InventorymoveId);
 

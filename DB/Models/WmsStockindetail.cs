@@ -36,9 +36,24 @@ public partial class WmsStockindetail
 
     public DateTime? ModifiedDate { get; set; }
 
+    [ForeignKey("StockInId")]
+    public WmsStockin Stockin { get; set; }
+
+    [ForeignKey("MaterialId")]
+    public WmsMaterial Material { get; set; }
+
+    [ForeignKey("StoragerackId")]
+    public WmsStoragerack Storagerack { get; set; }
+
+    [ForeignKey("AuditinId")]
+    public SysUser AuditinByUser { get; set; }
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 
     [ForeignKey("ModifiedBy")]
     public SysUser ModifiedByUser { get; set; }
+
+    public virtual ICollection<WmsInventoryrecord> Inventoryrecords { get; set; } = new List<WmsInventoryrecord>();
+
 }

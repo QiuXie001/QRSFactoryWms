@@ -5,7 +5,7 @@ namespace IServices.Wms
 {
     public interface IWms_StockoutService : IBaseService<WmsStockout>
     {
-        Task<string> PageList(PubParams.StockOutBootstrapParams bootstrap);
+        Task<string> PageListAsync(PubParams.StockOutBootstrapParams bootstrap);
 
         Task<string> PrintList(string stockInId);
 

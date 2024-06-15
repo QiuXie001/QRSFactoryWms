@@ -32,4 +32,11 @@ public partial class SysDict
 
     [ForeignKey("ModifiedBy")]
     public virtual SysUser ModifiedByUser { get; set; }
+    
+    public virtual ICollection<WmsStockin> Stockins { get; set; } = new List<WmsStockin>();
+    public virtual ICollection<WmsStockout> Stockouts { get; set; } = new List<WmsStockout>();
+
+    public virtual ICollection<WmsMaterial> MaterialsType { get; set; } = new List<WmsMaterial>();
+
+    public virtual ICollection<WmsMaterial> MaterialsUnit { get; set; } = new List<WmsMaterial>();
 }

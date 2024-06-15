@@ -5,6 +5,6 @@ namespace IServices.Wms
 {
     public interface IWms_StoragerackService : IBaseService<WmsStoragerack>
     {
-        Task<string> PageList(Bootstrap.BootstrapParams bootstrap);
+        Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
     }
 }

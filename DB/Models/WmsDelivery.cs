@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading;
 
 namespace DB.Models;
 
@@ -27,6 +28,12 @@ public partial class WmsDelivery
     public DateTime? DeliveryDate { get; set; }
 
     public string? TrackingNo { get; set; }
+
+    [ForeignKey("StockOutId")]
+    public WmsStockout Stockout { get; set; }
+    [ForeignKey("CarrierId")]
+    public WmsCarrier Carrier { get; set; }
+
 
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }

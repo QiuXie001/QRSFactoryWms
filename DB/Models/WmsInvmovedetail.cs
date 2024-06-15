@@ -34,6 +34,15 @@ public partial class WmsInvmovedetail
 
     public DateTime? ModifiedDate { get; set; }
 
+    [ForeignKey("InventorymoveId")]
+    public WmsInventorymove Inventorymove { get; set; }
+
+    [ForeignKey("MaterialId")]
+    public WmsMaterial Material { get; set; }
+
+    [ForeignKey("AuditinId")]
+    public SysUser AuditinByUser { get; set; }
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 

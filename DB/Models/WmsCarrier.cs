@@ -34,6 +34,9 @@ public partial class WmsCarrier
 
     public DateTime? ModifiedDate { get; set; }
 
+    public virtual ICollection<WmsDelivery> Deliveries { get; set; } = new List<WmsDelivery>();
+
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 

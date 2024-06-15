@@ -5,7 +5,7 @@ namespace IServices.Wms
 {
     public interface IWms_DeliveryService : IBaseService<WmsDelivery>
     {
-        Task<string> PageList(Bootstrap.BootstrapParams bootstrap);
+        Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
 
         Task<bool> Delivery(WmsDelivery delivery);
     }

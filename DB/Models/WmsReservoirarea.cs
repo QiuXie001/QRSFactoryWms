@@ -26,9 +26,15 @@ public partial class WmsReservoirarea
 
     public DateTime? ModifiedDate { get; set; }
 
+    [ForeignKey("WarehouseId")]
+    public WmsWarehouse Warehouse { get; set; }
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 
     [ForeignKey("ModifiedBy")]
     public SysUser ModifiedByUser { get; set; }
+
+    public virtual ICollection<WmsMaterial> Materials { get; set; } = new List<WmsMaterial>();
+    public virtual ICollection<WmsStoragerack> Storageracks { get; set; } = new List<WmsStoragerack>();
 }

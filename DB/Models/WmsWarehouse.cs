@@ -29,4 +29,6 @@ public partial class WmsWarehouse
 
     [ForeignKey("ModifiedBy")]
     public SysUser ModifiedByUser { get; set; }
+    public virtual ICollection<WmsReservoirarea> Reservoirareas { get; set; } = new List<WmsReservoirarea>();
+    public virtual ICollection<WmsMaterial> Materials { get; set; } = new List<WmsMaterial>();
 }

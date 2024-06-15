@@ -6,6 +6,6 @@ namespace IServices.Wms
 {
     public interface IWms_InventoryrecordService : IBaseService<WmsInventoryrecord>
     {
-        Task<string> PageList(PubParams.InventoryBootstrapParams bootstrap);
+        Task<string> PageListAsync(PubParams.InventoryBootstrapParams bootstrap);
     }
 }

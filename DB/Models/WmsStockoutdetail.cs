@@ -36,6 +36,18 @@ public partial class WmsStockoutdetail
 
     public DateTime? ModifiedDate { get; set; }
 
+    [ForeignKey("StockOutId")]
+    public WmsStockout Stockout { get; set; }
+
+    [ForeignKey("MaterialId")]
+    public WmsMaterial Material { get; set; }
+
+    [ForeignKey("StoragerackId")]
+    public WmsStoragerack Storagerack { get; set; }
+
+    [ForeignKey("AuditinId")]
+    public SysUser AuditinByUser { get; set; }
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 

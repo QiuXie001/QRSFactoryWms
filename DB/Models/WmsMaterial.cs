@@ -12,9 +12,9 @@ public partial class WmsMaterial
 
     public string MaterialName { get; set; } = null!;
 
-    public long? MaterialType { get; set; }
+    public long? MaterialTypeId { get; set; }
 
-    public long? Unit { get; set; }
+    public long? UnitId { get; set; }
 
     public long? StoragerackId { get; set; }
 
@@ -38,9 +38,33 @@ public partial class WmsMaterial
 
     public DateTime? ModifiedDate { get; set; }
 
+    [ForeignKey("MaterialTypeId")]
+    public SysDict MaterialType { get; set; }
+
+    [ForeignKey("UnitId")]
+    public SysDict Unit { get; set; }
+
+    [ForeignKey("StoragerackId")]
+    public WmsStoragerack Storagerack { get; set; }
+
+    [ForeignKey("ReservoirAreaId")]
+    public WmsReservoirarea Reservoirarea { get; set; }
+
+    [ForeignKey("WarehouseId")]
+    public WmsWarehouse Warehouse { get; set; }
+
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
 
     [ForeignKey("ModifiedBy")]
     public SysUser ModifiedByUser { get; set; }
+
+    public virtual ICollection<WmsInventory> Inventories { get; set; } = new List<WmsInventory>();
+
+    public virtual ICollection<WmsInvmovedetail> Invmovedetails { get; set; } = new List<WmsInvmovedetail>();
+
+    public virtual ICollection<WmsStockindetail> Stockindetails { get; set; } = new List<WmsStockindetail>();
+    
+    public virtual ICollection<WmsStockoutdetail> Stockoutdetails { get; set; } = new List<WmsStockoutdetail>();
+
 }
