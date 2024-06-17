@@ -29,6 +29,13 @@ namespace Qiu.Utils.Extensions
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
+        ///
+        public static bool IsZero(this long str)
+        {
+            if (str == 0)
+                return false;
+            return true;
+        }
         public static bool IsEmpty(this string str)
         {
             return string.IsNullOrWhiteSpace(str);

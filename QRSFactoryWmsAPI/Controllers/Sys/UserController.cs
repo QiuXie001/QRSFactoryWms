@@ -78,8 +78,8 @@ namespace QRSFactoryWmsAPI.Controllers
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.add)]
-        [Route("User/Insert")]
-        public async Task<IActionResult> Insert(SysUser user, string token, long userId)
+        [Route("User/Add")]
+        public async Task<IActionResult> Add(SysUser user, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {

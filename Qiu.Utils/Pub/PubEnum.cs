@@ -144,5 +144,8 @@ namespace Qiu.Utils.Pub
 
         [Description("禁用")]
         disable = 13,
+
+        [Description("查询")]
+        search = 14,
     }
 }

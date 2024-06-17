@@ -160,6 +160,19 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             }
         }
 
-
+        [HttpGet]
+        [EnableCors("CorsPolicy")]
+        [AllowAnonymous]
+        [Route("Authentication/CheckLogout")]
+        public async Task<IActionResult> CheckLogout()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                GetMemoryCache.Remove("user_" + userId);
+            }
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return new JsonResult((true,"登出成功"));
+        }
     }
 }

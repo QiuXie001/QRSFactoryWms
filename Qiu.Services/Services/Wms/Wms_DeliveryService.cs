@@ -119,7 +119,7 @@ namespace Services
                     // 回滚事务
                     transaction.Rollback();
                     var _nlog = ServiceResolve.Resolve<ILogUtil>();
-                    _nlog.Error("导入客户信息失败"+ex);
+                    _nlog.Error("插入信息失败"+ex);
                     return (false, PubConst.Import3);
                 }
             }

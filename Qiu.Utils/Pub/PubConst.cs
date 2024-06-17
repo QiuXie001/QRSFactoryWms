@@ -105,5 +105,7 @@ namespace Qiu.Utils.Pub
         public const string File6 = "上传成功";
         public const string File7 = "上传失败";
         public const string File8 = "无数据";
+
+        public const string Null = "提交数据为空";
     }
 }
