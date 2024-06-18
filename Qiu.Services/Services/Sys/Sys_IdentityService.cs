@@ -38,7 +38,7 @@ namespace Services.Sys
             _serviceProvider = serviceProvider;
         }
 
-        //生成
+        //发放
         public async Task<string> GenerateToken(long userId)
         {
             var configuration = _serviceProvider.GetService<IConfiguration>();
@@ -60,11 +60,10 @@ namespace Services.Sys
             };
 
             var tokenString = existingToken?.Token;
-            if (existingToken == null || existingToken.ExpirationTime < DateTime.UtcNow)
+            if (existingToken == null || existingToken.ExpirationTime <= DateTime.UtcNow)
             {
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 tokenString = tokenHandler.WriteToken(token);
-
                 if (existingToken != null)
                 {
                     await RefreshToken(existingToken.Token);
@@ -76,7 +75,7 @@ namespace Services.Sys
                     {
                         Token = tokenString,
                         GeneratedTime = DateTime.Now,
-                        ExpirationTime = DateTime.Now.AddDays(7),
+                        ExpirationTime = DateTime.UtcNow.AddDays(7),
                         UserId = userId,
                         IsEabled = 1,
                         LoginIp = GlobalCore.GetIp()
@@ -85,13 +84,15 @@ namespace Services.Sys
             }
             else
             {
-                // 如果现有令牌仍然有效，刷新其过期时间
+                // 如果现有令牌仍然有效，刷新其过期时间和token
+                existingToken.Token = tokenString;
                 existingToken.ExpirationTime = DateTime.UtcNow.AddDays(7);
                 await _repository.UpdateAsync(existingToken);
             }
 
             return tokenString;
         }
+
 
 
         //验证

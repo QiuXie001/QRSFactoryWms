@@ -69,7 +69,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.select)]
-        [Route("InventoryMove/List")]
+        [Route("InventoryMove/ListDetail")]
         public async Task<IActionResult> ListDetailAsync(string token, long userId,string pid)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))

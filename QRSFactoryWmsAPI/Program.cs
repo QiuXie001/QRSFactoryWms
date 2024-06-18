@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Qiu.Utils.Jwt;
 using Microsoft.Extensions.DependencyInjection;
+using Qiu.Utils.Json;
 
 
 
@@ -80,12 +81,11 @@ builder.Services.AddAuthentication(options =>
 }).AddCookie();
 
 
-builder.Services.AddMvc().AddNewtonsoftJson(options =>
-{
+builder.Services.AddMvc().AddNewtonsoftJson(options => {
     options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
 });
 
-
+builder.Services.AddSingleton<JsonConfig>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<IMemoryCache, MemoryCache>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);

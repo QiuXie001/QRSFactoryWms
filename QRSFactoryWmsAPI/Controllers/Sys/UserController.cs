@@ -85,6 +85,10 @@ namespace QRSFactoryWmsAPI.Controllers
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            user.CreateBy = userId;
+            user.CreateDate = DateTime.Now;
+            user.ModifiedBy = userId;
+            user.ModifiedDate = DateTime.Now;
             var item = await _userService.InsertAsync(user);
             return new JsonResult((item, PubConst.Add1));
         }
@@ -101,8 +105,10 @@ namespace QRSFactoryWmsAPI.Controllers
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var item = await _userService.InsertAsync(user);
-            return new JsonResult((item, PubConst.Add1));
+            user.ModifiedBy = userId;
+            user.ModifiedDate = DateTime.Now;
+            var item = await _userService.UpdateAsync(user);
+            return new JsonResult((item, PubConst.Update1));
         }
 
         [HttpGet]
@@ -117,8 +123,8 @@ namespace QRSFactoryWmsAPI.Controllers
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var item = await _userService.InsertAsync(user);
-            return new JsonResult((item, PubConst.Add1));
+            var item = await _userService.DeleteAsync(user);
+            return new JsonResult((item, PubConst.Delete1));
         }
         [HttpGet]
         [EnableCors("CorsPolicy")]
@@ -132,8 +138,8 @@ namespace QRSFactoryWmsAPI.Controllers
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var item = await _userService.InsertAsync(user);
-            return new JsonResult((item, PubConst.Add1));
+            var item = await _userService.Disable(user ,userId);
+            return new JsonResult((item, PubConst.Delete1));
         }
     }
 }

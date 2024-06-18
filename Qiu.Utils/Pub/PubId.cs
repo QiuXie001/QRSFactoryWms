@@ -1,4 +1,5 @@
 ﻿using IdGen;
+using NPOI.SS.Formula.PTG;
 using System;
 using System.Linq;
 using Yitter.IdGenerator;
@@ -35,8 +36,10 @@ namespace Qiu.Utils.Pub
         {
             get
             {
-                var id = Generator.CreateId();
-                return id;
+                var id = Generator.CreateId().ToString();
+                string restOfNumberStr = id.Substring(2);
+                long restOfNumber = long.Parse(restOfNumberStr);
+                return restOfNumber;
             }
         }
 

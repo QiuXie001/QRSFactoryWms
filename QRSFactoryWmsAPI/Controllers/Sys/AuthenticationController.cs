@@ -142,7 +142,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                     LogType = LogType.login.EnumToString(),
                 });
                 string token = await _identityService.GenerateToken(flag.Item3.UserId);
-                return new JsonResult((flag, token));
+                return new JsonResult((flag ,token));
             }
             else
             {

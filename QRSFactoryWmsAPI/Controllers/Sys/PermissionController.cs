@@ -45,7 +45,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             _mediator = mediator;
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -55,12 +55,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return new JsonResult((false, PubConst.ValidateToken2));
             }
             var roleId = await _userService.GetRoleAsync(userId);
 
             var roleMenu = await _roleServices.GetMenuAsync(roleId);
-            return new JsonResult(roleMenu);
+            return Ok(roleMenu);
         }
     }
 }
