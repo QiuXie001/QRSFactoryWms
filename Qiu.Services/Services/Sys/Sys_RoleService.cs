@@ -80,6 +80,30 @@ namespace Services.Sys
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
+
+        public async Task<string> GetMenuAsync()
+        {
+            var query = _dbContext.Set<SysMenu>()
+                .Include(r => r.CreateByUser)
+                .Include(r => r.ModifiedByUser)
+                .Where(r => r.IsDel == 1)
+                .Select(r => new MenuTreeNode
+                {
+                    MenuId = r.MenuId,
+                    MenuName = r.MenuName,
+                    MenuParent = r.MenuParent,
+                });
+
+            var list = await query.ToListAsync();
+
+            var menuTree = BuildMenuTree(list, -1);
+
+            int totalNumber = await query.CountAsync();
+
+            // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
+            return JsonSerializer.Serialize(new { rows = menuTree, total = totalNumber });
+        }
+
         //获取所有菜单
         public async Task<string> GetMenuAsync(Bootstrap.BootstrapParams bootstrap)
         {
@@ -125,7 +149,6 @@ namespace Services.Sys
                 list.Reverse();
             }
 
-            totalNumber = await query.CountAsync();
 
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
@@ -193,7 +216,7 @@ namespace Services.Sys
                     role.ModifiedBy = userId;
                     role.ModifiedDate = DateTime.UtcNow;
 
-                    role.RoleType = "#";
+                    role.IsDel = 1;
 
                     await InsertAsync(role);
 
@@ -422,13 +445,31 @@ namespace Services.Sys
             return role?.RoleName;
         }
 
-        public async Task<List<string>> GetRoleNameList()
+        public async Task<Dictionary<long, string>> GetRoleNameList()
         {
-            return await _dbContext.Set<SysRole>()
+            var result = await _dbContext.Set<SysRole>()
                 .Where(r => r.IsDel == 1)
-                .Select(r => r.RoleName)
-                .ToListAsync();
+                .ToDictionaryAsync(r => r.RoleId, r => r.RoleName);
+            return result;
         }
-
+        private List<MenuTreeNode> BuildMenuTree(List<MenuTreeNode> allMenus, long? parentId)
+        {
+            return allMenus.Where(m => m.MenuParent == parentId)
+                .Select(m => new MenuTreeNode
+                {
+                    MenuId = m.MenuId,
+                    MenuName = m.MenuName,
+                    MenuParent = m.MenuParent,
+                    Children = BuildMenuTree(allMenus, m.MenuId)
+                })
+                .ToList();
+        }
+        private class MenuTreeNode
+        {
+            public long MenuId { get; set; }
+            public string MenuName { get; set; }
+            public long? MenuParent { get; set; }
+            public List<MenuTreeNode> Children { get; set; }
+        }
     }
 }

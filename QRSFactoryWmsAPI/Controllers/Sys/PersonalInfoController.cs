@@ -79,13 +79,13 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             return Ok((true,user));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.update)]
         [Route("PersonalInfo/Update")]
-        public async Task<IActionResult> UpdateAsync(SysUser user, string token, long userId)
+        public async Task<IActionResult> UpdateAsync([FromForm] SysUser user, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -98,19 +98,22 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             return new JsonResult((item, PubConst.Update1));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.delete)]
         [Route("PersonalInfo/Delete")]
-        public async Task<IActionResult> DeleteAsync(SysUser user, string token, long userId)
+        public async Task<IActionResult> DeleteAsync([FromForm] SysUser user, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var item = await _userService.InsertAsync(user);
+            user.IsDel = 0;
+            user.ModifiedBy = userId;
+            user.ModifiedDate = DateTime.Now;
+            var item = await _userService.UpdateAsync(user);
             return new JsonResult((item, PubConst.Add1));
         }
     }

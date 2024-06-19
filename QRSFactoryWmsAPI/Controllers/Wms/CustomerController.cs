@@ -24,6 +24,7 @@ using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
 using IServices.Wms;
 using Microsoft.AspNetCore.Authorization;
+using Newtonsoft.Json;
 
 namespace KopSoftWms.Controllers
 {
@@ -55,15 +56,16 @@ namespace KopSoftWms.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("Customer/List")]
-        public async Task<IActionResult> ListAsync(Bootstrap.BootstrapParams bootstrap, string token, long userId)
+        public async Task<IActionResult> ListAsync([FromForm] string bootstrap, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            if (bootstrap._ == null)
-                bootstrap = PubConst.DefaultBootstrapParams;
-            var sd = await _customerService.PageListAsync(bootstrap);
+            var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            if (bootstrapObject == null || bootstrapObject._ == null)
+                bootstrapObject = PubConst.DefaultBootstrapParams;
+            var sd = await _customerService.PageListAsync(bootstrapObject);
             return new JsonResult(sd);
         }
 

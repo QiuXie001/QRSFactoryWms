@@ -13,6 +13,7 @@ using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Cors;
 using Services;
+using Newtonsoft.Json;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -45,15 +46,16 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("Delivery/List")]
-        public async Task<IActionResult> ListAsync(Bootstrap.BootstrapParams bootstrap, string token, long userId)
+        public async Task<IActionResult> ListAsync([FromForm] string bootstrap, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            if (bootstrap._ == null)
-                bootstrap = PubConst.DefaultBootstrapParams;
-            var sd = await _deliveryServices.PageListAsync(bootstrap);
+            var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            if (bootstrapObject == null || bootstrapObject._ == null)
+                bootstrapObject = PubConst.DefaultBootstrapParams;
+            var sd = await _deliveryServices.PageListAsync(bootstrapObject);
             return new JsonResult(sd);
         }
 

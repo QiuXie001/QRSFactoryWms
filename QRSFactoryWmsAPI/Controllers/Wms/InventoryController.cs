@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Authorization;
 using IServices.Sys;
 using IServices.Wms;
+using Newtonsoft.Json;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -44,13 +45,16 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("Inventory/List")]
-        public async Task<IActionResult> ListAsync(string token, long userId, PubParams.InventoryBootstrapParams bootstrap)
+        public async Task<IActionResult> ListAsync(string token, long userId, [FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var sd = await _inventoryService.PageListAsync(bootstrap);
+
+            var bootstrapDto = JsonConvert.DeserializeObject<PubParams.InventoryBootstrapParams>(bootstrap);
+
+            var sd = await _inventoryService.PageListAsync(bootstrapDto);
             return new JsonResult(sd);
         }
     }

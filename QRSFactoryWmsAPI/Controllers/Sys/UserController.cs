@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using NetTaste;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
@@ -62,15 +63,16 @@ namespace QRSFactoryWmsAPI.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.getList)]
         [Route("User/GetPageList")]
-        public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap, string token, long userId)
+        public async Task<string> GetPageList([FromForm] string bootstrap, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return (false, PubConst.ValidateToken2).ToJson();
             }
-            if (bootstrap._ == null)
-                bootstrap =PubConst.DefaultBootstrapParams;
-            var item = await _userService.PageListAsync(bootstrap);
+            var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            if (bootstrapObject == null || bootstrapObject._ == null)
+                bootstrapObject = PubConst.DefaultBootstrapParams;
+            var item = await _userService.PageListAsync(bootstrapObject);
             return item;
         }
         [HttpGet]

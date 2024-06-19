@@ -4,6 +4,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using NPOI.SS.Formula.Functions;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
@@ -38,85 +40,99 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             _mediator = mediator;
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.getList)]
         [Route("Dept/GetPageList")]
-        public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap, string token, long userId)
+        public async Task<string> GetPageList([FromForm] string bootstrap, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return (false, PubConst.ValidateToken2).ToJson();
             }
-            if (bootstrap._ == null)
-                bootstrap = PubConst.DefaultBootstrapParams;
-            var item = await _deptService.PageListAsync(bootstrap);
+
+            var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            if (bootstrapObject == null || bootstrapObject._ == null)
+                bootstrapObject = PubConst.DefaultBootstrapParams;
+            var item = await _deptService.PageListAsync(bootstrapObject);
             return item;
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.add)]
         [Route("Dept/Insert")]
-        public async Task<IActionResult> Insert(SysDept dept, string token, long userId)
+        public async Task<IActionResult> Insert([FromForm] string dept, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var item = await _deptService.InsertAsync(dept);
+
+            var deptObject = JsonConvert.DeserializeObject<SysDept>(dept);
+            var item = await _deptService.InsertAsync(deptObject);
             return new JsonResult((item, PubConst.Add1));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.update)]
         [Route("Dept/Update")]
-        public async Task<IActionResult> Update(SysDept dept, string token, long userId)
+        public async Task<IActionResult> Update([FromForm] string dept, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var item = await _deptService.InsertAsync(dept);
-            return new JsonResult((item, PubConst.Add1));
+
+            var deptObject = JsonConvert.DeserializeObject<SysDept>(dept);
+            var item = await _deptService.UpdateAsync(deptObject);
+            return new JsonResult((item, PubConst.Update1));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.delete)]
         [Route("Dept/Delete")]
-        public async Task<IActionResult> Delete(SysDept dept, string token, long userId)
+        public async Task<IActionResult> Delete([FromForm] string dept, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var item = await _deptService.InsertAsync(dept);
-            return new JsonResult((item, PubConst.Add1));
+
+            var deptObject = JsonConvert.DeserializeObject<SysDept>(dept);
+            var item = await _deptService.DeleteAsync(deptObject);
+            return new JsonResult((item, PubConst.Delete1));
         }
-        [HttpGet]
+
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.disable)]
         [Route("Dept/Disable")]
-        public async Task<IActionResult> Disable(SysDept dept, string token, long userId)
+        public async Task<IActionResult> Disable([FromForm] string dept, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var item = await _deptService.InsertAsync(dept);
-            return new JsonResult((item, PubConst.Add1));
+
+            var deptObject = JsonConvert.DeserializeObject<SysDept>(dept);
+            deptObject.IsDel = 0;
+            deptObject.ModifiedBy = userId;
+            deptObject.ModifiedDate = DateTime.Now;
+            var item = await _deptService.UpdateAsync(deptObject);
+            return new JsonResult((item, PubConst.Update2));
         }
     }
 }

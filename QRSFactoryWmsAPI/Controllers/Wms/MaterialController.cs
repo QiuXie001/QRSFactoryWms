@@ -17,6 +17,7 @@ using IServices.Sys;
 using Microsoft.AspNetCore.Cors;
 using Services;
 using SqlSugar;
+using Newtonsoft.Json;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -62,15 +63,16 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("Material/List")]
-        public async Task<IActionResult> ListAsync(string token, long userId, Bootstrap.BootstrapParams bootstrap)
+        public async Task<IActionResult> ListAsync(string token, long userId,[FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            if (bootstrap._ == null)
-                bootstrap = PubConst.DefaultBootstrapParams;
-            var sd = await _materialService.PageListAsync(bootstrap);
+            var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            if (bootstrapObject == null || bootstrapObject._ == null)
+                bootstrapObject = PubConst.DefaultBootstrapParams;
+            var sd = await _materialService.PageListAsync(bootstrapObject);
             return new JsonResult(sd);
         }
 
@@ -164,13 +166,14 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.export)]
         [Route("Material/Export")]
-        public async Task<IActionResult> ExportAsync(string token, long userId, [FromQuery] Bootstrap.BootstrapParams bootstrap)
+        public async Task<IActionResult> ExportAsync(string token, long userId, [FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return File(JsonL((false, PubConst.File8)).ToBytes(), ContentType.ContentTypeJson);
             }
-            var buffer = await _materialService.ExportListAsync(bootstrap);
+            var bootstrapDto = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            var buffer = await _materialService.ExportListAsync(bootstrapDto);
             if (buffer.IsNull())
             {
                 return File(JsonL((false, PubConst.File8)).ToBytes(), ContentType.ContentTypeJson);

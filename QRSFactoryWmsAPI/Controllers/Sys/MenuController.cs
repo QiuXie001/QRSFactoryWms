@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
@@ -33,23 +34,41 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             _identityService = identityService;
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.getList)]
         [Route("Menu/GetPageList")]
-        public async Task<string> GetPageList(Bootstrap.BootstrapParams bootstrap, string token, long userId)
+        public async Task<string> GetPageList([FromForm] string bootstrap, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return (false, PubConst.ValidateToken2).ToJson();
             }
-            if (bootstrap._ == null)
-                bootstrap = PubConst.DefaultBootstrapParams;
-            var item = await _roleService.PageListAsync(bootstrap);
+            var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            if (bootstrapObject == null || bootstrapObject._ == null)
+                bootstrapObject = PubConst.DefaultBootstrapParams;
+            var item = await _roleService.GetMenuAsync(bootstrapObject);
             return item;
         }
+
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.getList)]
+        [Route("Menu/GetMenus")]
+        public async Task<IActionResult> GetMenus(string token, long userId)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return NotFound((false, PubConst.ValidateToken2));
+            }
+            var item = await _roleService.GetMenuAsync();
+            return Ok(item);
+        }
+
         [HttpGet]
         [EnableCors("CorsPolicy")]
         [Authorize]

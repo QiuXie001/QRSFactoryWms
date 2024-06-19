@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
@@ -44,15 +45,16 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("Carrier/List")]
-        public async Task<IActionResult> ListAsync(string token, long userId, Bootstrap.BootstrapParams bootstrap )
+        public async Task<IActionResult> ListAsync(string token, long userId,[FromForm] string bootstrap )
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            if (bootstrap._ == null)
-                bootstrap = PubConst.DefaultBootstrapParams;
-            var sd = await _carrierService.PageListAsync(bootstrap);
+            var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            if (bootstrapObject == null || bootstrapObject._ == null)
+                bootstrapObject = PubConst.DefaultBootstrapParams;
+            var sd = await _carrierService.PageListAsync(bootstrapObject);
             return new JsonResult(sd);
         }
 

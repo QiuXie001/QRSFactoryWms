@@ -18,6 +18,7 @@ using SqlSugar;
 using DB.Dto;
 using NetTaste;
 using Qiu.Utils.Json;
+using Newtonsoft.Json;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -54,13 +55,16 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.getList)]
         [Route("InventoryMove/List")]
-        public async Task<IActionResult> ListAsync(PubParams.StatusBootstrapParams bootstrap, string token, long userId)
+        public async Task<IActionResult> ListAsync([FromForm] string bootstrap, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var sd = await _inventorymoveService.PageListAsync(bootstrap);
+
+            var bootstrapObject = JsonConvert.DeserializeObject<PubParams.StatusBootstrapParams>(bootstrap);
+
+            var sd = await _inventorymoveService.PageListAsync(bootstrapObject);
             return Content(sd);
         }
 

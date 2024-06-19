@@ -8,9 +8,10 @@ namespace IServices.Sys
 {
     public interface ISys_RoleService : IBaseService<SysRole>
     {
-        Task<List<string>> GetRoleNameList();
+        Task<Dictionary<long, string>> GetRoleNameList();
         Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
         Task<string> GetRoleNameById(long roleId);
+        Task<string> GetMenuAsync();
         Task<string> GetMenuAsync(Bootstrap.BootstrapParams bootstrap);
 
         Task<List<PermissionMenu>> GetMenuAsync(long roleId, string menuType = "menu");

@@ -15,6 +15,7 @@ using IServices.Wms;
 using Qiu.Utils;
 using DB.Models;
 using NetTaste;
+using Newtonsoft.Json;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -58,13 +59,15 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("StockIn/List")]
-        public async Task<IActionResult> ListAsync(string token, long userId, PubParams.StockInBootstrapParams bootstrap)
+        public async Task<IActionResult> ListAsync(string token, long userId, [FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var sd = await _stockinService.PageListAsync(bootstrap);
+            var bootstrapObject = JsonConvert.DeserializeObject<PubParams.StockInBootstrapParams>(bootstrap);
+
+            var sd = await _stockinService.PageListAsync(bootstrapObject);
             return new JsonResult(sd);
         }
 

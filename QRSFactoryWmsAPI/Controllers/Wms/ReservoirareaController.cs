@@ -15,6 +15,7 @@ using IServices.Sys;
 using Microsoft.AspNetCore.Cors;
 using Services;
 using SqlSugar;
+using Newtonsoft.Json;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -50,15 +51,16 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("Reservoirarea/List")]
-        public async Task<IActionResult> ListAsync(string token, long userId, Bootstrap.BootstrapParams bootstrap)
+        public async Task<IActionResult> ListAsync(string token, long userId,[FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            if (bootstrap._ == null)
-                bootstrap = PubConst.DefaultBootstrapParams;
-            var sd = await _reservoirareaService.PageListAsync(bootstrap);
+            var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            if (bootstrapObject == null || bootstrapObject._ == null)
+                bootstrapObject = PubConst.DefaultBootstrapParams;
+            var sd = await _reservoirareaService.PageListAsync(bootstrapObject);
             return new JsonResult(sd);
         }
 

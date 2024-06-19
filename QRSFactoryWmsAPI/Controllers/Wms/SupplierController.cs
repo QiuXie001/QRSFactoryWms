@@ -10,6 +10,7 @@ using IServices.Sys;
 using IServices.Wms;
 using DB.Models;
 using NetTaste;
+using Newtonsoft.Json;
 
 namespace  QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -32,13 +33,16 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
 
         [HttpPost]
         [OperationLog(LogType.select)]
-        public async Task<IActionResult> ListAsync(string token, long userId, Bootstrap.BootstrapParams bootstrap)
+        public async Task<IActionResult> ListAsync(string token, long userId,[FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var sd =await _supplierService.PageListAsync(bootstrap);
+            var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
+            if (bootstrapObject == null || bootstrapObject._ == null)
+                bootstrapObject = PubConst.DefaultBootstrapParams;
+            var sd =await _supplierService.PageListAsync(bootstrapObject);
             return new JsonResult(sd);
         }
 
