@@ -111,6 +111,7 @@ builder.Services.AddScoped<ISys_IdentityRepository, Sys_IdentityRepository>();
 builder.Services.AddScoped<ISys_MenuRepository, Sys_MenuRepository>();
 builder.Services.AddScoped<ISys_RoleRepository, Sys_RoleRepository>();
 builder.Services.AddScoped<ISys_RoleMenuRepository, Sys_RoleMenuRepository>();
+builder.Services.AddScoped<ISys_DeptRepository, Sys_DeptRepository>();
 
 builder.Services.AddScoped<ISys_LogService, Sys_LogService>();
 builder.Services.AddScoped<ISys_UserService, Sys_UserService>();
@@ -118,6 +119,7 @@ builder.Services.AddScoped<ISys_IdentityService, Sys_IdentityService>();
 builder.Services.AddScoped<ISys_MenuService, Sys_MenuService>();
 builder.Services.AddScoped<ISys_RoleService, Sys_RoleService>();
 builder.Services.AddScoped<ISys_RoleMenuService, Sys_RoleMenuService>();
+builder.Services.AddScoped<ISys_DeptService, Sys_DeptService>();
 var app = builder.Build();
 
 GlobalCore.Configure(app);

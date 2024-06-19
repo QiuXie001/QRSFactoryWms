@@ -37,7 +37,8 @@ namespace Qiu.Utils.Extensions
 
         public static long ToInt64(this object obj)
         {
-            return long.TryParse(obj.ToString(), out long a) == true ? a : 0;
+            return obj == null ? 0 : long.TryParse(obj.ToString(), out long a) ? a : 0;
+            ;
         }
 
         public static float ToFloat(this object obj)

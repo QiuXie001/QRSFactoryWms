@@ -42,7 +42,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             _mediator = mediator;
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]

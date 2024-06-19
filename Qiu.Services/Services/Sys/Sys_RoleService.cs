@@ -405,7 +405,6 @@ namespace Services.Sys
             }
         }
 
-
         public async Task<bool> CheckRoleAccessToUrl(long roleId, string requestUrl)
         {
             var roleMenus = await _dbContext.Set<SysRolemenu>()
@@ -416,5 +415,20 @@ namespace Services.Sys
 
             return roleMenus.Any();
         }
+        public async Task<string> GetRoleNameById(long roleId)
+        {
+            var role = await _dbContext.Set<SysRole>()
+                .FirstOrDefaultAsync(r => r.RoleId == roleId && r.IsDel == 1);
+            return role?.RoleName;
+        }
+
+        public async Task<List<string>> GetRoleNameList()
+        {
+            return await _dbContext.Set<SysRole>()
+                .Where(r => r.IsDel == 1)
+                .Select(r => r.RoleName)
+                .ToListAsync();
+        }
+
     }
 }

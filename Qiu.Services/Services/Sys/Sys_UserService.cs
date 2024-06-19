@@ -61,6 +61,9 @@ namespace Services.Sys
             }
             else
             {
+                sys.LoginDate = DateTime.Now.ToString("D").ToDateTime();
+                sys.LoginTime = DateTime.Now.ToString("HHmmss").ToInt32();
+                await _repository.UpdateAsync(sys);
                 return (flag, PubConst.Login1, new SysUser
                 {
                     UserId = sys.UserId,

@@ -1,4 +1,5 @@
-﻿using DB.Models;
+﻿using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,24 +14,30 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
     public class PersonalInfoController : Controller
     {
         private readonly ISys_UserService _userService;
+        private readonly ISys_RoleService _roleService;
+        private readonly ISys_DeptService _deptService;
         private readonly IHttpContextAccessor _httpContext;
         private readonly ISys_LogService _logService;
         private readonly ISys_IdentityService _identityService;
         private readonly IConfiguration _configuration;
         private readonly Xss _xss;
         private readonly IMediator _mediator;
-        private readonly string NowUrl = "/#";
+        private readonly string NowUrl = "#";
         public PersonalInfoController(Xss xss,
            ISys_LogService logService,
            IHttpContextAccessor httpContext,
            IConfiguration configuration,
            ISys_UserService userService,
+           ISys_RoleService roleService,
+           ISys_DeptService deptService,
            ISys_IdentityService identityService,
            IMediator mediator)
         {
             _httpContext = httpContext;
             _configuration = configuration;
             _userService = userService;
+            _roleService = roleService;
+            _deptService = deptService;
             _logService = logService;
             _identityService = identityService;
             _xss = xss;
@@ -38,7 +45,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
 
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -47,10 +54,29 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return NotFound((false, PubConst.ValidateToken2));
             }
             var item = await _userService.QueryableToSingleAsync(u => u.UserId == userId && u.IsDel ==1);
-            return new JsonResult(item);
+            UserDto user = new UserDto() 
+            { 
+                HeadImg = item.HeadImg,
+                UserId = item.UserId,
+                UserName = item.UserName,
+                UserNickname = item.UserNickname,
+                Pwd = item.Pwd,
+                Email = item.Email,
+                Tel = item.Tel,
+                Mobile = item.Mobile,
+                Sex = item.Sex,
+                RoleId = item.RoleId,
+                RoleName =await _roleService.GetRoleNameById(item.RoleId),
+                DeptId = item.DeptId,
+                DeptName =await _deptService.GetDeptNameById(item.DeptId),
+                LoginDate = item.LoginDate,
+                Remark = item.Remark
+            };
+
+            return Ok((true,user));
         }
 
         [HttpGet]

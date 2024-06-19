@@ -74,6 +74,19 @@ namespace Services.Sys
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
+        public async Task<string> GetDeptNameById(long deptId)
+        {
+            var dept = await _dbContext.Set<SysDept>()
+                .FirstOrDefaultAsync(d => d.DeptId == deptId && d.IsDel == 1);
+            return dept?.DeptName;
+        }
 
+        public async Task<List<string>> GetDeptNameList()
+        {
+            return await _dbContext.Set<SysDept>()
+                .Where(r => r.IsDel == 1)
+                .Select(r => r.DeptName)
+                .ToListAsync();
+        }
     }
 }
