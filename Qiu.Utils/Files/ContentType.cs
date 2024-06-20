@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
+using Qiu.Utils.Check;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Qiu.Utils.Check;
 
 namespace Qiu.Utils.Files
 {

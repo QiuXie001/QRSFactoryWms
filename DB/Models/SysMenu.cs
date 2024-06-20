@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
 
 namespace DB.Models;
 
@@ -51,7 +49,7 @@ public class SysMenu
 
     [ForeignKey("CreateBy")]
     public SysUser CreateByUser { get; set; }
-    
+
     [ForeignKey("ModifiedBy")]
     public SysUser ModifiedByUser { get; set; }
 }

@@ -1,25 +1,18 @@
 using DB.Models;
-using Microsoft.AspNetCore.Hosting;
-using Newtonsoft.Json;
-using Qiu.Utils.Security;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System;
-using Microsoft.Extensions.Caching.Memory;
-using Qiu.Utils.Env;
-using Services.Sys;
-using IServices.Sys;
-using Repository.Sys;
 using IRepository.Sys;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Qiu.Utils.Jwt;
-using Microsoft.Extensions.DependencyInjection;
+using IServices.Sys;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.IdentityModel.Tokens;
+using Qiu.Utils.Env;
 using Qiu.Utils.Json;
+using Qiu.Utils.Jwt;
+using Qiu.Utils.Security;
+using Repository.Sys;
+using Services.Sys;
+using System.Reflection;
+using System.Text;
 
 
 
@@ -81,7 +74,8 @@ builder.Services.AddAuthentication(options =>
 }).AddCookie();
 
 
-builder.Services.AddMvc().AddNewtonsoftJson(options => {
+builder.Services.AddMvc().AddNewtonsoftJson(options =>
+{
     options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
 });
 

@@ -1,13 +1,6 @@
 ﻿using DB.Models;
 using IRepository.Sys;
 using IServices.Sys;
-using Microsoft.EntityFrameworkCore;
-using IRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services.Sys
 {

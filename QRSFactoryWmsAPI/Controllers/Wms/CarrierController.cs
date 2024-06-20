@@ -1,5 +1,4 @@
 ﻿using DB.Models;
-using IServices;
 using IServices.Sys;
 using IServices.Wms;
 using MediatR;
@@ -12,10 +11,8 @@ using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace  QRSFactoryWmsAPI.Controllers.Wms
+namespace QRSFactoryWmsAPI.Controllers.Wms
 {
     public class CarrierController : BaseController
     {
@@ -45,7 +42,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("Carrier/List")]
-        public async Task<IActionResult> ListAsync(string token, long userId,[FromForm] string bootstrap )
+        public async Task<IActionResult> ListAsync(string token, long userId, [FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -73,7 +70,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
             var carrierObject = JsonConvert.DeserializeObject<WmsCarrier>(model);
             if (id.IsEmptyZero())
             {
-               
+
                 if (await _carrierService.IsAnyAsync(c => c.CarrierNo == carrierObject.CarrierNo || c.CarrierName == carrierObject.CarrierName))
                 {
                     return new JsonResult((false, PubConst.Carrier1));

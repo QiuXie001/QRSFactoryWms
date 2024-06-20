@@ -1,20 +1,19 @@
-﻿using IServices;
+﻿using DB.Models;
+using IServices.Sys;
+using IServices.Wms;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using IServices.Sys;
-using IServices.Wms;
-using MediatR;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Authorization;
-using DB.Models;
 using SqlSugar;
-using Newtonsoft.Json;
 
-namespace  QRSFactoryWmsAPI.Controllers.Wms
+namespace QRSFactoryWmsAPI.Controllers.Wms
 {
     public class WarehouseController : BaseController
     {
@@ -48,7 +47,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("Warehouse/List")]
-        public async Task<IActionResult>ListAsync(string token, long userId,[FromForm] string bootstrap)
+        public async Task<IActionResult> ListAsync(string token, long userId, [FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -58,7 +57,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
 
-            var sd =await _warehouseService.PageListAsync(bootstrapObject);
+            var sd = await _warehouseService.PageListAsync(bootstrapObject);
             return new JsonResult(sd);
         }
 
@@ -68,7 +67,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("Warehouse/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm]string model, long Id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm] string model, long Id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -83,7 +82,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
                 }
                 modelObject.WarehouseId = PubId.SnowflakeId;
                 modelObject.CreateBy = UserDtoCache.UserId;
-                bool flag =await _warehouseService.InsertAsync(modelObject);
+                bool flag = await _warehouseService.InsertAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
@@ -91,7 +90,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
                 modelObject.WarehouseId = Id.ToInt64();
                 modelObject.ModifiedBy = UserDtoCache.UserId;
                 modelObject.ModifiedDate = DateTimeExt.DateTime;
-                var flag =await _warehouseService.UpdateAsync(modelObject);
+                var flag = await _warehouseService.UpdateAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }
@@ -108,14 +107,14 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var isExist =await _reservoirareaService.IsAnyAsync(c => c.WarehouseId == Id);
+            var isExist = await _reservoirareaService.IsAnyAsync(c => c.WarehouseId == Id);
             if (isExist)
             {
                 return new JsonResult((false, PubConst.Warehouse2));
             }
             else
             {
-                var flag =await _warehouseService.UpdateAsync(new WmsWarehouse { WarehouseId = Id, IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
+                var flag = await _warehouseService.UpdateAsync(new WmsWarehouse { WarehouseId = Id, IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
                 return new JsonResult(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
             }
         }

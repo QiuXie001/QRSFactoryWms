@@ -1,17 +1,13 @@
-using DB.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using DB.Dto;
+using DB.Models;
+using IRepository.Sys;
+using IServices.Sys;
+using Microsoft.EntityFrameworkCore;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
-using IServices.Sys;
-using IRepository.Sys;
-using System.Linq.Expressions;
 
 namespace Services.Sys
 {
@@ -114,7 +110,7 @@ namespace Services.Sys
                 .Include(r => r.CreateByUser)
                 .Include(r => r.ModifiedByUser)
                 .Where(r => r.IsDel == 1)
-                .Select(r => new 
+                .Select(r => new
                 {
                     MenuId = r.MenuId,
                     r.MenuName,
@@ -163,7 +159,7 @@ namespace Services.Sys
                 .Include(rm => rm.Menu)
                 .Include(rm => rm.Role)
                 .Where(rm => rm.Menu != null && rm.Menu.IsDel == 1 && rm.Menu.MenuType == menuType && rm.Menu.Status == 1 && rm.RoleId == roleId)
-                .Select(rm =>new SysRolemenu
+                .Select(rm => new SysRolemenu
                 {
                     RoleMenuId = rm.RoleMenuId,
                     MenuId = rm.MenuId,
@@ -432,7 +428,7 @@ namespace Services.Sys
         {
             var roleMenus = await _dbContext.Set<SysRolemenu>()
                 .Include(rm => rm.Menu)
-                .Where(rm => rm.RoleId == roleId && rm.Menu.MenuUrl == requestUrl && rm.Menu.IsDel == 1 )
+                .Where(rm => rm.RoleId == roleId && rm.Menu.MenuUrl == requestUrl && rm.Menu.IsDel == 1)
                 .Select(rm => rm.Menu)
                 .ToListAsync();
 

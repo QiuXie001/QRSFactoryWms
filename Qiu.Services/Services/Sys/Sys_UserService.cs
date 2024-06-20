@@ -1,19 +1,13 @@
 ﻿using DB.Models;
+using IRepository.Sys;
+using IServices.Sys;
 using Microsoft.EntityFrameworkCore;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
-using Qiu.Utils.Table;
-using Qiu.Utils.Json;
 using Qiu.Utils.Security;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
-using IServices.Sys;
-using IRepository.Sys;
+using Qiu.Utils.Table;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace Services.Sys
 {

@@ -1,20 +1,16 @@
-﻿using IServices;
+﻿using DB.Models;
+using IServices.Sys;
+using IServices.Wms;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using IServices.Wms;
-using Microsoft.AspNetCore.Authorization;
-using DB.Models;
-using IServices.Sys;
-using MediatR;
-using Microsoft.AspNetCore.Cors;
-using Services;
-using Newtonsoft.Json;
-using System.CodeDom;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -66,7 +62,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("Delivery/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync([FromForm]string model, string token, long userId, long Id)
+        public async Task<IActionResult> AddOrUpdateAsync([FromForm] string model, string token, long userId, long Id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -75,7 +71,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             var modelObject = JsonConvert.DeserializeObject<WmsDelivery>(model);
             if (model.IsEmpty())
             {
-                
+
                 if (!modelObject.TrackingNo.IsEmpty())
                 {
                     if (await _deliveryServices.IsAnyAsync(c => c.TrackingNo == modelObject.TrackingNo))

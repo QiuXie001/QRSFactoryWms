@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IServices.Sys;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using System.Linq;
-using System.Security.Claims;
 using Qiu.Utils.Extensions;
-using IServices.Sys;
+using System.Security.Claims;
 
 namespace Qiu.NetCore.Attributes
 {

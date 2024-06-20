@@ -1,6 +1,5 @@
 ﻿using DB.Models;
 using IServices.Sys;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Qiu.Utils.Env;
@@ -8,7 +7,6 @@ using Qiu.Utils.Extensions;
 using Qiu.Utils.Http;
 using Qiu.Utils.Pub;
 using System.Security.Claims;
-using static Services.Sys.Sys_LogService;
 
 namespace Qiu.NetCore.Attributes
 {

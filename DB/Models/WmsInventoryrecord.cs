@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DB.Models;
 
@@ -23,7 +21,7 @@ public partial class WmsInventoryrecord
     public long? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
-    
+
     [ForeignKey("StockInDetailId")]
     public WmsStockindetail Stockindetail { get; set; }
 

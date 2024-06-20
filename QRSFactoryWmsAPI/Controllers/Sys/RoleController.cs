@@ -5,7 +5,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using NetTaste;
 using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
@@ -13,8 +12,6 @@ using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
 using Qiu.Utils.Table;
-using System.Data;
-using static NPOI.HSSF.Util.HSSFColor;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {
@@ -83,7 +80,21 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             var item = await _roleService.GetRoleNameList();
             return Ok(item);
         }
-
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.getList)]
+        [Route("Role/GetMenuByRoleId")]
+        public async Task<IActionResult> GetMenuByRoleId(long roleId, long userId, string token)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return new JsonResult((false, PubConst.ValidateToken2));
+            }
+            var roleMenu = await _roleService.GetMenuAsync(roleId);
+            return Ok(roleMenu);
+        }
         [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
@@ -97,11 +108,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
             var roleDto = JsonConvert.DeserializeObject<RoleDto>(role);
-            if(menuId == null)
+            if (menuId == null)
                 menuId = "";
             var menuIds = menuId.Split(',').ToArray();
             bool flag = false;
-            SysRole entity = new SysRole() { 
+            SysRole entity = new SysRole()
+            {
                 RoleName = roleDto.RoleName,
                 RoleType = roleDto.RoleType,
                 Remark = roleDto.Remark,
@@ -172,6 +184,6 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
 
         }
 
-        
+
     }
 }

@@ -1,13 +1,10 @@
-﻿using DB.Models;
-using IServices.Sys;
+﻿using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using NetTaste;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
-using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
 
@@ -15,7 +12,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
 {
     public class PermissionController : BaseController
     {
-        private readonly ISys_RoleService _roleServices;
+        private readonly ISys_RoleService _roleService;
         private readonly IHttpContextAccessor _httpContext;
         private readonly ISys_LogService _logService;
         private readonly ISys_UserService _userService;
@@ -26,18 +23,18 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         private readonly string NowUrl = "#";
 
         public PermissionController(
-            Xss xss, 
-            ISys_LogService logService, 
-            IHttpContextAccessor httpContext, 
-            IConfiguration configuration, 
-            ISys_RoleService roleServices,
+            Xss xss,
+            ISys_LogService logService,
+            IHttpContextAccessor httpContext,
+            IConfiguration configuration,
+            ISys_RoleService roleService,
             ISys_UserService userService,
             ISys_IdentityService identityService,
             IMediator mediator)
         {
             _httpContext = httpContext;
             _configuration = configuration;
-            _roleServices = roleServices;
+            _roleService = roleService;
             _logService = logService;
             _userService = userService;
             _identityService = identityService;
@@ -51,7 +48,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [AllowAnonymous]
         [OperationLog(LogType.getList)]
         [Route("Permission/GetPermissions")]
-        public async Task<IActionResult> GetPermissions(long userId, string token )
+        public async Task<IActionResult> GetPermissions(long userId, string token)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -59,7 +56,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             }
             var roleId = await _userService.GetRoleAsync(userId);
 
-            var roleMenu = await _roleServices.GetMenuAsync(roleId);
+            var roleMenu = await _roleService.GetMenuAsync(roleId);
             return Ok(roleMenu);
         }
     }

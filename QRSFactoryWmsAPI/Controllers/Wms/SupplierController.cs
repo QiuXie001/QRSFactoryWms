@@ -1,18 +1,15 @@
-﻿using IServices;
+﻿using DB.Models;
+using IServices.Sys;
+using IServices.Wms;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using IServices.Sys;
-using IServices.Wms;
-using DB.Models;
-using NetTaste;
-using Newtonsoft.Json;
 
-namespace  QRSFactoryWmsAPI.Controllers.Wms
+namespace QRSFactoryWmsAPI.Controllers.Wms
 {
     public class SupplierController : BaseController
     {
@@ -33,7 +30,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
 
         [HttpPost]
         [OperationLog(LogType.select)]
-        public async Task<IActionResult> ListAsync(string token, long userId,[FromForm] string bootstrap)
+        public async Task<IActionResult> ListAsync(string token, long userId, [FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -42,7 +39,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
             var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
-            var sd =await _supplierService.PageListAsync(bootstrapObject);
+            var sd = await _supplierService.PageListAsync(bootstrapObject);
             return new JsonResult(sd);
         }
 
@@ -64,7 +61,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
                 }
                 modelObject.SupplierId = PubId.SnowflakeId;
                 modelObject.CreateBy = UserDtoCache.UserId;
-                bool flag =await _supplierService.InsertAsync(modelObject);
+                bool flag = await _supplierService.InsertAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
@@ -90,7 +87,7 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
             {
                 return new JsonResult((false, PubConst.Supplier2));
             }
-            var flag =await _supplierService.UpdateAsync(new WmsSupplier { SupplierId = Id, IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
+            var flag = await _supplierService.UpdateAsync(new WmsSupplier { SupplierId = Id, IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
             return new JsonResult(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
         }
 

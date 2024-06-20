@@ -1,22 +1,17 @@
-﻿using IServices;
+﻿using DB.Models;
+using IServices.Sys;
+using IServices.Wms;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
-using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using IServices.Wms;
-using Microsoft.AspNetCore.Authorization;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using IServices.Sys;
-using Services;
-using Microsoft.AspNetCore.Cors;
-using DB.Models;
 using SqlSugar;
-using Newtonsoft.Json;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -90,7 +85,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("StorageRack/List")]
-        public async Task<IActionResult> ListAsync(string token, long userId,[FromForm] string bootstrap)
+        public async Task<IActionResult> ListAsync(string token, long userId, [FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -108,7 +103,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("StorageRack/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync([FromForm]string model, long Id, string token, long userId)
+        public async Task<IActionResult> AddOrUpdateAsync([FromForm] string model, long Id, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -131,7 +126,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
                 modelObject.StorageRackId = Id;
                 modelObject.ModifiedBy = UserDtoCache.UserId;
                 modelObject.ModifiedDate = DateTimeExt.DateTime;
-                var flag =await _storagerackService.UpdateAsync(modelObject);
+                var flag = await _storagerackService.UpdateAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }
@@ -149,14 +144,14 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
             //判断有没有物料
-            var isExist =await _materialService.IsAnyAsync(c => c.StoragerackId ==Id);
+            var isExist = await _materialService.IsAnyAsync(c => c.StoragerackId == Id);
             if (isExist)
             {
                 return new JsonResult((false, PubConst.Warehouse6));
             }
             else
             {
-                var flag =await _storagerackService.UpdateAsync(new WmsStoragerack { StorageRackId =Id, IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
+                var flag = await _storagerackService.UpdateAsync(new WmsStoragerack { StorageRackId = Id, IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
                 return new JsonResult(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
             }
         }
@@ -181,7 +176,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
                 search = text,
                 order = "desc"
             };
-            var json =await _storagerackService.PageListAsync(bootstrap);
+            var json = await _storagerackService.PageListAsync(bootstrap);
             return new JsonResult(json);
         }
     }

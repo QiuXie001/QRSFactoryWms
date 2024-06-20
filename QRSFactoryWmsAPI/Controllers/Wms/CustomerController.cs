@@ -1,18 +1,11 @@
 ﻿using DB.Models;
-using IServices;
 using IServices.Sys;
+using IServices.Wms;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Qiu.NetCore.Attributes;
-using Qiu.NetCore.NetCoreApp;
-using Qiu.Utils.Extensions;
-using Qiu.Utils.Pub;
-using Qiu.Utils.Table;
-using SqlSugar;
-using System.IO;
-using System.Linq;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Delegate;
@@ -22,9 +15,6 @@ using Qiu.Utils.Files;
 using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using IServices.Wms;
-using Microsoft.AspNetCore.Authorization;
-using Newtonsoft.Json;
 
 namespace KopSoftWms.Controllers
 {
@@ -75,7 +65,7 @@ namespace KopSoftWms.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.add)]
         [Route("Customer/Add")]
-        public async Task<IActionResult> AddAsync(string token, long userId, [FromForm]string model)
+        public async Task<IActionResult> AddAsync(string token, long userId, [FromForm] string model)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -106,7 +96,7 @@ namespace KopSoftWms.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.update)]
         [Route("Customer/Update")]
-        public async Task<IActionResult> UpdateAsync([FromForm]string model, string token, long userId, long Id)
+        public async Task<IActionResult> UpdateAsync([FromForm] string model, string token, long userId, long Id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {

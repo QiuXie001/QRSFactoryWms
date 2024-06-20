@@ -1,25 +1,18 @@
 ﻿using DB.Models;
-using Humanizer;
 using IServices.Sys;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
-using Qiu.Utils.Json;
+using Qiu.Utils.Jwt;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
-using Services;
-using SqlSugar;
-using System.Linq.Expressions;
 using System.Security.Claims;
-using Qiu.Utils.Jwt;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {
@@ -142,7 +135,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                     LogType = LogType.login.EnumToString(),
                 });
                 string token = await _identityService.GenerateToken(flag.Item3.UserId);
-                return new JsonResult((flag ,token));
+                return new JsonResult((flag, token));
             }
             else
             {
@@ -172,7 +165,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 GetMemoryCache.Remove("user_" + userId);
             }
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return new JsonResult((true,"登出成功"));
+            return new JsonResult((true, "登出成功"));
         }
     }
 }

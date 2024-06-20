@@ -1,22 +1,18 @@
-﻿using IServices;
+﻿using DB.Models;
+using IServices.Sys;
+using IServices.Wms;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using Newtonsoft.Json;
 using Qiu.Core.Dto;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
-using MediatR;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using IServices.Sys;
-using IServices.Wms;
 using Qiu.Utils.Table;
-using Qiu.Utils;
-using DB.Models;
 using SqlSugar;
-using Newtonsoft.Json;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -127,7 +123,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("StockOut/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync([FromForm]string model, long Id, string token, long userId)
+        public async Task<IActionResult> AddOrUpdateAsync([FromForm] string model, long Id, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -143,7 +139,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
                         return new JsonResult((false, PubConst.StockIn1));
                     }
                 }
-                modelObject.StockOutNo =await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "Wms_stockout");
+                modelObject.StockOutNo = await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "Wms_stockout");
                 modelObject.StockOutId = PubId.SnowflakeId;
                 modelObject.StockOutStatus = StockInStatus.initial.ToByte();
                 modelObject.CreateBy = UserDtoCache.UserId;
@@ -166,7 +162,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("StockOut/AddOrUpdateDetail")]
-        public async Task<IActionResult> AddOrUpdateDetailAsync([FromForm]string model, long Id, string token, long userId)
+        public async Task<IActionResult> AddOrUpdateDetailAsync([FromForm] string model, long Id, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -203,7 +199,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var list =await _stockoutdetailService.QueryableToListAsync(c => c.IsDel == 1 && c.StockOutId == Id);
+            var list = await _stockoutdetailService.QueryableToListAsync(c => c.IsDel == 1 && c.StockOutId == Id);
             if (!list.Any())
             {
                 return new JsonResult((false, PubConst.StockIn4));
@@ -259,7 +255,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var flag =await _stockoutdetailService.UpdateAsync(
+            var flag = await _stockoutdetailService.UpdateAsync(
                  new WmsStockoutdetail { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
                  c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                  c => c.StockOutDetailId == SqlFunc.ToInt64(Id)

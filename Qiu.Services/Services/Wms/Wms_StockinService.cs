@@ -1,24 +1,16 @@
-using IRepository;
-using IServices;
-using Microsoft.AspNetCore.Hosting;
+using DB.Dto;
 using DB.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using IRepository.Wms;
+using IServices.Wms;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Qiu.Core.Dto;
+using Qiu.NetCore.DI;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Json;
-using Qiu.Utils.Pub;
-using Qiu.Utils.Table;
-using IServices.Wms;
-using IRepository.Wms;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using Qiu.Utils.Files;
-using DB.Dto;
-using Qiu.NetCore.DI;
 using Qiu.Utils.Log;
+using Qiu.Utils.Pub;
+using System.Text.Json;
 
 namespace Services
 {

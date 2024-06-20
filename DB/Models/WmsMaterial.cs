@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DB.Models;
 
@@ -64,7 +62,7 @@ public partial class WmsMaterial
     public virtual ICollection<WmsInvmovedetail> Invmovedetails { get; set; } = new List<WmsInvmovedetail>();
 
     public virtual ICollection<WmsStockindetail> Stockindetails { get; set; } = new List<WmsStockindetail>();
-    
+
     public virtual ICollection<WmsStockoutdetail> Stockoutdetails { get; set; } = new List<WmsStockoutdetail>();
 
 }

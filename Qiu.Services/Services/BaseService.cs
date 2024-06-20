@@ -1,10 +1,8 @@
-﻿using IServices;
-using System.Data.Common;
+﻿using IRepository;
+using IServices;
 using System.Data;
+using System.Data.Common;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using IRepository;
 
 namespace Services
 {

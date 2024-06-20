@@ -1,5 +1,4 @@
-﻿using DB.Models;
-using IServices.Sys;
+﻿using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;

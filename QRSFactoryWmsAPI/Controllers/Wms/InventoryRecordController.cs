@@ -1,16 +1,14 @@
-﻿using IServices;
+﻿using IServices.Sys;
+using IServices.Wms;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Qiu.Core.Dto;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Pub;
-using MediatR;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Authorization;
-using IServices.Sys;
-using IServices.Wms;
-using Newtonsoft.Json;
-using Qiu.Utils.Table;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {

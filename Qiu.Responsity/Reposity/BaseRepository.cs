@@ -1,11 +1,11 @@
-﻿using System.Data.Common;
-using System.Data;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
+﻿using DB.Models;
 using IRepository;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Data.Common;
+using System.Linq.Expressions;
 using System.Reflection;
-using DB.Models;
+using System.Text.Json;
 
 namespace Repository
 {
@@ -224,7 +224,7 @@ namespace Repository
             var totalNumber = await _dbContext.Set<TEntity>().CountAsync(expression);
             var list = await _dbContext.Set<TEntity>().Where(expression).OrderBy(orderBy).Skip(pageIndex * pageSize).Take(pageSize).ToListAsync();
             if (orderByDirection == "desc")
-            { 
+            {
                 list.Reverse();
             }
             return (list, totalNumber);

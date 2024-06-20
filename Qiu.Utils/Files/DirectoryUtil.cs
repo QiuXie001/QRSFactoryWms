@@ -1,5 +1,5 @@
-﻿using System.IO;
-using Qiu.Utils.Check;
+﻿using Qiu.Utils.Check;
+using System.IO;
 
 namespace Qiu.Utils.Files
 {

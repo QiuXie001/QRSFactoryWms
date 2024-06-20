@@ -1,6 +1,5 @@
 using DB.Models;
 using Qiu.Core.Dto;
-using Qiu.Utils.Pub;
 
 namespace IServices.Wms
 {

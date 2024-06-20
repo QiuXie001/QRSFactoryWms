@@ -10,7 +10,6 @@ using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using System.Security.Claims;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {
@@ -23,8 +22,8 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         private readonly string NowUrl = "/Menu";
 
         public MenuController(
-            IMemoryCache cache, 
-            ISys_RoleService roleService, 
+            IMemoryCache cache,
+            ISys_RoleService roleService,
             ISys_LogService logService,
             ISys_IdentityService identityService)
         {

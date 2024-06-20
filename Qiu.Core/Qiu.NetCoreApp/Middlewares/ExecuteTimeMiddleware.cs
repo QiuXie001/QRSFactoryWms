@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Qiu.NetCore.Middlewares
 {

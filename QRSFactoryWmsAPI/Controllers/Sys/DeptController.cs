@@ -5,14 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using NPOI.SS.Formula.Functions;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
 using Qiu.Utils.Table;
-using Services.Sys;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {

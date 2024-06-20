@@ -1,17 +1,13 @@
-using IRepository;
-using IServices;
 using DB.Models;
-using System;
+using IRepository.Wms;
+using IServices.Wms;
+using Microsoft.EntityFrameworkCore;
+using Qiu.NetCore.DI;
 using Qiu.Utils.Extensions;
-using Qiu.Utils.Json;
+using Qiu.Utils.Log;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
-using IServices.Wms;
-using IRepository.Wms;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
-using Qiu.NetCore.DI;
-using Qiu.Utils.Log;
 
 namespace Services
 {
@@ -87,7 +83,7 @@ namespace Services
         }
 
 
-        public async Task<(bool,string)> DeliveryAsync(WmsDelivery delivery)
+        public async Task<(bool, string)> DeliveryAsync(WmsDelivery delivery)
         {
             // 使用 DbContext 开始事务
             using (var transaction = _dbContext.Database.BeginTransaction())
@@ -112,14 +108,14 @@ namespace Services
 
                     // 提交事务
                     transaction.Commit();
-                    return (true,PubConst.Import2);
+                    return (true, PubConst.Import2);
                 }
                 catch (Exception ex)
                 {
                     // 回滚事务
                     transaction.Rollback();
                     var _nlog = ServiceResolve.Resolve<ILogUtil>();
-                    _nlog.Error("插入信息失败"+ex);
+                    _nlog.Error("插入信息失败" + ex);
                     return (false, PubConst.Import3);
                 }
             }

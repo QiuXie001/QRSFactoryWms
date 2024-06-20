@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Qiu.Utils.Check;
+using System;
 using System.ComponentModel;
 using System.Globalization;
-using Qiu.Utils.Check;
 
 namespace Qiu.Utils.Extensions
 {

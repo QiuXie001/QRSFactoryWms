@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace DB.Models;
 
@@ -108,12 +106,12 @@ public partial class QrsfactoryWmsContext : DbContext
 
             modelBuilder.Entity<SysDict>()
         .HasOne(d => d.CreateByUser)
-        .WithMany(u => u.CreateDicts) 
+        .WithMany(u => u.CreateDicts)
         .HasForeignKey(d => d.CreateBy);
 
             modelBuilder.Entity<SysDict>()
         .HasOne(d => d.ModifiedByUser)
-        .WithMany(u => u.ModifiedDicts) 
+        .WithMany(u => u.ModifiedDicts)
         .HasForeignKey(d => d.ModifiedBy);
 
             entity.ToTable("sys_dict");
@@ -532,7 +530,7 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsInventorymove>(entity =>
         {
             entity.HasKey(e => e.InventorymoveId).HasName("PK__wms_inve__A1254B8DE9BF5023");
-            
+
             modelBuilder.Entity<WmsInventorymove>()
         .HasOne(d => d.SourceStoragerack)
         .WithMany(u => u.InventorymoveSource)
@@ -683,7 +681,7 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsReservoirarea>(entity =>
         {
             entity.HasKey(e => e.ReservoirAreaId).HasName("PK__wms_rese__0CB017225BB1C64C");
-           
+
             modelBuilder.Entity<WmsReservoirarea>()
         .HasOne(d => d.Warehouse)
         .WithMany(u => u.Reservoirareas)
@@ -712,11 +710,11 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsStockin>(entity =>
         {
             entity.HasKey(e => e.StockInId).HasName("PK__wms_stoc__794DA66C4C6A2224");
-           
+
             modelBuilder.Entity<WmsStockin>()
         .HasOne(d => d.StockInType)
         .WithMany(u => u.Stockins)
-        .HasForeignKey(d => d.StockInTypeId); 
+        .HasForeignKey(d => d.StockInTypeId);
 
             modelBuilder.Entity<WmsStockin>()
         .HasOne(d => d.Supplier)
@@ -815,7 +813,7 @@ public partial class QrsfactoryWmsContext : DbContext
         modelBuilder.Entity<WmsStockoutdetail>(entity =>
         {
             entity.HasKey(e => e.StockOutDetailId).HasName("PK__wms_stoc__EB248E9F733D0330");
-            
+
             modelBuilder.Entity<WmsStockoutdetail>()
         .HasOne(d => d.Stockout)
         .WithMany(u => u.Stockoutdetails)

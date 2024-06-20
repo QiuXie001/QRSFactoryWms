@@ -1,10 +1,6 @@
-using IRepository;
-using IServices;
 using DB.Models;
-using Qiu.Utils.Json;
-using Qiu.Utils.Table;
-using IServices.Wms;
 using IRepository.Wms;
+using IServices.Wms;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 

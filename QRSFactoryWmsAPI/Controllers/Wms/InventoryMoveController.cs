@@ -1,24 +1,18 @@
-﻿using IServices;
+﻿using DB.Dto;
+using DB.Models;
+using IServices.Sys;
+using IServices.Wms;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using Newtonsoft.Json;
+using Qiu.Core.Dto;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
-using Qiu.Utils.Pub;
-using Qiu.Utils.Table;
-using IServices.Wms;
-using Microsoft.AspNetCore.Authorization;
-using DB.Models;
-using IServices.Sys;
-using MediatR;
-using Microsoft.AspNetCore.Cors;
-using Services;
-using Qiu.Core.Dto;
-using SqlSugar;
-using DB.Dto;
-using NetTaste;
 using Qiu.Utils.Json;
-using Newtonsoft.Json;
+using Qiu.Utils.Pub;
+using SqlSugar;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -74,7 +68,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("InventoryMove/ListDetail")]
-        public async Task<IActionResult> ListDetailAsync(string token, long userId,string pid)
+        public async Task<IActionResult> ListDetailAsync(string token, long userId, string pid)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -90,7 +84,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("InventoryMove/Detail")]
-        public async Task<IActionResult> DetailAsync(string token, long userId, long id, string pid )
+        public async Task<IActionResult> DetailAsync(string token, long userId, long id, string pid)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -139,7 +133,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("InventoryMove/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId,[FromForm]string model, long id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm] string model, long id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -242,7 +236,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.delete)]
         [Route("InventoryMove/Delete")]
-        public async Task<IActionResult> DeleteAsync(string token, long userId, long id )
+        public async Task<IActionResult> DeleteAsync(string token, long userId, long id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {

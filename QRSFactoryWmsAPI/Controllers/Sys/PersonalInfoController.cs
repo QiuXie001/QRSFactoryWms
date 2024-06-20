@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
-using Qiu.Utils.Table;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {
@@ -58,9 +57,9 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             {
                 return NotFound((false, PubConst.ValidateToken2));
             }
-            var item = await _userService.QueryableToSingleAsync(u => u.UserId == userId && u.IsDel ==1);
-            UserDto user = new UserDto() 
-            { 
+            var item = await _userService.QueryableToSingleAsync(u => u.UserId == userId && u.IsDel == 1);
+            UserDto user = new UserDto()
+            {
                 HeadImg = item.HeadImg,
                 UserId = item.UserId,
                 UserName = item.UserName,
@@ -71,14 +70,14 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 Mobile = item.Mobile,
                 Sex = item.Sex,
                 RoleId = item.RoleId,
-                RoleName =await _roleService.GetRoleNameById(item.RoleId),
+                RoleName = await _roleService.GetRoleNameById(item.RoleId),
                 DeptId = item.DeptId,
-                DeptName =await _deptService.GetDeptNameById(item.DeptId),
+                DeptName = await _deptService.GetDeptNameById(item.DeptId),
                 LoginDate = item.LoginDate,
                 Remark = item.Remark
             };
 
-            return Ok((true,user));
+            return Ok((true, user));
         }
 
         [HttpPost]

@@ -1,5 +1,4 @@
-﻿using DB;
-using DB.Models;
+﻿using DB.Models;
 
 namespace IRepository.Wms
 {

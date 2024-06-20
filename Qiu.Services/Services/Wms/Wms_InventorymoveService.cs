@@ -1,23 +1,16 @@
-using IRepository;
-using IServices;
-using Microsoft.AspNetCore.Hosting;
+using DB.Dto;
 using DB.Models;
-using System;
-using System.IO;
-using System.Linq;
-using Qiu.Utils.Check;
-using Qiu.Utils.Extensions;
-using Qiu.Utils.Json;
-using Qiu.Utils.Pub;
-using Qiu.Utils.Table;
 using IRepository.Wms;
 using IServices.Wms;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 using Qiu.NetCore.DI;
+using Qiu.Utils.Extensions;
+using Qiu.Utils.Json;
 using Qiu.Utils.Log;
-using DB.Dto;
-using Qiu.Utils.Files;
+using Qiu.Utils.Pub;
+using Qiu.Utils.Table;
+using System.Text.Json;
 
 namespace Services
 {
@@ -218,13 +211,13 @@ namespace Services
                     }
                 }
                 // 返回包含多个部分的 JSON 字符串
-                return (flag1,flag2, list2).JilToJson();
+                return (flag1, flag2, list2).JilToJson();
             }
             catch (Exception ex)
             {
                 var _nlog = ServiceResolve.Resolve<ILogUtil>();
                 _nlog.Error("查询材料信息失败" + ex.Message);
-                return (false,ex.Message).JilToJson();
+                return (false, ex.Message).JilToJson();
             }
         }
     }

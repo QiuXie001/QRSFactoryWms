@@ -1,8 +1,8 @@
-﻿using System;
-using System.IO;
-using Qiu.Utils.Check;
+﻿using Qiu.Utils.Check;
 using Qiu.Utils.Delegate;
 using Qiu.Utils.Extensions;
+using System;
+using System.IO;
 
 namespace Qiu.Utils.Files
 {

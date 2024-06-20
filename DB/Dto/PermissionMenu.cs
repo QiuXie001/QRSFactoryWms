@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using DB.Models;
+﻿using DB.Models;
 
 namespace DB.Dto
 {

@@ -1,6 +1,6 @@
-﻿using System.Data;
-using DB.Models;
+﻿using DB.Models;
 using Qiu.Utils.Table;
+using System.Data;
 
 namespace IServices.Wms
 {

@@ -11,7 +11,6 @@ using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
 using Qiu.Utils.Table;
-using Services.Sys;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {

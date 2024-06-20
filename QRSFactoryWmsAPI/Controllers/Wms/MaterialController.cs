@@ -1,6 +1,11 @@
-﻿using IServices;
+﻿using DB.Models;
+using IServices.Sys;
+using IServices.Wms;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
@@ -8,17 +13,7 @@ using Qiu.Utils.Files;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
 using Qiu.Utils.Table;
-using IServices.Wms;
-using Microsoft.AspNetCore.Authorization;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using DB.Models;
-using IServices.Sys;
-using Microsoft.AspNetCore.Cors;
-using Services;
 using SqlSugar;
-using Newtonsoft.Json;
-using Qiu.Core.Dto;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -64,7 +59,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("Material/List")]
-        public async Task<IActionResult> ListAsync(string token, long userId,[FromForm] string bootstrap)
+        public async Task<IActionResult> ListAsync(string token, long userId, [FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -83,7 +78,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("Material/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm]string model, string id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm] string model, string id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {

@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Qiu.Utils.Check;
+using Qiu.Utils.Json;
+using Qiu.Utils.Security;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using Qiu.Utils.Check;
-using Qiu.Utils.Json;
-using Qiu.Utils.Security;
 
 namespace Qiu.Utils.Http
 {

@@ -4,7 +4,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using NetTaste;
 using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
@@ -26,10 +25,10 @@ namespace QRSFactoryWmsAPI.Controllers
         private readonly IMediator _mediator;
         private readonly string NowUrl = "/User";
 
-        public UserController(Xss xss, 
-            ISys_LogService logService, 
-            IHttpContextAccessor httpContext, 
-            IConfiguration configuration, 
+        public UserController(Xss xss,
+            ISys_LogService logService,
+            IHttpContextAccessor httpContext,
+            IConfiguration configuration,
             ISys_UserService userService,
             ISys_IdentityService identityService,
             IMediator mediator)
@@ -143,8 +142,9 @@ namespace QRSFactoryWmsAPI.Controllers
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-         
-            var item = await _userService.Disable(user ,userId);
+
+            var userObject = JsonConvert.DeserializeObject<SysUser>(user);
+            var item = await _userService.Disable(userObject, userId);
             return new JsonResult((item, PubConst.Delete1));
         }
     }
