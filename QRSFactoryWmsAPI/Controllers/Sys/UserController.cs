@@ -69,6 +69,7 @@ namespace QRSFactoryWmsAPI.Controllers
             {
                 return (false, PubConst.ValidateToken2).ToJson();
             }
+
             var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
@@ -81,17 +82,18 @@ namespace QRSFactoryWmsAPI.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.add)]
         [Route("User/Add")]
-        public async Task<IActionResult> Add(SysUser user, string token, long userId)
+        public async Task<IActionResult> Add([FromForm] string user, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            user.CreateBy = userId;
-            user.CreateDate = DateTime.Now;
-            user.ModifiedBy = userId;
-            user.ModifiedDate = DateTime.Now;
-            var item = await _userService.InsertAsync(user);
+            var userObject = JsonConvert.DeserializeObject<SysUser>(user);
+            userObject.CreateBy = userId;
+            userObject.CreateDate = DateTime.Now;
+            userObject.ModifiedBy = userId;
+            userObject.ModifiedDate = DateTime.Now;
+            var item = await _userService.InsertAsync(userObject);
             return new JsonResult((item, PubConst.Add1));
         }
 
@@ -101,15 +103,16 @@ namespace QRSFactoryWmsAPI.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.update)]
         [Route("User/Update")]
-        public async Task<IActionResult> Update(SysUser user, string token, long userId)
+        public async Task<IActionResult> Update([FromForm] string user, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            user.ModifiedBy = userId;
-            user.ModifiedDate = DateTime.Now;
-            var item = await _userService.UpdateAsync(user);
+            var userObject = JsonConvert.DeserializeObject<SysUser>(user);
+            userObject.ModifiedBy = userId;
+            userObject.ModifiedDate = DateTime.Now;
+            var item = await _userService.UpdateAsync(userObject);
             return new JsonResult((item, PubConst.Update1));
         }
 
@@ -119,7 +122,7 @@ namespace QRSFactoryWmsAPI.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.delete)]
         [Route("User/Delete")]
-        public async Task<IActionResult> Delete(SysUser user, string token, long userId)
+        public async Task<IActionResult> Delete([FromForm] string user, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -134,12 +137,13 @@ namespace QRSFactoryWmsAPI.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.disable)]
         [Route("User/Disable")]
-        public async Task<IActionResult> Disable(SysUser user, string token, long userId)
+        public async Task<IActionResult> Disable([FromForm] string user, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+         
             var item = await _userService.Disable(user ,userId);
             return new JsonResult((item, PubConst.Delete1));
         }

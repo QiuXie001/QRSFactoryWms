@@ -64,29 +64,31 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("Carrier/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, WmsCarrier model, string id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm] string model, string id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var carrierObject = JsonConvert.DeserializeObject<WmsCarrier>(model);
             if (id.IsEmptyZero())
             {
-                if (await _carrierService.IsAnyAsync(c => c.CarrierNo == model.CarrierNo || c.CarrierName == model.CarrierName))
+               
+                if (await _carrierService.IsAnyAsync(c => c.CarrierNo == carrierObject.CarrierNo || c.CarrierName == carrierObject.CarrierName))
                 {
                     return new JsonResult((false, PubConst.Carrier1));
                 }
-                model.CarrierId = PubId.SnowflakeId;
-                model.CreateBy = UserDtoCache.UserId;
-                bool flag = await _carrierService.InsertAsync(model);
+                carrierObject.CarrierId = PubId.SnowflakeId;
+                carrierObject.CreateBy = UserDtoCache.UserId;
+                bool flag = await _carrierService.InsertAsync(carrierObject);
                 return new JsonResult((flag, PubConst.Add1));
             }
             else
             {
-                model.CarrierId = id.ToInt64();
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _carrierService.UpdateAsync(model);
+                carrierObject.CarrierId = id.ToInt64();
+                carrierObject.ModifiedBy = UserDtoCache.UserId;
+                carrierObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _carrierService.UpdateAsync(carrierObject);
                 return new JsonResult((flag, PubConst.Update1));
             }
         }

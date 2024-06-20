@@ -16,6 +16,7 @@ using Qiu.Utils;
 using DB.Models;
 using NetTaste;
 using Newtonsoft.Json;
+using Qiu.Utils.Table;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -117,34 +118,35 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("StockIn/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, WmsStockin model, string id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm]string model, string id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsStockin>(model);
             if (id.IsEmptyZero())
             {
-                if (!model.OrderNo.IsEmpty())
+                if (!modelObject.OrderNo.IsEmpty())
                 {
-                    if (await _stockinService.IsAnyAsync(c => c.OrderNo == model.OrderNo))
+                    if (await _stockinService.IsAnyAsync(c => c.OrderNo == modelObject.OrderNo))
                     {
                         return new JsonResult((false, PubConst.StockIn1));
                     }
                 }
-                model.StockInNo = await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "Wms_stockin");
-                model.StockInId = PubId.SnowflakeId;
-                model.StockInStatus = StockInStatus.initial.ToByte();
-                model.CreateBy = UserDtoCache.UserId;
-                bool flag = await _stockinService.InsertAsync(model);
+                modelObject.StockInNo = await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "Wms_stockin");
+                modelObject.StockInId = PubId.SnowflakeId;
+                modelObject.StockInStatus = StockInStatus.initial.ToByte();
+                modelObject.CreateBy = UserDtoCache.UserId;
+                bool flag = await _stockinService.InsertAsync(modelObject);
                 return new JsonResult((flag, PubConst.Add1));
             }
             else
             {
-                model.StockInId = id.ToInt64();
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _stockinService.UpdateAsync(model);
+                modelObject.StockInId = id.ToInt64();
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _stockinService.UpdateAsync(modelObject);
                 return new JsonResult((flag, PubConst.Update1));
             }
         }
@@ -155,26 +157,27 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("StockIn/AddOrUpdateD")]
-        public async Task<IActionResult> AddOrUpdateDAsync(string token, long userId, WmsStockindetail model, string id)
+        public async Task<IActionResult> AddOrUpdateDAsync(string token, long userId, [FromForm]string model, string id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsStockindetail>(model);
             if (id.IsEmptyZero())
             {
-                model.StockInDetailId = PubId.SnowflakeId;
-                model.Status = StockInStatus.initial.ToByte();
-                model.CreateBy = UserDtoCache.UserId;
-                bool flag = await _stockindetailService.InsertAsync(model);
+                modelObject.StockInDetailId = PubId.SnowflakeId;
+                modelObject.Status = StockInStatus.initial.ToByte();
+                modelObject.CreateBy = UserDtoCache.UserId;
+                bool flag = await _stockindetailService.InsertAsync(modelObject);
                 return new JsonResult((flag, PubConst.Add1));
             }
             else
             {
-                model.StockInDetailId = id.ToInt64();
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _stockindetailService.UpdateAsync(model);
+                modelObject.StockInDetailId = id.ToInt64();
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _stockindetailService.UpdateAsync(modelObject);
                 return new JsonResult((flag, PubConst.Update1));
             }
         }

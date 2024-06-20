@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Cors;
 using Services;
 using SqlSugar;
 using Newtonsoft.Json;
+using Qiu.Core.Dto;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -82,32 +83,33 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("Material/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, WmsMaterial model, string id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm]string model, string id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsMaterial>(model);
             if (id.IsEmptyZero())
             {
-                if (await _materialService.IsAnyAsync(c => c.MaterialNo == model.MaterialNo || c.MaterialName == model.MaterialName))
+                if (await _materialService.IsAnyAsync(c => c.MaterialNo == modelObject.MaterialNo || c.MaterialName == modelObject.MaterialName))
                 {
                     return new JsonResult((false, PubConst.Material1));
                 }
-                model.MaterialId = PubId.SnowflakeId;
-                model.CreateBy = UserDtoCache.UserId;
-                model.CreateDate = DateTimeExt.DateTime;
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                bool flag = await _materialService.InsertAsync(model);
+                modelObject.MaterialId = PubId.SnowflakeId;
+                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateDate = DateTimeExt.DateTime;
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                bool flag = await _materialService.InsertAsync(modelObject);
                 return new JsonResult((flag, PubConst.Add1));
             }
             else
             {
-                model.MaterialId = id.ToInt64();
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _materialService.UpdateAsync(model);
+                modelObject.MaterialId = id.ToInt64();
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _materialService.UpdateAsync(modelObject);
                 return new JsonResult((flag, PubConst.Update1));
             }
         }

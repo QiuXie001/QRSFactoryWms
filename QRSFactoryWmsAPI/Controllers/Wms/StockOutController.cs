@@ -16,6 +16,7 @@ using Qiu.Utils.Table;
 using Qiu.Utils;
 using DB.Models;
 using SqlSugar;
+using Newtonsoft.Json;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -126,34 +127,35 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("StockOut/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(WmsStockout model, long Id, string token, long userId)
+        public async Task<IActionResult> AddOrUpdateAsync([FromForm]string model, long Id, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsStockout>(model);
             if (Id.IsZero())
             {
-                if (!model.OrderNo.IsEmpty())
+                if (!modelObject.OrderNo.IsEmpty())
                 {
-                    if (await _stockoutService.IsAnyAsync(c => c.OrderNo == model.OrderNo))
+                    if (await _stockoutService.IsAnyAsync(c => c.OrderNo == modelObject.OrderNo))
                     {
                         return new JsonResult((false, PubConst.StockIn1));
                     }
                 }
-                model.StockOutNo =await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "Wms_stockout");
-                model.StockOutId = PubId.SnowflakeId;
-                model.StockOutStatus = StockInStatus.initial.ToByte();
-                model.CreateBy = UserDtoCache.UserId;
-                bool flag = await _stockoutService.InsertAsync(model);
+                modelObject.StockOutNo =await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "Wms_stockout");
+                modelObject.StockOutId = PubId.SnowflakeId;
+                modelObject.StockOutStatus = StockInStatus.initial.ToByte();
+                modelObject.CreateBy = UserDtoCache.UserId;
+                bool flag = await _stockoutService.InsertAsync(modelObject);
                 return new JsonResult((flag, flag ? PubConst.Add1 : PubConst.Add2));
             }
             else
             {
-                model.StockOutId = Id;
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _stockoutService.UpdateAsync(model);
+                modelObject.StockOutId = Id;
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _stockoutService.UpdateAsync(modelObject);
                 return new JsonResult((flag, flag ? PubConst.Update1 : PubConst.Update2));
             }
         }
@@ -164,26 +166,27 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("StockOut/AddOrUpdateDetail")]
-        public async Task<IActionResult> AddOrUpdateDetailAsync(WmsStockoutdetail model, long Id, string token, long userId)
+        public async Task<IActionResult> AddOrUpdateDetailAsync([FromForm]string model, long Id, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsStockoutdetail>(model);
             if (Id.IsZero())
             {
-                model.StockOutDetailId = PubId.SnowflakeId;
-                model.Status = StockInStatus.initial.ToByte();
-                model.CreateBy = UserDtoCache.UserId;
-                bool flag = await _stockoutdetailService.InsertAsync(model);
+                modelObject.StockOutDetailId = PubId.SnowflakeId;
+                modelObject.Status = StockInStatus.initial.ToByte();
+                modelObject.CreateBy = UserDtoCache.UserId;
+                bool flag = await _stockoutdetailService.InsertAsync(modelObject);
                 return new JsonResult((flag, flag ? PubConst.Add1 : PubConst.Add2));
             }
             else
             {
-                model.StockOutDetailId = Id;
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _stockoutdetailService.UpdateAsync(model);
+                modelObject.StockOutDetailId = Id;
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _stockoutdetailService.UpdateAsync(modelObject);
                 return new JsonResult((flag, flag ? PubConst.Update1 : PubConst.Update2));
             }
         }

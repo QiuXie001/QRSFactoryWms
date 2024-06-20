@@ -68,29 +68,30 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("Warehouse/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, WmsWarehouse model, long Id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm]string model, long Id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsWarehouse>(model);
             if (Id.IsZero())
             {
-                if (await _warehouseService.IsAnyAsync(c => c.WarehouseNo == model.WarehouseNo || c.WarehouseName == model.WarehouseName))
+                if (await _warehouseService.IsAnyAsync(c => c.WarehouseNo == modelObject.WarehouseNo || c.WarehouseName == modelObject.WarehouseName))
                 {
                     return new JsonResult((false, PubConst.Warehouse1));
                 }
-                model.WarehouseId = PubId.SnowflakeId;
-                model.CreateBy = UserDtoCache.UserId;
-                bool flag =await _warehouseService.InsertAsync(model);
+                modelObject.WarehouseId = PubId.SnowflakeId;
+                modelObject.CreateBy = UserDtoCache.UserId;
+                bool flag =await _warehouseService.InsertAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
             {
-                model.WarehouseId = Id.ToInt64();
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag =await _warehouseService.UpdateAsync(model);
+                modelObject.WarehouseId = Id.ToInt64();
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag =await _warehouseService.UpdateAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }

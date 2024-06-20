@@ -70,29 +70,30 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("Reservoirarea/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, WmsReservoirarea model, string id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId,[FromForm] string model, string id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsReservoirarea>(model);
             if (id.IsEmptyZero())
             {
-                if (await _reservoirareaService.IsAnyAsync( c => c.ReservoirAreaNo == model.ReservoirAreaNo || _reservoirareaService.IsAnyAsync(c => c.ReservoirAreaNo == model.ReservoirAreaNo || c.ReservoirAreaName == model.ReservoirAreaName).Result))
+                if (await _reservoirareaService.IsAnyAsync( c => c.ReservoirAreaNo == modelObject.ReservoirAreaNo || _reservoirareaService.IsAnyAsync(c => c.ReservoirAreaNo == modelObject.ReservoirAreaNo || c.ReservoirAreaName == modelObject.ReservoirAreaName).Result))
                 {
                     return new JsonResult((false, PubConst.Warehouse4));
                 }
-                model.ReservoirAreaId = PubId.SnowflakeId;
-                model.CreateBy = UserDtoCache.UserId;
-                bool flag = await _reservoirareaService.InsertAsync(model);
+                modelObject.ReservoirAreaId = PubId.SnowflakeId;
+                modelObject.CreateBy = UserDtoCache.UserId;
+                bool flag = await _reservoirareaService.InsertAsync(modelObject);
                 return new JsonResult((flag, PubConst.Add1));
             }
             else
             {
-                model.ReservoirAreaId = id.ToInt64();
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _reservoirareaService.UpdateAsync(model);
+                modelObject.ReservoirAreaId = id.ToInt64();
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _reservoirareaService.UpdateAsync(modelObject);
                 return new JsonResult((flag, PubConst.Update1));
             }
         }

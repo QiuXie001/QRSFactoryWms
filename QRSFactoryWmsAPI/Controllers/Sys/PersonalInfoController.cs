@@ -5,9 +5,11 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
+using Qiu.Utils.Table;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {
@@ -85,16 +87,17 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [AllowAnonymous]
         [OperationLog(LogType.update)]
         [Route("PersonalInfo/Update")]
-        public async Task<IActionResult> UpdateAsync([FromForm] SysUser user, string token, long userId)
+        public async Task<IActionResult> UpdateAsync([FromForm] string user, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            user.UserId = userId;
-            user.ModifiedBy = userId;
-            user.ModifiedDate = DateTime.Now;
-            var item = await _userService.UpdateAsync(user);
+            var userObject = JsonConvert.DeserializeObject<SysUser>(user);
+            userObject.UserId = userId;
+            userObject.ModifiedBy = userId;
+            userObject.ModifiedDate = DateTime.Now;
+            var item = await _userService.UpdateAsync(userObject);
             return new JsonResult((item, PubConst.Update1));
         }
 
@@ -104,16 +107,17 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [AllowAnonymous]
         [OperationLog(LogType.delete)]
         [Route("PersonalInfo/Delete")]
-        public async Task<IActionResult> DeleteAsync([FromForm] SysUser user, string token, long userId)
+        public async Task<IActionResult> DeleteAsync([FromForm] string user, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            user.IsDel = 0;
-            user.ModifiedBy = userId;
-            user.ModifiedDate = DateTime.Now;
-            var item = await _userService.UpdateAsync(user);
+            var userObject = JsonConvert.DeserializeObject<SysUser>(user);
+            userObject.IsDel = 0;
+            userObject.ModifiedBy = userId;
+            userObject.ModifiedDate = DateTime.Now;
+            var item = await _userService.UpdateAsync(userObject);
             return new JsonResult((item, PubConst.Add1));
         }
     }

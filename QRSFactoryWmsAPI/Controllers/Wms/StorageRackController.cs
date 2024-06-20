@@ -108,29 +108,30 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("StorageRack/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(WmsStoragerack model, long Id, string token, long userId)
+        public async Task<IActionResult> AddOrUpdateAsync([FromForm]string model, long Id, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsStoragerack>(model);
             if (Id.IsZero())
             {
-                if (await _storagerackService.IsAnyAsync(c => c.StorageRackNo == model.StorageRackNo || c.StorageRackName == model.StorageRackNo))
+                if (await _storagerackService.IsAnyAsync(c => c.StorageRackNo == modelObject.StorageRackNo || c.StorageRackName == modelObject.StorageRackNo))
                 {
                     return BootJsonH((false, PubConst.Warehouse5));
                 }
-                model.StorageRackId = PubId.SnowflakeId;
-                model.CreateBy = UserDtoCache.UserId;
-                bool flag = await _storagerackService.InsertAsync(model);
+                modelObject.StorageRackId = PubId.SnowflakeId;
+                modelObject.CreateBy = UserDtoCache.UserId;
+                bool flag = await _storagerackService.InsertAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
             {
-                model.StorageRackId = Id;
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag =await _storagerackService.UpdateAsync(model);
+                modelObject.StorageRackId = Id;
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag =await _storagerackService.UpdateAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }

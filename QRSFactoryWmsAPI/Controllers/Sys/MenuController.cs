@@ -75,14 +75,16 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [AllowAnonymous]
         [OperationLog(LogType.add)]
         [Route("Menu/InsertMenu")]
-        public async Task<IActionResult> InsertMenu(string token, long userId, SysMenu menu)
+        public async Task<IActionResult> InsertMenu(string token, long userId, [FromForm] string menu)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+
+            var menuObject = JsonConvert.DeserializeObject<SysMenu>(menu);
             bool flag = false;
-            flag = await _roleService.InsertMenu(menu, userId);
+            flag = await _roleService.InsertMenu(menuObject, userId);
             return new JsonResult((flag, PubConst.Add1));
         }
 
@@ -92,14 +94,15 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [AllowAnonymous]
         [OperationLog(LogType.update)]
         [Route("Menu/UpdateMenu")]
-        public async Task<IActionResult> UpdateMenu(string token, long userId, SysMenu menu)
+        public async Task<IActionResult> UpdateMenu(string token, long userId, [FromForm] string menu)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var menuObject = JsonConvert.DeserializeObject<SysMenu>(menu);
             bool flag = false;
-            flag = await _roleService.UpdateMenu(menu, userId);
+            flag = await _roleService.UpdateMenu(menuObject, userId);
             return new JsonResult((flag, PubConst.Update1));
         }
 
@@ -109,14 +112,15 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [AllowAnonymous]
         [OperationLog(LogType.delete)]
         [Route("Menu/DeleteMenu")]
-        public async Task<IActionResult> DeleteMenu(string token, long userId, SysMenu menu)
+        public async Task<IActionResult> DeleteMenu(string token, long userId, [FromForm] string menu)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var menuObject = JsonConvert.DeserializeObject<SysMenu>(menu);
             bool flag = false;
-            flag = await _roleService.DeleteMenu(menu);
+            flag = await _roleService.DeleteMenu(menuObject);
             return new JsonResult((flag, PubConst.Delete1));
         }
 
@@ -126,14 +130,15 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [AllowAnonymous]
         [OperationLog(LogType.disable)]
         [Route("Menu/DisableMenu")]
-        public async Task<IActionResult> DisableMenu(string token, long userId, SysMenu menu)
+        public async Task<IActionResult> DisableMenu(string token, long userId, [FromForm] string menu)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var menuObject = JsonConvert.DeserializeObject<SysMenu>(menu);
             bool flag = false;
-            flag = await _roleService.DisableMenu(menu, userId);
+            flag = await _roleService.DisableMenu(menuObject, userId);
             return new JsonResult((flag, PubConst.Enable3));
         }
     }

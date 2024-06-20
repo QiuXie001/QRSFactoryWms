@@ -14,6 +14,7 @@ using MediatR;
 using Microsoft.AspNetCore.Cors;
 using Services;
 using Newtonsoft.Json;
+using System.CodeDom;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -65,35 +66,38 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("Delivery/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(WmsDelivery model, string token, long userId, long Id)
+        public async Task<IActionResult> AddOrUpdateAsync([FromForm]string model, string token, long userId, long Id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsDelivery>(model);
             if (model.IsEmpty())
             {
-                if (!model.TrackingNo.IsEmpty())
+                
+                if (!modelObject.TrackingNo.IsEmpty())
                 {
-                    if (await _deliveryServices.IsAnyAsync(c => c.TrackingNo == model.TrackingNo))
+                    if (await _deliveryServices.IsAnyAsync(c => c.TrackingNo == modelObject.TrackingNo))
                     {
                         return new JsonResult((false, PubConst.Delivery3));
                     }
                 }
-                model.DeliveryId = PubId.SnowflakeId;
-                model.CreateBy = UserDtoCache.UserId;
-                model.CreateDate = DateTime.UtcNow;
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _deliveryServices.DeliveryAsync(model);
+
+                modelObject.DeliveryId = PubId.SnowflakeId;
+                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateDate = DateTime.UtcNow;
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _deliveryServices.DeliveryAsync(modelObject);
                 return new JsonResult((flag, PubConst.Add1));
             }
             else
             {
-                model.DeliveryId = Id.ToInt64();
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _deliveryServices.UpdateAsync(model);
+                modelObject.DeliveryId = Id.ToInt64();
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _deliveryServices.UpdateAsync(modelObject);
                 return new JsonResult((flag, PubConst.Update1));
             }
         }

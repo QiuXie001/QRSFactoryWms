@@ -49,29 +49,30 @@ namespace  QRSFactoryWmsAPI.Controllers.Wms
 
         [HttpPost]
         [OperationLog(LogType.addOrUpdate)]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, WmsSupplier model, long Id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm] string model, long Id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsSupplier>(model);
             if (Id.IsZero())
             {
-                if (await _supplierService.IsAnyAsync(c => c.SupplierNo == model.SupplierNo || c.SupplierName == model.SupplierName))
+                if (await _supplierService.IsAnyAsync(c => c.SupplierNo == modelObject.SupplierNo || c.SupplierName == modelObject.SupplierName))
                 {
                     return new JsonResult((false, PubConst.Supplier1));
                 }
-                model.SupplierId = PubId.SnowflakeId;
-                model.CreateBy = UserDtoCache.UserId;
-                bool flag =await _supplierService.InsertAsync(model);
+                modelObject.SupplierId = PubId.SnowflakeId;
+                modelObject.CreateBy = UserDtoCache.UserId;
+                bool flag =await _supplierService.InsertAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
             {
-                model.SupplierId = Id;
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _supplierService.UpdateAsync(model);
+                modelObject.SupplierId = Id;
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _supplierService.UpdateAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }

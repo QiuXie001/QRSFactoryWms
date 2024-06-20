@@ -139,28 +139,29 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("InventoryMove/AddOrUpdate")]
-        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId,WmsInventorymove model, long id)
+        public async Task<IActionResult> AddOrUpdateAsync(string token, long userId,[FromForm]string model, long id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
+            var modelObject = JsonConvert.DeserializeObject<WmsInventorymove>(model);
             if (id.IsZero())
             {
-                model.InventorymoveNo = await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "WmsInventorymove");
-                model.InventorymoveId = PubId.SnowflakeId;
-                model.Status = StockInStatus.initial.ToByte();
-                model.CreateBy = UserDtoCache.UserId;
-                model.CreateDate = DateTimeExt.DateTime;
-                var flag = await _inventorymoveService.InsertAsync(model);
+                modelObject.InventorymoveNo = await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "WmsInventorymove");
+                modelObject.InventorymoveId = PubId.SnowflakeId;
+                modelObject.Status = StockInStatus.initial.ToByte();
+                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateDate = DateTimeExt.DateTime;
+                var flag = await _inventorymoveService.InsertAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
             {
-                model.InventorymoveId = id.ToInt64();
-                model.ModifiedBy = UserDtoCache.UserId;
-                model.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _inventorymoveService.UpdateAsync(model);
+                modelObject.InventorymoveId = id.ToInt64();
+                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _inventorymoveService.UpdateAsync(modelObject);
                 return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }
@@ -171,17 +172,18 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
         [Route("InventoryMove/AddOrUpdateDetail")]
-        public async Task<IActionResult> AddOrUpdateDetailAsync(string token, long userId, List<WmsInvmovedetail> list, long id)
+        public async Task<IActionResult> AddOrUpdateDetailAsync(string token, long userId, [FromForm] string list, long id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var exist = _invmovedetailService.QueryableToListAsync(c => c.InventorymoveId == SqlFunc.ToInt64(id));
+            var listObject = JsonConvert.DeserializeObject<List<WmsInvmovedetail>>(list);
+            var exist = _invmovedetailService.QueryableToListAsync(c => c.InventorymoveId == id);
             var modelList = new List<WmsInvmovedetail>();
             if (exist.IsNullT())
             {
-                list.ForEach((c) =>
+                listObject.ForEach((c) =>
                 {
                     c.Remark = c.Remark;
                     c.MoveDetailId = PubId.SnowflakeId;
@@ -197,7 +199,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             else
             {
                 await _invmovedetailService.UpdateAsync(new WmsInvmovedetail { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate }, c => c.InventorymoveId == SqlFunc.ToInt64(id) && c.IsDel == 1);
-                list.ForEach((c) =>
+                listObject.ForEach((c) =>
                 {
                     c.Remark = c.Remark;
                     c.Status = StockInStatus.initial.ToByte();

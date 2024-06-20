@@ -75,7 +75,7 @@ namespace KopSoftWms.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.add)]
         [Route("Customer/Add")]
-        public async Task<IActionResult> AddAsync(string token, long userId, WmsCustomer model)
+        public async Task<IActionResult> AddAsync(string token, long userId, [FromForm]string model)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -85,16 +85,17 @@ namespace KopSoftWms.Controllers
             {
                 return new JsonResult(false, PubConst.Null);
             }
-            if (await _customerService.IsAnyAsync(c => c.CustomerNo == model.CustomerNo || c.CustomerName == model.CustomerName))
+            var modelObject = JsonConvert.DeserializeObject<WmsCustomer>(model);
+            if (await _customerService.IsAnyAsync(c => c.CustomerNo == modelObject.CustomerNo || c.CustomerName == modelObject.CustomerName))
             {
                 return new JsonResult((false, PubConst.Customer1));
             }
-            model.CustomerId = PubId.SnowflakeId;
-            model.CreateBy = UserDtoCache.UserId;
-            model.CreateDate = DateTime.UtcNow;
-            model.ModifiedBy = UserDtoCache.UserId;
-            model.ModifiedDate = DateTime.UtcNow;
-            bool flag = await _customerService.InsertAsync(model);
+            modelObject.CustomerId = PubId.SnowflakeId;
+            modelObject.CreateBy = UserDtoCache.UserId;
+            modelObject.CreateDate = DateTime.UtcNow;
+            modelObject.ModifiedBy = UserDtoCache.UserId;
+            modelObject.ModifiedDate = DateTime.UtcNow;
+            bool flag = await _customerService.InsertAsync(modelObject);
             return new JsonResult((flag, PubConst.Add1));
 
         }
@@ -105,7 +106,7 @@ namespace KopSoftWms.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.update)]
         [Route("Customer/Update")]
-        public async Task<IActionResult> UpdateAsync(WmsCustomer model, string token, long userId, long Id)
+        public async Task<IActionResult> UpdateAsync([FromForm]string model, string token, long userId, long Id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
@@ -115,10 +116,11 @@ namespace KopSoftWms.Controllers
             {
                 return new JsonResult(false, PubConst.Null);
             }
-            model.CustomerId = Id;
-            model.ModifiedBy = UserDtoCache.UserId;
-            model.ModifiedDate = DateTime.UtcNow;
-            bool flag = await _customerService.UpdateAsync(model);
+            var modelObject = JsonConvert.DeserializeObject<WmsCustomer>(model);
+            modelObject.CustomerId = Id;
+            modelObject.ModifiedBy = UserDtoCache.UserId;
+            modelObject.ModifiedDate = DateTime.UtcNow;
+            bool flag = await _customerService.UpdateAsync(modelObject);
             return new JsonResult((flag, PubConst.Update1));
 
         }
