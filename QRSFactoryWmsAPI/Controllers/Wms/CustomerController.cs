@@ -115,7 +115,7 @@ namespace KopSoftWms.Controllers
 
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -131,7 +131,7 @@ namespace KopSoftWms.Controllers
             return new JsonResult((flag, PubConst.Delete1));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]

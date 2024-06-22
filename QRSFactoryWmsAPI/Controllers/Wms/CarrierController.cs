@@ -90,7 +90,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -106,7 +106,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             return new JsonResult((flag, PubConst.Delete1));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]

@@ -126,7 +126,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             return new JsonResult((flag, PubConst.Add2));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -138,7 +138,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var roleDto = JsonConvert.DeserializeObject<SysRole>(role);
+            var roleDto = JsonConvert.DeserializeObject<RoleDto>(role);
             var menuIds = menuId.Split(',').ToArray();
             bool flag = false;
             flag = await _roleService.UpdateRole(roleDto, userId, menuIds);
@@ -146,7 +146,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
 
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]

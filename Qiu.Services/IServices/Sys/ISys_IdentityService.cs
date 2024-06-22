@@ -6,6 +6,7 @@ namespace IServices.Sys
     {
         public Task<string> GenerateToken(long userId);
         public Task<bool> ValidateToken(string token, long userId, string requestUrl);
+        public Task<int> ValidateTest(string token, long userId, string requestUrl);
         public Task<(bool, string)> RefreshToken(string token);
         public Task<bool> DeleteToken(string token);
         public Task<bool> DeleteToken(long userId);

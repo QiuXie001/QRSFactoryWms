@@ -82,7 +82,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             return new JsonResult(sd);
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -176,7 +176,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [OperationLog(LogType.update)]
         public async Task<IActionResult> AuditinAsync(string token, long userId, long id)
         {
@@ -193,7 +193,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             return new JsonResult((flag, flag ? PubConst.StockIn2 : PubConst.StockIn3));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -228,7 +228,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [OperationLog(LogType.delete)]
         public async Task<IActionResult> DeleteDetailAsync(string token, long userId, long id)
         {

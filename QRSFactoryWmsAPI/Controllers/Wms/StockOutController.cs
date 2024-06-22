@@ -54,7 +54,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -78,7 +78,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             return Content(json);
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -187,7 +187,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -208,7 +208,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             return new JsonResult((flag, flag ? PubConst.StockIn2 : PubConst.StockIn3));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -243,7 +243,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -264,7 +264,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]

@@ -95,7 +95,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]

@@ -96,7 +96,6 @@ namespace Services.Sys
             var identity = await _repository.QueryableToSingleAsync(
                 p => p.Token == token
                 && p.UserId == userId
-                && p.LoginIp == GlobalCore.GetIp()
                 && p.IsEabled == 1);
 
             if (identity == null)
@@ -119,6 +118,34 @@ namespace Services.Sys
             }
 
             return true;
+        }
+        public async Task<int> ValidateTest(string token, long userId, string requestUrl)
+        {
+            var identity = await _repository.QueryableToSingleAsync(
+                p => p.Token == token
+                && p.UserId == userId
+                && p.IsEabled == 1);
+
+            if (identity == null)
+            {
+                return 1;
+            }
+
+            if (DateTime.UtcNow > identity.ExpirationTime)
+            {
+                return 2;
+            }
+
+            // 获取用户的角色ID
+            var roleId = await _userService.GetRoleAsync(userId);
+
+            // 检查角色是否有权限访问请求的URL
+            if (!await _roleService.CheckRoleAccessToUrl(roleId, requestUrl))
+            {
+                return 3;
+            }
+
+            return 4;
         }
 
         //刷新

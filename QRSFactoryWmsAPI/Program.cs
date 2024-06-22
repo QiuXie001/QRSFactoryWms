@@ -1,6 +1,8 @@
 using DB.Models;
 using IRepository.Sys;
+using IRepository.Wms;
 using IServices.Sys;
+using IServices.Wms;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -9,7 +11,9 @@ using Qiu.Utils.Env;
 using Qiu.Utils.Json;
 using Qiu.Utils.Jwt;
 using Qiu.Utils.Security;
+using Repository;
 using Repository.Sys;
+using Services;
 using Services.Sys;
 using System.Reflection;
 using System.Text;
@@ -106,6 +110,8 @@ builder.Services.AddScoped<ISys_MenuRepository, Sys_MenuRepository>();
 builder.Services.AddScoped<ISys_RoleRepository, Sys_RoleRepository>();
 builder.Services.AddScoped<ISys_RoleMenuRepository, Sys_RoleMenuRepository>();
 builder.Services.AddScoped<ISys_DeptRepository, Sys_DeptRepository>();
+builder.Services.AddScoped<ISys_DictRepository, Sys_DictRepository>();
+builder.Services.AddScoped<ISys_SerialnumRepository, Sys_SerialnumRepository>();
 
 builder.Services.AddScoped<ISys_LogService, Sys_LogService>();
 builder.Services.AddScoped<ISys_UserService, Sys_UserService>();
@@ -114,6 +120,47 @@ builder.Services.AddScoped<ISys_MenuService, Sys_MenuService>();
 builder.Services.AddScoped<ISys_RoleService, Sys_RoleService>();
 builder.Services.AddScoped<ISys_RoleMenuService, Sys_RoleMenuService>();
 builder.Services.AddScoped<ISys_DeptService, Sys_DeptService>();
+builder.Services.AddScoped<ISys_DictService, Sys_DictService>();
+builder.Services.AddScoped<ISys_SerialnumService, Sys_SerialnumService>();
+
+//×¢ÈëWms·þÎñ
+builder.Services.AddScoped<IWms_CarrierRepository, Wms_CarrierRepository>();
+builder.Services.AddScoped<IWms_CustomerRepository, Wms_CustomerRepository>();
+builder.Services.AddScoped<IWms_DeliveryRepository, Wms_DeliveryRepository>();
+builder.Services.AddScoped<IWms_InventorymoveRepository, Wms_InventorymoveRepository>();
+builder.Services.AddScoped<IWms_InventoryrecordRepository, Wms_InventoryrecordRepository>();
+builder.Services.AddScoped<IWms_InventoryRepository, Wms_InventoryRepository>();
+builder.Services.AddScoped<IWms_InvmovedetailRepository, Wms_InvmovedetailRepository>();
+builder.Services.AddScoped<IWms_MaterialRepository, Wms_MaterialRepository>();
+builder.Services.AddScoped<IWms_ReservoirareaRepository, Wms_ReservoirareaRepository>();
+builder.Services.AddScoped<IWms_StockindetailRepository, Wms_StockindetailRepository>();
+builder.Services.AddScoped<IWms_StockinRepository, Wms_StockinRepository>();
+builder.Services.AddScoped<IWms_StockoutdetailRepository, Wms_StockoutdetailRepository>();
+builder.Services.AddScoped<IWms_StockoutRepository, Wms_StockoutRepository>();
+builder.Services.AddScoped<IWms_StoragerackRepository, Wms_StoragerackRepository>();
+builder.Services.AddScoped<IWms_SupplierRepository, Wms_SupplierRepository>();
+builder.Services.AddScoped<IWms_WarehouseRepository, Wms_WarehouseRepository>();
+
+
+builder.Services.AddScoped<IWms_CarrierService, Wms_CarrierService>();
+builder.Services.AddScoped<IWms_CustomerService, Wms_CustomerService>();
+builder.Services.AddScoped<IWms_DeliveryService, Wms_DeliveryService>();
+builder.Services.AddScoped<IWms_InventorymoveService, Wms_InventorymoveService>();
+builder.Services.AddScoped<IWms_InventoryrecordService, Wms_InventoryrecordService>();
+builder.Services.AddScoped<IWms_InventoryService, Wms_InventoryService>();
+builder.Services.AddScoped<IWms_InvmovedetailService, Wms_InvmovedetailService>();
+builder.Services.AddScoped<IWms_MaterialService, Wms_MaterialService>();
+builder.Services.AddScoped<IWms_ReservoirareaService, Wms_ReservoirareaService>();
+builder.Services.AddScoped<IWms_StockindetailService, Wms_StockindetailService>();
+builder.Services.AddScoped<IWms_StockinService, Wms_StockinService>();
+builder.Services.AddScoped<IWms_StockoutdetailService, Wms_StockoutdetailService>();
+builder.Services.AddScoped<IWms_StockoutService, Wms_StockoutService>();
+builder.Services.AddScoped<IWms_StoragerackService, Wms_StoragerackService>();
+builder.Services.AddScoped<IWms_SupplierService, Wms_SupplierService>();
+builder.Services.AddScoped<IWms_WarehouseService, Wms_WarehouseService>();
+
+
+
 var app = builder.Build();
 
 GlobalCore.Configure(app);

@@ -56,7 +56,7 @@ namespace QRSFactoryWmsAPI.Controllers
 
             return item;
         }
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -75,7 +75,7 @@ namespace QRSFactoryWmsAPI.Controllers
             var item = await _userService.PageListAsync(bootstrapObject);
             return item;
         }
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -96,7 +96,7 @@ namespace QRSFactoryWmsAPI.Controllers
             return new JsonResult((item, PubConst.Add1));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -115,7 +115,7 @@ namespace QRSFactoryWmsAPI.Controllers
             return new JsonResult((item, PubConst.Update1));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -130,7 +130,7 @@ namespace QRSFactoryWmsAPI.Controllers
             var item = await _userService.DeleteAsync(user);
             return new JsonResult((item, PubConst.Delete1));
         }
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]

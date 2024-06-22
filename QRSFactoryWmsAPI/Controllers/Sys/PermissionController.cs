@@ -7,6 +7,7 @@ using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
+using static ICSharpCode.SharpZipLib.Zip.ExtendedUnixData;
 
 namespace QRSFactoryWmsAPI.Controllers.Sys
 {
@@ -52,7 +53,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult((false, PubConst.ValidateToken2));
+                return Ok((false, PubConst.ValidateToken2));
             }
             var roleId = await _userService.GetRoleAsync(userId);
 

@@ -18,7 +18,7 @@ namespace IServices.Sys
 
         Task<bool> InsertMenu(SysMenu menu, long userId);
 
-        Task<bool> UpdateRole(SysRole role, long userId, string[] menuId);
+        Task<bool> UpdateRole(RoleDto role, long userId, string[] menuId);
 
         Task<bool> UpdateMenu(SysMenu menu, long userId);
 

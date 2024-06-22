@@ -215,18 +215,19 @@ namespace Services.Sys
                     role.IsDel = 1;
 
                     await InsertAsync(role);
-
-                    // 根据传入的menuId数组创建新的角色菜单关联列表
-                    var roleMenuList = menuId.Select(menuId => new SysRolemenu
+                    if (menuId[0] != "")
                     {
-                        CreateBy = userId,
-                        CreateDate = DateTime.UtcNow,
-                        MenuId = long.Parse(menuId),
-                        RoleId = role.RoleId,
-                        RoleMenuId = PubId.SnowflakeId
-                    }).ToList();
-
-                    await _rolemenuService.InsertIgnoreNullColumnsBatchAsync(roleMenuList);
+                        // 根据传入的menuId数组创建新的角色菜单关联列表
+                        var roleMenuList = menuId.Select(menuId => new SysRolemenu
+                        {
+                            CreateBy = userId,
+                            CreateDate = DateTime.UtcNow,
+                            MenuId = long.Parse(menuId),
+                            RoleId = role.RoleId,
+                            RoleMenuId = PubId.SnowflakeId
+                        }).ToList();
+                        await _rolemenuService.InsertIgnoreNullColumnsBatchAsync(roleMenuList);
+                    }
                     await transaction.CommitAsync();
                     return true;
                 }
@@ -265,7 +266,7 @@ namespace Services.Sys
             }
         }
 
-        public async Task<bool> UpdateRole(SysRole role, long userId, string[] menuId)
+        public async Task<bool> UpdateRole(RoleDto role, long userId, string[] menuId)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
@@ -286,6 +287,16 @@ namespace Services.Sys
 
                     // 将新的角色菜单关联列表插入到数据库中
                     await _rolemenuService.InsertIgnoreNullColumnsBatchAsync(roleMenuList);
+
+                    var entity = await _repository.QueryableToSingleAsync(r => r.RoleId == role.RoleId);
+
+                    entity.RoleName = role.RoleName;
+                    entity.RoleType = role.RoleType;
+                    entity.Remark = role.Remark;
+                    entity.ModifiedBy = userId;
+                    entity.ModifiedDate = DateTime.UtcNow;
+
+                    await _repository.UpdateAsync(entity);
 
                     await transaction.CommitAsync();
                     return true;

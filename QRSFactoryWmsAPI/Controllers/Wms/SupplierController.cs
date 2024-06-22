@@ -74,7 +74,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [OperationLog(LogType.delete)]
         public async Task<IActionResult> DeleteAsync(long userId, long Id, string token)
         {
@@ -91,7 +91,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             return new JsonResult(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> SearchAsync(string token, long userId, string text)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))

@@ -43,7 +43,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             _identityService = identityService;
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -62,7 +62,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             return Content(sd);
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -78,7 +78,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             return new JsonResult(sd);
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
@@ -290,7 +290,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             return new JsonResult(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
         }
 
-        [HttpGet]
+        [HttpPost]
         [EnableCors("CorsPolicy")]
         [Authorize]
         [AllowAnonymous]
