@@ -14,7 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Qiu.Core\Qiu.NetCore\Qiu.NetCore\Qiu.NetCore.csproj" />
     <ProjectReference Include="..\..\Qiu.Responsity\IReposity\IRepository.csproj" />
-    <ProjectReference Include="..\..\Qiu.Responsity\IResponsity\IRepository.csproj" />
     <ProjectReference Include="..\IServices\IServices.csproj" />
   </ItemGroup>
 
