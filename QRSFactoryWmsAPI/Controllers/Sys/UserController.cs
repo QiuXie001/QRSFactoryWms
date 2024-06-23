@@ -1,4 +1,5 @@
-﻿using DB.Models;
+﻿using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -88,10 +89,13 @@ namespace QRSFactoryWmsAPI.Controllers
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
             var userObject = JsonConvert.DeserializeObject<SysUser>(user);
+            userObject.HeadImg = "null";
             userObject.CreateBy = userId;
-            userObject.CreateDate = DateTime.Now;
+            userObject.CreateDate = DateTime.UtcNow;
             userObject.ModifiedBy = userId;
-            userObject.ModifiedDate = DateTime.Now;
+            userObject.ModifiedDate = DateTime.UtcNow;
+            userObject.LoginDate = DateTime.UtcNow;
+            userObject.IsDel = 1;
             var item = await _userService.InsertAsync(userObject);
             return new JsonResult((item, PubConst.Add1));
         }
@@ -108,10 +112,19 @@ namespace QRSFactoryWmsAPI.Controllers
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var userObject = JsonConvert.DeserializeObject<SysUser>(user);
-            userObject.ModifiedBy = userId;
-            userObject.ModifiedDate = DateTime.Now;
-            var item = await _userService.UpdateAsync(userObject);
+
+            var userObject = JsonConvert.DeserializeObject<UserDto>(user);
+            var entity = await _userService.QueryableToSingleAsync(u => u.UserId == userObject.UserId && u.IsDel == 1);
+            entity.ModifiedBy = userId;
+            entity.ModifiedDate = DateTime.Now;
+            entity.UserName = userObject.UserName;
+            entity.UserNickname = userObject.UserNickname;
+            entity.Pwd = userObject.Pwd;
+            entity.Sex = userObject.Sex;
+            entity.DeptId = userObject.DeptId;
+            entity.RoleId = userObject.RoleId;
+            entity.Remark = userObject.Remark;
+            var item = await _userService.UpdateAsync(entity);
             return new JsonResult((item, PubConst.Update1));
         }
 
@@ -147,5 +160,9 @@ namespace QRSFactoryWmsAPI.Controllers
             var item = await _userService.Disable(userObject, userId);
             return new JsonResult((item, PubConst.Delete1));
         }
+
+        
+
+        
     }
 }

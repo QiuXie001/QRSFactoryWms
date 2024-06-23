@@ -132,5 +132,19 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             var item = await _deptService.UpdateAsync(deptObject);
             return new JsonResult((item, PubConst.Update2));
         }
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [Route("Dept/GetDeptList")]
+        public async Task<IActionResult> GetDeptList(string token, long userId)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return new JsonResult(false, PubConst.ValidateToken2);
+            }
+            var item = await _deptService.GetDeptList();
+            return Ok(item);
+        }
     }
 }

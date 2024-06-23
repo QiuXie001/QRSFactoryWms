@@ -72,5 +72,13 @@ namespace Services
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
+
+        public async Task<Dictionary<long, string>> GetReservoirareaList()
+        {
+            var result = await _dbContext.Set<WmsReservoirarea>()
+                .Where(r => r.IsDel == 1)
+                .ToDictionaryAsync(r => r.ReservoirAreaId, r => r.ReservoirAreaName);
+            return result;
+        }
     }
 }

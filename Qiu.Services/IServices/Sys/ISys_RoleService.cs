@@ -6,7 +6,8 @@ namespace IServices.Sys
 {
     public interface ISys_RoleService : IBaseService<SysRole>
     {
-        Task<Dictionary<long, string>> GetRoleNameList();
+        Task<Dictionary<long, string>> GetRoleList();
+        
         Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
         Task<string> GetRoleNameById(long roleId);
         Task<string> GetMenuAsync();

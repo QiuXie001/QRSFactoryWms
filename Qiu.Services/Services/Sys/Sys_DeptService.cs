@@ -76,12 +76,12 @@ namespace Services.Sys
             return dept?.DeptName;
         }
 
-        public async Task<List<string>> GetDeptNameList()
+        public async Task<Dictionary<long, string>> GetDeptList()
         {
-            return await _dbContext.Set<SysDept>()
+            var result = await _dbContext.Set<SysDept>()
                 .Where(r => r.IsDel == 1)
-                .Select(r => r.DeptName)
-                .ToListAsync();
+                .ToDictionaryAsync(r => r.DeptId, r => r.DeptName);
+            return result;
         }
     }
 }

@@ -69,15 +69,15 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.getList)]
-        [Route("Role/GetRolename")]
-        public async Task<IActionResult> GetRolenameList(string token, long userId)
+        [Route("Role/GetRoleList")]
+        public async Task<IActionResult> GetRoleList(string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
                 return Ok((false, PubConst.ValidateToken2));
             }
 
-            var item = await _roleService.GetRoleNameList();
+            var item = await _roleService.GetRoleList();
             return Ok(item);
         }
         [HttpPost]

@@ -1,4 +1,4 @@
-@QRSFactoryWmsAPI_HostAddress = http://localhost:5208
+@QRSFactoryWmsAPI_HostAddress = http://0.0.0.0:5208
 
 GET {{QRSFactoryWmsAPI_HostAddress}}/weatherforecast/
 Accept: application/json

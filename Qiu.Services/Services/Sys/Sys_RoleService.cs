@@ -120,6 +120,7 @@ namespace Services.Sys
                     r.MenuIcon,
                     r.IsDel,
                     r.Remark,
+                    r.Sort,
                     CName = r.CreateByUser.UserNickname,
                     r.CreateDate,
                     MName = r.ModifiedByUser.UserNickname,
@@ -145,7 +146,7 @@ namespace Services.Sys
                 list.Reverse();
             }
 
-
+            totalNumber = await query.CountAsync();
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
@@ -244,12 +245,14 @@ namespace Services.Sys
             {
                 try
                 {
-                    // 设置菜单属性
+                    // 设置菜单属性                  54042346765418496
+                    menu.MenuId = PubId.SnowflakeId %1000000000000;
                     menu.CreateBy = userId;
                     menu.CreateDate = DateTime.UtcNow;
                     menu.ModifiedBy = userId;
                     menu.ModifiedDate = DateTime.UtcNow;
                     menu.IsDel = 1; // 假设新菜单默认是启用的
+                    menu.Status = 1; // 假设新菜单默认是启用的
 
                     // 插入菜单
                     _dbContext.Add(menu);
@@ -315,10 +318,14 @@ namespace Services.Sys
             {
                 try
                 {
-                    // 设置菜单属性
+                    var entity = await _menuService.QueryableToSingleAsync(m => m.MenuId == menu.MenuId);
+                    menu.Status = entity.Status;
+                    menu.IsDel = entity.IsDel;
+                    menu.CreateBy = entity.CreateBy;
+                    menu.CreateDate = entity.CreateDate;
                     menu.ModifiedBy = userId;
                     menu.ModifiedDate = DateTime.UtcNow;
-
+                    menu.Rolemenus = null;
                     // 更新菜单
                     _dbContext.Update(menu);
                     await _dbContext.SaveChangesAsync();
@@ -396,6 +403,7 @@ namespace Services.Sys
                     // 删除与角色关联的所有菜单关联
                     await _rolemenuService.DeleteByRoleIdAsync(role.RoleId);
 
+                    await _dbContext.SaveChangesAsync();
                     // 删除角色本身
                     _dbContext.Remove(role);
                     await _dbContext.SaveChangesAsync();
@@ -420,15 +428,18 @@ namespace Services.Sys
                     // 删除与菜单关联的所有角色关联
                     await _rolemenuService.DeleteByMenuIdAsync(menu.MenuId);
 
-                    // 删除菜单本身
-                    _dbContext.Remove(menu);
+                    await _menuService.DeleteAsync(menu);
+
+                    // 保存更改
                     await _dbContext.SaveChangesAsync();
 
+                    // 提交事务
                     await transaction.CommitAsync();
                     return true;
                 }
                 catch (Exception)
                 {
+                    // 回滚事务
                     await transaction.RollbackAsync();
                     return false;
                 }
@@ -452,13 +463,16 @@ namespace Services.Sys
             return role?.RoleName;
         }
 
-        public async Task<Dictionary<long, string>> GetRoleNameList()
+        public async Task<Dictionary<long, string>> GetRoleList()
         {
             var result = await _dbContext.Set<SysRole>()
                 .Where(r => r.IsDel == 1)
                 .ToDictionaryAsync(r => r.RoleId, r => r.RoleName);
             return result;
         }
+
+        
+
         private List<MenuTreeNode> BuildMenuTree(List<MenuTreeNode> allMenus, long? parentId)
         {
             return allMenus.Where(m => m.MenuParent == parentId)
@@ -467,6 +481,7 @@ namespace Services.Sys
                     MenuId = m.MenuId,
                     MenuName = m.MenuName,
                     MenuParent = m.MenuParent,
+
                     Children = BuildMenuTree(allMenus, m.MenuId)
                 })
                 .ToList();

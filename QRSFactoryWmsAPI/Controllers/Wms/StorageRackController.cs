@@ -52,6 +52,38 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.select)]
+        [Route("StorageRack/GetReservoirareaList")]
+        public async Task<IActionResult> GetReservoirareaListAsync(string token, long userId)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return new JsonResult(false, PubConst.ValidateToken2);
+            }
+            var json = await _reservoirareaService.GetReservoirareaList();
+            return new JsonResult(json);
+        }
+
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.select)]
+        [Route("StorageRack/GetStorageRackList")]
+        public async Task<IActionResult> GetStorageRackListAsync(string token, long userId)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return new JsonResult(false, PubConst.ValidateToken2);
+            }
+            var json = await _storagerackService.GetStorageRackList();
+            return new JsonResult(json);
+        }
+
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.select)]
         [Route("StorageRack/GetReservoirarea")]
         public async Task<IActionResult> GetReservoirareaAsync(string token, long userId, long Id)
         {
@@ -69,7 +101,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [AllowAnonymous]
         [OperationLog(LogType.select)]
         [Route("StorageRack/GetStoragerack")]
-        public async Task<IActionResult> GetStoragerackAsync(long Id, string token, long userId)
+        public async Task<IActionResult> GetStoragerackAsync( string token, long userId, long Id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {

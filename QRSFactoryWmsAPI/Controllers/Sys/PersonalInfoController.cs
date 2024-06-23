@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
+using Qiu.Utils.Env;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
 
@@ -74,7 +75,8 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 DeptId = item.DeptId,
                 DeptName = await _deptService.GetDeptNameById(item.DeptId),
                 LoginDate = item.LoginDate,
-                Remark = item.Remark
+                Remark = item.Remark,
+                Sort = item.Sort,
             };
 
             return Ok((true, user));
@@ -92,11 +94,23 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             {
                 return new JsonResult(false, PubConst.ValidateToken2);
             }
-            var userObject = JsonConvert.DeserializeObject<SysUser>(user);
-            userObject.UserId = userId;
-            userObject.ModifiedBy = userId;
-            userObject.ModifiedDate = DateTime.Now;
-            var item = await _userService.UpdateAsync(userObject);
+
+            var userObject = JsonConvert.DeserializeObject<UserDto>(user);
+
+            SysUser entity = await _userService.QueryableToSingleAsync(u => u.UserId == userId && u.IsDel == 1);
+
+            entity.HeadImg = userObject.HeadImg;
+            entity.UserName = userObject.UserName;
+            entity.UserNickname = userObject.UserNickname;
+            entity.Pwd = userObject.Pwd.ToMd5();
+            entity.Sex = userObject.Sex;
+            entity.DeptId = userObject.DeptId;
+            entity.Tel = userObject.Tel;
+            entity.Email = userObject.Email;
+            entity.Remark = userObject.Remark;
+
+
+            var item = await _userService.UpdateAsync(entity);
             return new JsonResult((item, PubConst.Update1));
         }
 

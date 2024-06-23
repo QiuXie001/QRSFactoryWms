@@ -40,6 +40,21 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             _identityService = identityService;
         }
 
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.select)]
+        [Route("StorageRack/GetWarehouseList")]
+        public async Task<IActionResult> GetWarehouseListAsync(string token, long userId)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return new JsonResult(false, PubConst.ValidateToken2);
+            }
+            var json = await _warehouseService.GetWarehouseList();
+            return new JsonResult(json);
+        }
 
         [HttpPost]
         [EnableCors("CorsPolicy")]

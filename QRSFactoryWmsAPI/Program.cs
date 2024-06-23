@@ -77,6 +77,15 @@ builder.Services.AddAuthentication(options =>
     };
 }).AddCookie();
 
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.ClearProviders(); // 清除已注册的日志提供程序
+    loggingBuilder.AddConsole();
+    loggingBuilder.AddDebug();
+
+    // 禁用敏感数据日志记录
+    loggingBuilder.AddFilter("System", LogLevel.Warning);
+});
 
 builder.Services.AddMvc().AddNewtonsoftJson(options =>
 {
@@ -168,9 +177,11 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 app.UseCors("CorsPolicy");
 
 

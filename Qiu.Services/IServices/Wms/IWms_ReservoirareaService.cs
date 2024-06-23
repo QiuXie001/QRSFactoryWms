@@ -6,5 +6,7 @@ namespace IServices.Wms
     public interface IWms_ReservoirareaService : IBaseService<WmsReservoirarea>
     {
         Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
+
+        Task<Dictionary<long, string>> GetReservoirareaList();
     }
 }
