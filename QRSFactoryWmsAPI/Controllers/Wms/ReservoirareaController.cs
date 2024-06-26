@@ -1,4 +1,6 @@
-﻿using DB.Models;
+﻿using AngleSharp.Dom;
+using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using IServices.Wms;
 using MediatR;
@@ -51,13 +53,13 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
             var sd = await _reservoirareaService.PageListAsync(bootstrapObject);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -70,27 +72,43 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var modelObject = JsonConvert.DeserializeObject<WmsReservoirarea>(model);
             if (id.IsEmptyZero())
             {
-                if (await _reservoirareaService.IsAnyAsync(c => c.ReservoirAreaNo == modelObject.ReservoirAreaNo || _reservoirareaService.IsAnyAsync(c => c.ReservoirAreaNo == modelObject.ReservoirAreaNo || c.ReservoirAreaName == modelObject.ReservoirAreaName).Result))
+                var modelObject = JsonConvert.DeserializeObject<WmsReservoirarea>(model);
+                if (await _reservoirareaService.IsAnyAsync(c => c.ReservoirAreaNo == modelObject.ReservoirAreaNo || c.ReservoirAreaName == modelObject.ReservoirAreaName))
                 {
-                    return new JsonResult((false, PubConst.Warehouse4));
+                    return Ok((false, PubConst.Warehouse4));
                 }
                 modelObject.ReservoirAreaId = PubId.SnowflakeId;
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.ReservoirAreaNo = modelObject.ReservoirAreaNo;
+                modelObject.ReservoirAreaName = modelObject.ReservoirAreaName;
+                modelObject.WarehouseId = modelObject.WarehouseId;
+                modelObject.Remark = modelObject.Remark;
+
+                modelObject.IsDel = 1;
+                modelObject.CreateBy = userId;
+                modelObject.CreateDate = DateTime.UtcNow;
+                modelObject.ModifiedBy = userId;
+                modelObject.ModifiedDate = DateTime.UtcNow;
                 bool flag = await _reservoirareaService.InsertAsync(modelObject);
-                return new JsonResult((flag, PubConst.Add1));
+                return Ok((flag, PubConst.Add1));
             }
             else
             {
-                modelObject.ReservoirAreaId = id.ToInt64();
-                modelObject.ModifiedBy = UserDtoCache.UserId;
-                modelObject.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _reservoirareaService.UpdateAsync(modelObject);
-                return new JsonResult((flag, PubConst.Update1));
+                var modelObject = JsonConvert.DeserializeObject<ReservoirareaDto>(model);
+                var entity = await _reservoirareaService.QueryableToSingleAsync(c => c.ReservoirAreaId == modelObject.ReservoirAreaId);
+                entity.ReservoirAreaNo = modelObject.ReservoirAreaNo;
+                entity.ReservoirAreaName = modelObject.ReservoirAreaName;
+                entity.WarehouseId = modelObject.WarehouseId;
+                entity.Remark = modelObject.Remark;
+
+                entity.IsDel = 1;
+                entity.ModifiedBy = userId;
+                entity.ModifiedDate = DateTime.UtcNow;
+                var flag = await _reservoirareaService.UpdateAsync(entity);
+                return Ok((flag, PubConst.Update1));
             }
         }
 
@@ -104,17 +122,17 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var isExist = await _storagerackService.IsAnyAsync(c => c.ReservoirAreaId == SqlFunc.ToInt64(id));
             if (isExist)
             {
-                return new JsonResult((false, PubConst.Warehouse3));
+                return Ok((false, PubConst.Warehouse3));
             }
             else
             {
-                var flag = await _reservoirareaService.UpdateAsync(new WmsReservoirarea { ReservoirAreaId = SqlFunc.ToInt64(id), IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
-                return new JsonResult((flag, PubConst.Delete1));
+                var flag = await _reservoirareaService.UpdateAsync(new WmsReservoirarea { ReservoirAreaId = SqlFunc.ToInt64(id), IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
+                return Ok((flag, PubConst.Delete1));
             }
         }
     }

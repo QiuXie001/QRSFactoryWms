@@ -47,13 +47,13 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
             var sd = await _deliveryServices.PageListAsync(bootstrapObject);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -66,7 +66,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var modelObject = JsonConvert.DeserializeObject<WmsDelivery>(model);
             if (model.IsEmpty())
@@ -76,25 +76,25 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
                 {
                     if (await _deliveryServices.IsAnyAsync(c => c.TrackingNo == modelObject.TrackingNo))
                     {
-                        return new JsonResult((false, PubConst.Delivery3));
+                        return Ok((false, PubConst.Delivery3));
                     }
                 }
 
                 modelObject.DeliveryId = PubId.SnowflakeId;
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateBy = userId;
                 modelObject.CreateDate = DateTime.UtcNow;
-                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedBy = userId;
                 modelObject.ModifiedDate = DateTimeExt.DateTime;
                 var flag = await _deliveryServices.DeliveryAsync(modelObject);
-                return new JsonResult((flag, PubConst.Add1));
+                return Ok((flag, PubConst.Add1));
             }
             else
             {
                 modelObject.DeliveryId = Id.ToInt64();
-                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedBy = userId;
                 modelObject.ModifiedDate = DateTimeExt.DateTime;
                 var flag = await _deliveryServices.UpdateAsync(modelObject);
-                return new JsonResult((flag, PubConst.Update1));
+                return Ok((flag, PubConst.Update1));
             }
         }
 
@@ -108,10 +108,10 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var flag = await _deliveryServices.UpdateAsync(new WmsDelivery { DeliveryId = Id, IsDel = 1, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
-            return new JsonResult((flag, PubConst.Delete1));
+            var flag = await _deliveryServices.UpdateAsync(new WmsDelivery { DeliveryId = Id, IsDel = 1, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
+            return Ok((flag, PubConst.Delete1));
         }
     }
 }

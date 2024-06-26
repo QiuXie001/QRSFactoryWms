@@ -53,7 +53,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var bootstrapObject = JsonConvert.DeserializeObject<PubParams.StatusBootstrapParams>(bootstrap);
@@ -72,10 +72,10 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var sd = await _invmovedetailService.PageListAsync(pid);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -88,7 +88,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var model = new Inventorymove();
             var head = await _inventorymoveService.QueryableToSingleAsync(m => m.InventorymoveId == SqlFunc.ToInt64(pid) && m.IsDel == 1);
@@ -97,7 +97,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             if (id.IsZero())
             {
                 model.InventorymoveId = long.Parse(pid);
-                return new JsonResult(model);
+                return Ok(model);
             }
             else
             {
@@ -123,7 +123,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
                     Remark = c.Remark,
                     Status = c.Status,
                 }).ToList();
-                return new JsonResult(model);
+                return Ok(model);
             }
         }
 
@@ -137,26 +137,26 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var modelObject = JsonConvert.DeserializeObject<WmsInventorymove>(model);
             if (id.IsZero())
             {
-                modelObject.InventorymoveNo = await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "WmsInventorymove");
+                modelObject.InventorymoveNo = await _serialnumService.GetSerialnumAsync(userId, "WmsInventorymove");
                 modelObject.InventorymoveId = PubId.SnowflakeId;
                 modelObject.Status = StockInStatus.initial.ToByte();
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateBy = userId;
                 modelObject.CreateDate = DateTimeExt.DateTime;
                 var flag = await _inventorymoveService.InsertAsync(modelObject);
-                return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
+                return Ok(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
             {
                 modelObject.InventorymoveId = id.ToInt64();
-                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedBy = userId;
                 modelObject.ModifiedDate = DateTimeExt.DateTime;
                 var flag = await _inventorymoveService.UpdateAsync(modelObject);
-                return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
+                return Ok(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }
 
@@ -170,7 +170,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var listObject = JsonConvert.DeserializeObject<List<WmsInvmovedetail>>(list);
             var exist = _invmovedetailService.QueryableToListAsync(c => c.InventorymoveId == id);
@@ -183,29 +183,29 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
                     c.MoveDetailId = PubId.SnowflakeId;
                     c.Status = StockInStatus.initial.ToByte();
                     c.IsDel = 1;
-                    c.CreateBy = UserDtoCache.UserId;
+                    c.CreateBy = userId;
                     c.CreateDate = DateTimeExt.DateTime;
                     modelList.Add(c);
                 });
                 bool flag = await _invmovedetailService.InsertBatchAsync(modelList);
-                return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
+                return Ok(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
             {
-                await _invmovedetailService.UpdateAsync(new WmsInvmovedetail { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate }, c => c.InventorymoveId == SqlFunc.ToInt64(id) && c.IsDel == 1);
+                await _invmovedetailService.UpdateAsync(new WmsInvmovedetail { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate }, c => c.InventorymoveId == SqlFunc.ToInt64(id) && c.IsDel == 1);
                 listObject.ForEach((c) =>
                 {
                     c.Remark = c.Remark;
                     c.Status = StockInStatus.initial.ToByte();
                     c.MoveDetailId = PubId.SnowflakeId;
                     c.IsDel = 1;
-                    c.CreateBy = UserDtoCache.UserId;
+                    c.CreateBy = userId;
                     c.CreateDate = DateTimeExt.DateTime;
                     modelList.Add(c);
                 });
 
                 var flag = await _invmovedetailService.InsertBatchAsync(modelList);
-                return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
+                return Ok(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }
 
@@ -219,15 +219,15 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var list = _invmovedetailService.QueryableToListAsync(c => c.IsDel == 1 && c.InventorymoveId == SqlFunc.ToInt64(id));
             if (!list.IsEmpty())
             {
-                return new JsonResult((false, PubConst.StockIn4));
+                return Ok((false, PubConst.StockIn4));
             }
-            var flag = await _inventorymoveService.AuditinAsync(UserDtoCache.UserId, id);
-            return new JsonResult(flag ? (flag, PubConst.StockIn2) : (flag, PubConst.StockIn3));
+            var flag = await _inventorymoveService.AuditinAsync(userId, id);
+            return Ok(flag ? (flag, PubConst.StockIn2) : (flag, PubConst.StockIn3));
         }
 
         [HttpPost]
@@ -240,7 +240,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             try
             {
@@ -250,18 +250,18 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
                 }
 
                 var flag1 = await _invmovedetailService.UpdateAsync(
-                 new WmsInvmovedetail { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
+                 new WmsInvmovedetail { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime },
                  c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                  c => c.MoveDetailId == id
                  );
 
                 var flag2 = await _inventorymoveService.UpdateAsync(
-                 new WmsInventorymove { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
+                 new WmsInventorymove { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime },
                  c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                  c => c.InventorymoveId == id
                  );
 
-                return new JsonResult(new { Success = flag1 && flag2, Message = flag1 && flag2 ? PubConst.Delete1 : PubConst.Delete2 });
+                return Ok(new { Success = flag1 && flag2, Message = flag1 && flag2 ? PubConst.Delete1 : PubConst.Delete2 });
             }
             catch (Exception ex)
             {
@@ -280,14 +280,14 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var flag = await _invmovedetailService.UpdateAsync(
-                 new WmsInvmovedetail { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
+                 new WmsInvmovedetail { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime },
                  c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                  c => c.MoveDetailId == id
                  );
-            return new JsonResult(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
+            return Ok(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
         }
 
         [HttpPost]
@@ -300,10 +300,10 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var str = _inventorymoveService.PrintList(id);
-            return new JsonResult(str);
+            return Ok(str);
         }
     }
 }

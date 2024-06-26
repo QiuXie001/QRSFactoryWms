@@ -150,7 +150,13 @@ namespace Services
             }
         }
 
-
+        public async Task<Dictionary<long, string>> GetCustomerList()
+        {
+            var result = await _dbContext.Set<WmsCustomer>()
+                .Where(r => r.IsDel == 1)
+                .ToDictionaryAsync(r => r.CustomerId, r => r.CustomerName);
+            return result;
+        }
 
     }
 }

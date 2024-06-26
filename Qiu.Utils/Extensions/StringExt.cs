@@ -33,8 +33,8 @@ namespace Qiu.Utils.Extensions
         public static bool IsZero(this long str)
         {
             if (str == 0)
-                return false;
-            return true;
+                return true;
+            return false;
         }
         public static bool IsEmpty(this string str)
         {

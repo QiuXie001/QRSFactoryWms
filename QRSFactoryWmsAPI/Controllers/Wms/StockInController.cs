@@ -1,4 +1,6 @@
-﻿using DB.Models;
+﻿using AngleSharp.Dom;
+using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using IServices.Wms;
 using MediatR;
@@ -58,12 +60,12 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrapObject = JsonConvert.DeserializeObject<PubParams.StockInBootstrapParams>(bootstrap);
 
             var sd = await _stockinService.PageListAsync(bootstrapObject);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -76,10 +78,10 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var sd = await _stockindetailService.PageListAsync(pid);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -91,18 +93,18 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var model = new WmsStockindetail();
             if (id.IsZero())
             {
                 model.StockInId = pid.ToInt64();
-                return View(model);
+                return Ok(model);
             }
             else
             {
                 model = await _stockindetailService.QueryableToSingleAsync(c => c.StockInDetailId == id && c.IsDel == 1);
-                return View(model);
+                return Ok(model);
             }
         }
 
@@ -116,32 +118,49 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var modelObject = JsonConvert.DeserializeObject<WmsStockin>(model);
             if (id.IsEmptyZero())
             {
+                var modelObject = JsonConvert.DeserializeObject<WmsStockin>(model);
                 if (!modelObject.OrderNo.IsEmpty())
                 {
                     if (await _stockinService.IsAnyAsync(c => c.OrderNo == modelObject.OrderNo))
                     {
-                        return new JsonResult((false, PubConst.StockIn1));
+                        return Ok((false, PubConst.StockIn1));
                     }
                 }
-                modelObject.StockInNo = await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "Wms_stockin");
                 modelObject.StockInId = PubId.SnowflakeId;
+                modelObject.StockInNo = modelObject.StockInNo;
+                modelObject.OrderNo = modelObject.OrderNo;
+                modelObject.StockInTypeId = modelObject.StockInTypeId;
+                modelObject.SupplierId = modelObject.SupplierId;
+                modelObject.StockInStatus = 1;
+                modelObject.Remark = modelObject.Remark;
+
+                modelObject.IsDel = 1;
                 modelObject.StockInStatus = StockInStatus.initial.ToByte();
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateBy = userId;
+                modelObject.CreateDate = DateTime.UtcNow;
+                modelObject.ModifiedBy = userId;
+                modelObject.ModifiedDate = DateTime.UtcNow;
                 bool flag = await _stockinService.InsertAsync(modelObject);
-                return new JsonResult((flag, PubConst.Add1));
+                return Ok((flag, PubConst.Add1));
             }
             else
             {
-                modelObject.StockInId = id.ToInt64();
-                modelObject.ModifiedBy = UserDtoCache.UserId;
-                modelObject.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _stockinService.UpdateAsync(modelObject);
-                return new JsonResult((flag, PubConst.Update1));
+                var modelObject = JsonConvert.DeserializeObject<StockInDto>(model);
+                var entity = await _stockinService.QueryableToSingleAsync(c => c.StockInId == modelObject.StockInId && c.IsDel == 1);
+                entity.OrderNo = modelObject.OrderNo;
+                entity.StockInNo = modelObject.StockInNo;
+                entity.StockInTypeId = modelObject.StockInTypeId;
+                entity.SupplierId = modelObject.SupplierId;
+                entity.StockInStatus = StockInStatus.initial.ToByte();
+                entity.Remark = modelObject.Remark;
+                entity.ModifiedBy = userId;
+                entity.ModifiedDate = DateTime.UtcNow;
+                var flag = await _stockinService.UpdateAsync(entity);
+                return Ok((flag, PubConst.Update1));
             }
         }
 
@@ -150,29 +169,38 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.addOrUpdate)]
-        [Route("StockIn/AddOrUpdateD")]
-        public async Task<IActionResult> AddOrUpdateDAsync(string token, long userId, [FromForm] string model, string id)
+        [Route("StockIn/AddOrUpdateDetail")]
+        public async Task<IActionResult> AddOrUpdateDetailAsync(string token, long userId, [FromForm] string model, string id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var modelObject = JsonConvert.DeserializeObject<WmsStockindetail>(model);
             if (id.IsEmptyZero())
             {
+                var modelObject = JsonConvert.DeserializeObject<WmsStockindetail>(model);
                 modelObject.StockInDetailId = PubId.SnowflakeId;
+
+                modelObject.StoragerackId = 1;
+                modelObject.IsDel = 1;
                 modelObject.Status = StockInStatus.initial.ToByte();
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.AuditinId = userId;
+                modelObject.AuditinTime = DateTime.UtcNow;
+                modelObject.CreateBy = userId;
+                modelObject.CreateDate = DateTime.UtcNow;
+                modelObject.ModifiedBy = userId;
+                modelObject.ModifiedDate = DateTime.UtcNow;
                 bool flag = await _stockindetailService.InsertAsync(modelObject);
-                return new JsonResult((flag, PubConst.Add1));
+                return Ok((flag, PubConst.Add1));
             }
             else
             {
-                modelObject.StockInDetailId = id.ToInt64();
-                modelObject.ModifiedBy = UserDtoCache.UserId;
-                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var modelObject = JsonConvert.DeserializeObject<WmsStockindetail>(model);
+                //modelObject.StockInDetailId = id.ToInt64();
+                //modelObject.ModifiedBy = userId;
+                //modelObject.ModifiedDate = DateTime.UtcNow;
                 var flag = await _stockindetailService.UpdateAsync(modelObject);
-                return new JsonResult((flag, PubConst.Update1));
+                return Ok((flag, PubConst.Update1));
             }
         }
 
@@ -182,15 +210,15 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var list = await _stockindetailService.QueryableToListAsync(c => c.IsDel == 1 && c.StockInId == id);
             if (!list.Any())
             {
-                return new JsonResult((false, PubConst.StockIn4));
+                return Ok((false, PubConst.StockIn4));
             }
-            var flag = await _stockinService.AuditinAsync(UserDtoCache.UserId, id);
-            return new JsonResult((flag, flag ? PubConst.StockIn2 : PubConst.StockIn3));
+            var flag = await _stockinService.AuditinAsync(userId, id);
+            return Ok((flag, flag ? PubConst.StockIn2 : PubConst.StockIn3));
         }
 
         [HttpPost]
@@ -203,28 +231,28 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var isExist = await _stockindetailService.IsAnyAsync(c => c.StockInId == id);
             if (isExist)
             {
-                return new JsonResult((false, PubConst.StockIn3));
+                return Ok((false, PubConst.StockIn3));
             }
             else
             {
                 var flag1 = await _stockindetailService.UpdateAsync(
-                     new WmsStockindetail { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
+                     new WmsStockindetail { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime },
                      c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                      c => c.StockInId == id
                  );
 
                 var flag2 = await _stockinService.UpdateAsync(
-                    new WmsStockin { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
+                    new WmsStockin { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime },
                     c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                     c => c.StockInId == id
                 );
 
-                return new JsonResult(new { Success = flag1 && flag2, Message = flag1 && flag2 ? PubConst.Delete1 : PubConst.Delete2 });
+                return Ok(new { Success = flag1 && flag2, Message = flag1 && flag2 ? PubConst.Delete1 : PubConst.Delete2 });
             }
         }
 
@@ -234,14 +262,14 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var flag = await _stockindetailService.UpdateAsync(
-                 new WmsStockindetail { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
+                 new WmsStockindetail { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime },
                  c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                  c => c.StockInDetailId == id
                  );
-            return new JsonResult((flag, flag ? PubConst.Delete1 : PubConst.Delete2));
+            return Ok((flag, flag ? PubConst.Delete1 : PubConst.Delete2));
         }
     }
 }

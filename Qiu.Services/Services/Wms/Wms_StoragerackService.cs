@@ -37,9 +37,9 @@ namespace Services
                     StorageRackId = s.StorageRackId.ToString(),
                     StorageRackNo = s.StorageRackNo,
                     StorageRackName = s.StorageRackName,
-                    ReservoirAreaNo = s.Reservoirarea.ReservoirAreaNo,
+                    ReservoirAreaId = s.Reservoirarea.ReservoirAreaId,
                     ReservoirAreaName = s.Reservoirarea.ReservoirAreaName,
-                    WarehouseNo = s.Reservoirarea.Warehouse.WarehouseNo,
+                    WarehouseId = s.Reservoirarea.Warehouse.WarehouseId,
                     WarehouseName = s.Reservoirarea.Warehouse.WarehouseName,
                     IsDel = s.IsDel,
                     Remark = s.Remark,
@@ -51,7 +51,7 @@ namespace Services
 
             if (!bootstrap.search.IsEmpty())
             {
-                query = query.Where(s => s.WarehouseName.Contains(bootstrap.search) || s.WarehouseNo.Contains(bootstrap.search));
+                query = query.Where(s => s.WarehouseName.Contains(bootstrap.search));
             }
 
             if (!bootstrap.datemin.IsEmpty() && !bootstrap.datemax.IsEmpty())

@@ -54,7 +54,7 @@ namespace Services
                 {
                     StockInId = s.StockInId.ToString(),
                     StockInTypeName = s.StockInType.DictName,
-                    StockInTypeId = s.StockInType.DictId.ToString(),
+                    StockInTypeId = s.StockInType.DictId.ToString(), 
                     StockInStatus = s.StockInStatus,
                     StockInNo = s.StockInNo,
                     OrderNo = s.OrderNo,

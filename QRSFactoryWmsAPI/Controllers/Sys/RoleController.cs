@@ -90,7 +90,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult((false, PubConst.ValidateToken2));
+                return Ok((false, PubConst.ValidateToken2));
             }
             var roleMenu = await _roleService.GetMenuAsync(roleId);
             return Ok(roleMenu);
@@ -105,7 +105,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var roleDto = JsonConvert.DeserializeObject<RoleDto>(role);
             if (menuId == null)
@@ -121,9 +121,9 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             flag = await _roleService.InsertRole(entity, userId, menuIds);
             if (flag)
             {
-                return new JsonResult((flag, PubConst.Add1));
+                return Ok((flag, PubConst.Add1));
             }
-            return new JsonResult((flag, PubConst.Add2));
+            return Ok((flag, PubConst.Add2));
         }
 
         [HttpPost]
@@ -136,13 +136,13 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var roleDto = JsonConvert.DeserializeObject<RoleDto>(role);
             var menuIds = menuId.Split(',').ToArray();
             bool flag = false;
             flag = await _roleService.UpdateRole(roleDto, userId, menuIds);
-            return new JsonResult((flag, PubConst.Update1));
+            return Ok((flag, PubConst.Update1));
 
         }
 
@@ -156,12 +156,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var roleDto = JsonConvert.DeserializeObject<SysRole>(role);
             bool flag = false;
             flag = await _roleService.DeleteRole(roleDto);
-            return new JsonResult((flag, PubConst.Delete1));
+            return Ok((flag, PubConst.Delete1));
 
         }
 
@@ -175,12 +175,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var roleDto = JsonConvert.DeserializeObject<SysRole>(role);
             bool flag = false;
             flag = await _roleService.DisableRole(roleDto, userId);
-            return new JsonResult((flag, PubConst.Enable3));
+            return Ok((flag, PubConst.Enable3));
 
         }
 

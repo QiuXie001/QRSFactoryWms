@@ -12,6 +12,7 @@ using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
 using Qiu.Utils.Table;
+using SqlSugar;
 
 namespace QRSFactoryWmsAPI.Controllers
 {
@@ -86,18 +87,22 @@ namespace QRSFactoryWmsAPI.Controllers
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var userObject = JsonConvert.DeserializeObject<SysUser>(user);
+            userObject.UserId = PubId.SnowflakeId;
             userObject.HeadImg = "null";
+            userObject.Pwd = userObject.Pwd.ToMd5();
+            userObject.Sex = userObject.Sex;
             userObject.CreateBy = userId;
             userObject.CreateDate = DateTime.UtcNow;
             userObject.ModifiedBy = userId;
             userObject.ModifiedDate = DateTime.UtcNow;
             userObject.LoginDate = DateTime.UtcNow;
             userObject.IsDel = 1;
+            userObject.IsEabled = 1;
             var item = await _userService.InsertAsync(userObject);
-            return new JsonResult((item, PubConst.Add1));
+            return Ok((item, PubConst.Add1));
         }
 
         [HttpPost]
@@ -110,7 +115,7 @@ namespace QRSFactoryWmsAPI.Controllers
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var userObject = JsonConvert.DeserializeObject<UserDto>(user);
@@ -119,13 +124,13 @@ namespace QRSFactoryWmsAPI.Controllers
             entity.ModifiedDate = DateTime.Now;
             entity.UserName = userObject.UserName;
             entity.UserNickname = userObject.UserNickname;
-            entity.Pwd = userObject.Pwd;
+            entity.Pwd = userObject.Pwd.ToMd5();
             entity.Sex = userObject.Sex;
             entity.DeptId = userObject.DeptId;
             entity.RoleId = userObject.RoleId;
             entity.Remark = userObject.Remark;
             var item = await _userService.UpdateAsync(entity);
-            return new JsonResult((item, PubConst.Update1));
+            return Ok((item, PubConst.Update1));
         }
 
         [HttpPost]
@@ -138,10 +143,10 @@ namespace QRSFactoryWmsAPI.Controllers
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var item = await _userService.DeleteAsync(user);
-            return new JsonResult((item, PubConst.Delete1));
+            return Ok((item, PubConst.Delete1));
         }
         [HttpPost]
         [EnableCors("CorsPolicy")]
@@ -153,12 +158,12 @@ namespace QRSFactoryWmsAPI.Controllers
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var userObject = JsonConvert.DeserializeObject<SysUser>(user);
             var item = await _userService.Disable(userObject, userId);
-            return new JsonResult((item, PubConst.Delete1));
+            return Ok((item, PubConst.Delete1));
         }
 
         

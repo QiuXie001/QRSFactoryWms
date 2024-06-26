@@ -8,6 +8,7 @@ namespace IServices.Wms
     {
         Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
 
+        Task<Dictionary<long, string>> GetCustomerList();
         Task<(bool, string)> ImportAsync(DataTable dt, long userId);
     }
 }

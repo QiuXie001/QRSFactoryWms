@@ -65,7 +65,7 @@ namespace Services.Sys
                 list.Reverse();
             }
 
-            totalNumber = list.Count();
+            totalNumber = await query.CountAsync();
 
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });

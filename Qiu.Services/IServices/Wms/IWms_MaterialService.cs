@@ -8,5 +8,7 @@ namespace IServices.Wms
         Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
 
         Task<byte[]> ExportListAsync(Bootstrap.BootstrapParams bootstrap);
+
+        Task<Dictionary<long, string>> GetMaterialList();
     }
 }

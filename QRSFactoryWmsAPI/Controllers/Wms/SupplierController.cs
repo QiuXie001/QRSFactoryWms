@@ -1,6 +1,10 @@
-﻿using DB.Models;
+﻿using AngleSharp.Dom;
+using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using IServices.Wms;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
@@ -30,73 +34,123 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
 
         [HttpPost]
         [OperationLog(LogType.select)]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [Route("Supplier/List")]
         public async Task<IActionResult> ListAsync(string token, long userId, [FromForm] string bootstrap)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
             var sd = await _supplierService.PageListAsync(bootstrapObject);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
+        [HttpPost]
+        [OperationLog(LogType.select)]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [Route("Supplier/GetSupplierList")]
+        public async Task<IActionResult> GetSupplierListAsync(string token, long userId)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return Ok((false, PubConst.ValidateToken2));
+            }
+
+            var sd = await _supplierService.GetSupplierList();
+            return Ok(sd);
+        }
 
         [HttpPost]
         [OperationLog(LogType.addOrUpdate)]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [Route("Supplier/AddOrUpdate")]
         public async Task<IActionResult> AddOrUpdateAsync(string token, long userId, [FromForm] string model, long Id)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var modelObject = JsonConvert.DeserializeObject<WmsSupplier>(model);
-            if (Id.IsZero())
+            if (Id==0)
             {
+                var modelObject = JsonConvert.DeserializeObject<WmsSupplier>(model);
                 if (await _supplierService.IsAnyAsync(c => c.SupplierNo == modelObject.SupplierNo || c.SupplierName == modelObject.SupplierName))
                 {
-                    return new JsonResult((false, PubConst.Supplier1));
+                    return Ok((false, PubConst.Supplier1));
                 }
                 modelObject.SupplierId = PubId.SnowflakeId;
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateBy = userId;
+                modelObject.CreateDate = DateTimeExt.DateTime;
+                modelObject.ModifiedBy = userId;
+                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                modelObject.IsDel = 1;
                 bool flag = await _supplierService.InsertAsync(modelObject);
-                return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
+                return Ok(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
             {
-                modelObject.SupplierId = Id;
-                modelObject.ModifiedBy = UserDtoCache.UserId;
-                modelObject.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _supplierService.UpdateAsync(modelObject);
-                return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
+                var modelObject = JsonConvert.DeserializeObject<SupplierDto>(model);
+                var entity = await _supplierService.QueryableToSingleAsync(s => s.SupplierId == Id&&s.IsDel==1);
+
+                entity.SupplierNo = modelObject.SupplierNo;
+                entity.SupplierName = modelObject.SupplierName;
+                entity.Address = modelObject.Address;
+                entity.Tel = modelObject.Tel;
+                entity.Email = modelObject.Email;
+                entity.SupplierNo = modelObject.SupplierNo;
+                entity.SupplierPerson = modelObject.SupplierPerson;
+                entity.SupplierLevel = modelObject.SupplierLevel;
+                entity.Remark = modelObject.Remark;
+
+
+                entity.ModifiedBy = userId;
+                entity.ModifiedDate = DateTimeExt.DateTime;
+                entity.IsDel = 1;
+                var flag = await _supplierService.UpdateAsync(entity);
+                return Ok(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }
 
         [HttpPost]
         [OperationLog(LogType.delete)]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [Route("Supplier/Delete")]
         public async Task<IActionResult> DeleteAsync(long userId, long Id, string token)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var isDel = _stockinService.QueryableToSingleAsync(c => c.SupplierId == Id);
             if (!isDel.IsNullT())
             {
-                return new JsonResult((false, PubConst.Supplier2));
+                return Ok((false, PubConst.Supplier2));
             }
-            var flag = await _supplierService.UpdateAsync(new WmsSupplier { SupplierId = Id, IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
-            return new JsonResult(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
+            var flag = await _supplierService.UpdateAsync(new WmsSupplier { SupplierId = Id, IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
+            return Ok(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
         }
-
         [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.select)]
+        [Route("Supplier/Search")]
         public async Task<IActionResult> SearchAsync(string token, long userId, string text)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrap = new Bootstrap.BootstrapParams
             {
@@ -107,7 +161,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
                 order = "desc"
             };
             var json = await _supplierService.PageListAsync(bootstrap);
-            return new JsonResult(json);
+            return Ok(json);
         }
     }
 }

@@ -78,13 +78,13 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var menuObject = JsonConvert.DeserializeObject<SysMenu>(menu);
             bool flag = false;
             flag = await _roleService.InsertMenu(menuObject, userId);
-            return new JsonResult((flag, PubConst.Add1));
+            return Ok((flag, PubConst.Add1));
         }
 
         [HttpPost]
@@ -97,12 +97,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var menuObject = JsonConvert.DeserializeObject<SysMenu>(menu);
             bool flag = false;
             flag = await _roleService.UpdateMenu(menuObject, userId);
-            return new JsonResult((flag, PubConst.Update1));
+            return Ok((flag, PubConst.Update1));
         }
 
         [HttpPost]
@@ -115,12 +115,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var menuObject = JsonConvert.DeserializeObject<SysMenu>(menu);
             bool flag = false;
             flag = await _roleService.DeleteMenu(menuObject);
-            return new JsonResult((flag, PubConst.Delete1));
+            return Ok((flag, PubConst.Delete1));
         }
 
         [HttpPost]
@@ -133,12 +133,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var menuObject = JsonConvert.DeserializeObject<SysMenu>(menu);
             bool flag = false;
             flag = await _roleService.DisableMenu(menuObject, userId);
-            return new JsonResult((flag, PubConst.Enable3));
+            return Ok((flag, PubConst.Enable3));
         }
     }
 }

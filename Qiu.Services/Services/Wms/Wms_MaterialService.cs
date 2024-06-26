@@ -34,19 +34,21 @@ namespace Services
                 .Include(m => m.Warehouse)
                 .Include(m => m.CreateByUser)
                 .Include(m => m.ModifiedByUser)
-                .Where(m => m.IsDel == 1 && m.MaterialType.IsDel == 1 && m.Storagerack.IsDel == 1 && m.Reservoirarea.IsDel == 1 && m.Warehouse.IsDel == 1 && m.CreateByUser.IsDel == 1)
+                .Where(m => m.IsDel == 1 && m.MaterialType.IsDel == 1 && m.Storagerack.IsDel == 1 && m.Reservoirarea.IsDel == 1 && m.Warehouse.IsDel == 1)
                 .Select(m => new
                 {
                     MaterialId = m.MaterialId.ToString(),
                     MaterialNo = m.MaterialNo,
                     MaterialName = m.MaterialName,
-                    StorageRackNo = m.Storagerack.StorageRackNo,
+                    StorageRackId = m.Storagerack.StorageRackId,
                     StorageRackName = m.Storagerack.StorageRackName,
-                    ReservoirAreaNo = m.Reservoirarea.ReservoirAreaNo,
+                    ReservoirAreaId = m.Reservoirarea.ReservoirAreaId,
                     ReservoirAreaName = m.Reservoirarea.ReservoirAreaName,
-                    WarehouseNo = m.Warehouse.WarehouseNo,
+                    WarehouseId = m.Warehouse.WarehouseId,
                     WarehouseName = m.Warehouse.WarehouseName,
+                    MaterialTypeId = m.MaterialType.DictId,
                     MaterialTypeName = m.MaterialType.DictName,
+                    UnitId = m.Unit.DictId,
                     UnitName = m.Unit.DictName,
                     Qty = m.Qty,
                     ExpiryDate = m.ExpiryDate,
@@ -125,6 +127,13 @@ namespace Services
             return buffer;
         }
 
+        public async Task<Dictionary<long, string>> GetMaterialList()
+        {
+            var result = await _dbContext.Set<WmsMaterial>()
+                .Where(r => r.IsDel == 1)
+                .ToDictionaryAsync(r => r.MaterialId, r => r.MaterialName);
+            return result;
 
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DB.Models;
+﻿using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -68,12 +69,18 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var deptObject = JsonConvert.DeserializeObject<SysDept>(dept);
+            deptObject.DeptId = PubId.SnowflakeId;
+            deptObject.CreateBy = userId;
+            deptObject.CreateDate = DateTime.UtcNow;
+            deptObject.ModifiedBy = userId;
+            deptObject.ModifiedDate = DateTime.UtcNow;
+            deptObject.IsDel = 1;
             var item = await _deptService.InsertAsync(deptObject);
-            return new JsonResult((item, PubConst.Add1));
+            return Ok((item, PubConst.Add1));
         }
 
         [HttpPost]
@@ -86,12 +93,18 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
-            var deptObject = JsonConvert.DeserializeObject<SysDept>(dept);
-            var item = await _deptService.UpdateAsync(deptObject);
-            return new JsonResult((item, PubConst.Update1));
+            var deptObject = JsonConvert.DeserializeObject<DeptDto>(dept);
+            var entity = await _deptService.QueryableToSingleAsync(d => d.DeptId == deptObject.DeptId&&d.IsDel==1);
+            entity.DeptNo = deptObject.DeptNo;
+            entity.DeptName = deptObject.DeptName;
+            entity.Remark = deptObject.Remark;
+            entity.ModifiedBy = userId;
+            entity.ModifiedDate = DateTime.UtcNow;
+            var item = await _deptService.UpdateAsync(entity);
+            return Ok((item, PubConst.Update1));
         }
 
         [HttpPost]
@@ -104,12 +117,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var deptObject = JsonConvert.DeserializeObject<SysDept>(dept);
             var item = await _deptService.DeleteAsync(deptObject);
-            return new JsonResult((item, PubConst.Delete1));
+            return Ok((item, PubConst.Delete1));
         }
 
         [HttpPost]
@@ -122,7 +135,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var deptObject = JsonConvert.DeserializeObject<SysDept>(dept);
@@ -130,7 +143,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             deptObject.ModifiedBy = userId;
             deptObject.ModifiedDate = DateTime.Now;
             var item = await _deptService.UpdateAsync(deptObject);
-            return new JsonResult((item, PubConst.Update2));
+            return Ok((item, PubConst.Update2));
         }
         [HttpPost]
         [EnableCors("CorsPolicy")]
@@ -141,7 +154,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var item = await _deptService.GetDeptList();
             return Ok(item);

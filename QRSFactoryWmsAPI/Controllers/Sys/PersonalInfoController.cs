@@ -92,7 +92,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var userObject = JsonConvert.DeserializeObject<UserDto>(user);
@@ -111,7 +111,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
 
 
             var item = await _userService.UpdateAsync(entity);
-            return new JsonResult((item, PubConst.Update1));
+            return Ok((item, PubConst.Update1));
         }
 
         [HttpPost]
@@ -124,14 +124,14 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var userObject = JsonConvert.DeserializeObject<SysUser>(user);
             userObject.IsDel = 0;
             userObject.ModifiedBy = userId;
             userObject.ModifiedDate = DateTime.Now;
             var item = await _userService.UpdateAsync(userObject);
-            return new JsonResult((item, PubConst.Add1));
+            return Ok((item, PubConst.Add1));
         }
     }
 }

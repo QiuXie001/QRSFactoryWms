@@ -74,5 +74,13 @@ namespace Services
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
+
+        public async Task<Dictionary<long, string>> GetSupplierList()
+        {
+            var result = await _dbContext.Set<WmsSupplier>()
+                .Where(r => r.IsDel == 1)
+                .ToDictionaryAsync(r => r.SupplierId, r => r.SupplierName);
+            return result;
+        }
     }
 }

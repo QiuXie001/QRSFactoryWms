@@ -46,12 +46,12 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrapDto = JsonConvert.DeserializeObject<PubParams.InventoryBootstrapParams>(bootstrap);
 
             var sd = await _inventoryrecordService.PageListAsync(bootstrapDto);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
     }
 }

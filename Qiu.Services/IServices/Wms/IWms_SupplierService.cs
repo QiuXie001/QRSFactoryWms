@@ -6,5 +6,6 @@ namespace IServices.Wms
     public interface IWms_SupplierService : IBaseService<WmsSupplier>
     {
         Task<string> PageListAsync(Bootstrap.BootstrapParams bootstrap);
+        Task<Dictionary<long, string>> GetSupplierList();
     }
 }

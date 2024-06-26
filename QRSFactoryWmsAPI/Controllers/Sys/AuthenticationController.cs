@@ -72,9 +72,9 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             if (flag.Item1)
             {
                 string token = await _identityService.GenerateToken(flag.Item3.UserId);
-                return new JsonResult((flag, token));
+                return Ok((flag, token));
             }
-            return new JsonResult(flag);
+            return Ok(flag);
         }
 
         [HttpPost]
@@ -135,7 +135,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                     LogType = LogType.login.EnumToString(),
                 });
                 string token = await _identityService.GenerateToken(flag.Item3.UserId);
-                return new JsonResult((flag, token));
+                return Ok((flag, token));
             }
             else
             {
@@ -149,7 +149,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                     Url = GetUrl(),
                     LogType = LogType.login.EnumToString()
                 });
-                return new JsonResult(flag);
+                return Ok(flag);
             }
         }
 
@@ -165,7 +165,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
                 GetMemoryCache.Remove("user_" + userId);
             }
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return new JsonResult((true, "登出成功"));
+            return Ok((true, "登出成功"));
         }
     }
 }

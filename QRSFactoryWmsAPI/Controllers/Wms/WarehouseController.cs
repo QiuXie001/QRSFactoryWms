@@ -1,4 +1,5 @@
-﻿using DB.Models;
+﻿using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using IServices.Wms;
 using MediatR;
@@ -45,15 +46,15 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.select)]
-        [Route("StorageRack/GetWarehouseList")]
+        [Route("Warehouse/GetWarehouseList")]
         public async Task<IActionResult> GetWarehouseListAsync(string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var json = await _warehouseService.GetWarehouseList();
-            return new JsonResult(json);
+            return Ok(json);
         }
 
         [HttpPost]
@@ -66,14 +67,14 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
 
             var sd = await _warehouseService.PageListAsync(bootstrapObject);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -86,27 +87,35 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var modelObject = JsonConvert.DeserializeObject<WmsWarehouse>(model);
-            if (Id.IsZero())
+            if (Id == 0)
             {
+                var modelObject = JsonConvert.DeserializeObject<WmsWarehouse>(model);
                 if (await _warehouseService.IsAnyAsync(c => c.WarehouseNo == modelObject.WarehouseNo || c.WarehouseName == modelObject.WarehouseName))
                 {
-                    return new JsonResult((false, PubConst.Warehouse1));
+                    return Ok((false, PubConst.Warehouse1));
                 }
                 modelObject.WarehouseId = PubId.SnowflakeId;
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateBy = userId;
+                modelObject.CreateDate = DateTime.UtcNow;
+                modelObject.ModifiedBy = userId;
+                modelObject.ModifiedDate = DateTime.UtcNow;
+                modelObject.IsDel = 1;
                 bool flag = await _warehouseService.InsertAsync(modelObject);
-                return new JsonResult(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
+                return Ok(flag ? (flag, PubConst.Add1) : (flag, PubConst.Add2));
             }
             else
             {
-                modelObject.WarehouseId = Id.ToInt64();
-                modelObject.ModifiedBy = UserDtoCache.UserId;
-                modelObject.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _warehouseService.UpdateAsync(modelObject);
-                return new JsonResult(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
+                var modelObject = JsonConvert.DeserializeObject<WarehouseDto>(model);
+                var entity = await _warehouseService.QueryableToSingleAsync(c => c.WarehouseId == Id);
+                entity.WarehouseNo = modelObject.WarehouseNo;
+                entity.WarehouseName = modelObject.WarehouseName;
+                entity.Remark = modelObject.Remark;
+                entity.ModifiedBy = userId;
+                entity.ModifiedDate = DateTime.UtcNow;
+                var flag = await _warehouseService.UpdateAsync(entity);
+                return Ok(flag ? (flag, PubConst.Update1) : (flag, PubConst.Update2));
             }
         }
 
@@ -120,17 +129,21 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var isExist = await _reservoirareaService.IsAnyAsync(c => c.WarehouseId == Id);
             if (isExist)
             {
-                return new JsonResult((false, PubConst.Warehouse2));
+                return Ok((false, PubConst.Warehouse2));
             }
             else
             {
-                var flag = await _warehouseService.UpdateAsync(new WmsWarehouse { WarehouseId = Id, IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
-                return new JsonResult(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
+                var entity = await _warehouseService.QueryableToSingleAsync(w => w.WarehouseId == Id && w.IsDel == 1);
+                entity.IsDel = 0;
+                entity.ModifiedBy = userId;
+                entity.ModifiedDate = DateTime.UtcNow;
+                var flag = await _warehouseService.UpdateAsync(entity);
+                return Ok(flag ? (flag, PubConst.Delete1) : (flag, PubConst.Delete2));
             }
         }
     }

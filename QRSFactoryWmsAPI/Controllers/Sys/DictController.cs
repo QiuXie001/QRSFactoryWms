@@ -1,4 +1,5 @@
-﻿using DB.Models;
+﻿using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -43,6 +44,23 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.getList)]
+        [Route("Dict/GetDictListByType")]
+        public async Task<IActionResult> GetDictListByType(string token, long userId, string type)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return Ok((false, PubConst.ValidateToken2));
+            }
+
+            var item = await _dictService.GetDictListByType(type);
+            return Ok(item);
+        }
+
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.getList)]
         [Route("Dict/GetPageList")]
         public async Task<string> GetPageList([FromForm] string bootstrap, string token, long userId)
         {
@@ -66,12 +84,20 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-
             var dictObject = JsonConvert.DeserializeObject<SysDict>(dict);
+            dictObject.DictType = dictObject.DictType;
+            dictObject.DictName = dictObject.DictName;
+            dictObject.Remark = dictObject.Remark;
+            dictObject.DictId = PubId.SnowflakeId;
+            dictObject.IsDel = 1;
+            dictObject.CreateBy = userId;
+            dictObject.CreateDate = DateTime.UtcNow;
+            dictObject.ModifiedBy = userId;
+            dictObject.ModifiedDate = DateTime.UtcNow;
             var item = await _dictService.InsertAsync(dictObject);
-            return new JsonResult((item, PubConst.Add1));
+            return Ok((item, PubConst.Add1));
         }
 
         [HttpPost]
@@ -84,12 +110,19 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
-            var dictObject = JsonConvert.DeserializeObject<SysDict>(dict);
-            var item = await _dictService.UpdateAsync(dictObject);
-            return new JsonResult((item, PubConst.Update1));
+            var dictObject = JsonConvert.DeserializeObject<DictDto>(dict);
+            var entity = await _dictService.QueryableToSingleAsync(d => d.DictId == dictObject.DictId&&d.IsDel==1);
+            entity.DictType = dictObject.DictType;
+            entity.DictName = dictObject.DictName;
+            entity.Remark = dictObject.Remark;
+            entity.IsDel = 1;
+            entity.ModifiedBy = userId;
+            entity.ModifiedDate = DateTime.UtcNow;
+            var item = await _dictService.UpdateAsync(entity);
+            return Ok((item, PubConst.Update1));
         }
 
         [HttpPost]
@@ -102,12 +135,12 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var dictObject = JsonConvert.DeserializeObject<SysDict>(dict);
             var item = await _dictService.DeleteAsync(dictObject);
-            return new JsonResult((item, PubConst.Delete1));
+            return Ok((item, PubConst.Delete1));
         }
 
         [HttpPost]
@@ -120,7 +153,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
 
             var dictObject = JsonConvert.DeserializeObject<SysDict>(dict);
@@ -128,7 +161,7 @@ namespace QRSFactoryWmsAPI.Controllers.Sys
             dictObject.ModifiedBy = userId;
             dictObject.ModifiedDate = DateTime.Now;
             var item = await _dictService.UpdateAsync(dictObject);
-            return new JsonResult((item, PubConst.Update2));
+            return Ok((item, PubConst.Update2));
         }
     }
 }

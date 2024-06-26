@@ -35,6 +35,7 @@ namespace Services.Sys
                     DictId = s.DictId,
                     s.DictName,
                     s.DictNo,
+                    s.DictType,
                     s.IsDel,
                     s.Remark,
                     CName = s.CreateByUser.UserNickname,
@@ -67,7 +68,13 @@ namespace Services.Sys
             // 使用 Newtonsoft.Json 或 System.Text.Json 进行 JSON 序列化
             return JsonSerializer.Serialize(new { rows = list, total = totalNumber });
         }
-
+        public async Task<Dictionary<long, string>> GetDictListByType(string  type)
+        {
+            var result = await _dbContext.Set<SysDict>()
+                .Where(r => r.IsDel == 1&&r.DictType==type)
+                .ToDictionaryAsync(r => r.DictId, r => r.DictName);
+            return result;
+        }
 
     }
 }

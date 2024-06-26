@@ -1,15 +1,18 @@
-﻿using DB.Models;
+﻿using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using IServices.Wms;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Qiu.NetCore.Attributes;
 using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Files;
+using Qiu.Utils.Json;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Security;
 using Qiu.Utils.Table;
@@ -25,12 +28,14 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         private readonly IHttpContextAccessor _httpContext;
         private readonly IConfiguration _configuration;
         private readonly ISys_IdentityService _identityService;
+        private readonly ISys_DictService _dictService;
         private readonly string NowUrl = "/Material";
 
         public MaterialController(
             IWms_MaterialService materialService,
             IWms_InventoryService inventoryService,
             ISys_IdentityService identityService,
+            ISys_DictService dictService,
             IHttpContextAccessor httpContext,
             IConfiguration configuration,
             IMediator mediator)
@@ -41,6 +46,40 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             _httpContext = httpContext;
             _configuration = configuration;
             _identityService = identityService;
+            _dictService = dictService;
+        }
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.getList)]
+        [Route("Material/GetDictListByType")]
+        public async Task<IActionResult> GetDictListByType(string token, long userId ,string type)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return Ok((false, PubConst.ValidateToken2));
+            }
+
+            var item = await _dictService.GetDictListByType(type);
+            return Ok(item);
+        }
+
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.getList)]
+        [Route("Material/GetMaterialList")]
+        public async Task<IActionResult> GetMaterialList(string token, long userId)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return Ok((false, PubConst.ValidateToken2));
+            }
+
+            var item = await _materialService.GetMaterialList();
+            return Ok(item);
         }
 
         [HttpPost]
@@ -53,13 +92,13 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
             var sd = await _materialService.PageListAsync(bootstrapObject);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -72,30 +111,41 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var modelObject = JsonConvert.DeserializeObject<WmsMaterial>(model);
             if (id.IsEmptyZero())
             {
+                var modelObject = JsonConvert.DeserializeObject<WmsMaterial>(model);
+                modelObject.IsDel = 1;
                 if (await _materialService.IsAnyAsync(c => c.MaterialNo == modelObject.MaterialNo || c.MaterialName == modelObject.MaterialName))
                 {
-                    return new JsonResult((false, PubConst.Material1));
+                    return Ok((false, PubConst.Material1));
                 }
                 modelObject.MaterialId = PubId.SnowflakeId;
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateBy = userId;
                 modelObject.CreateDate = DateTimeExt.DateTime;
-                modelObject.ModifiedBy = UserDtoCache.UserId;
+                modelObject.ModifiedBy = userId;
                 modelObject.ModifiedDate = DateTimeExt.DateTime;
                 bool flag = await _materialService.InsertAsync(modelObject);
-                return new JsonResult((flag, PubConst.Add1));
+                return Ok((flag, PubConst.Add1));
             }
             else
             {
-                modelObject.MaterialId = id.ToInt64();
-                modelObject.ModifiedBy = UserDtoCache.UserId;
-                modelObject.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _materialService.UpdateAsync(modelObject);
-                return new JsonResult((flag, PubConst.Update1));
+                var modelObject = JsonConvert.DeserializeObject<MaterialDto>(model);
+                var entity = await _materialService.QueryableToSingleAsync(c => c.MaterialId == long.Parse(id));
+                entity.MaterialNo = modelObject.MaterialNo;
+                entity.MaterialName = modelObject.MaterialName;
+                entity.MaterialTypeId = modelObject.MaterialTypeId;
+                entity.UnitId = modelObject.UnitId;
+                entity.WarehouseId = modelObject.WarehouseId;
+                entity.StoragerackId = modelObject.StoragerackId;
+                entity.ReservoirAreaId = modelObject.ReservoirAreaId;
+                entity.ExpiryDate = modelObject.ExpiryDate;
+                entity.Remark = modelObject.Remark;
+                entity.ModifiedBy = userId;
+                entity.ModifiedDate = DateTimeExt.DateTime;
+                var flag = await _materialService.UpdateAsync(entity);
+                return Ok((flag, PubConst.Update1));
             }
         }
         [HttpPost]
@@ -108,18 +158,18 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             // 判断库存数量，库存数量小于等于0，才能删除
             var isExist = await _inventoryService.IsAnyAsync(c => c.MaterialId == SqlFunc.ToInt64(id));
             if (isExist)
             {
-                return new JsonResult((false, PubConst.Material2));
+                return Ok((false, PubConst.Material2));
             }
             else
             {
-                var flag = await _materialService.UpdateAsync(new WmsMaterial { MaterialId = SqlFunc.ToInt64(id), IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
-                return new JsonResult((flag, PubConst.Delete1));
+                var flag = await _materialService.UpdateAsync(new WmsMaterial { MaterialId = SqlFunc.ToInt64(id), IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
+                return Ok((flag, PubConst.Delete1));
             }
         }
 
@@ -133,7 +183,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrap = new Bootstrap.BootstrapParams
             {

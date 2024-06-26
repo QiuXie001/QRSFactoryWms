@@ -1,4 +1,5 @@
-﻿using DB.Models;
+﻿using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using IServices.Wms;
 using MediatR;
@@ -11,6 +12,7 @@ using Qiu.NetCore.NetCoreApp;
 using Qiu.Utils.Extensions;
 using Qiu.Utils.Pub;
 using Qiu.Utils.Table;
+using System.CodeDom;
 
 namespace QRSFactoryWmsAPI.Controllers.Wms
 {
@@ -46,13 +48,13 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
             var sd = await _carrierService.PageListAsync(bootstrapObject);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -65,28 +67,42 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var carrierObject = JsonConvert.DeserializeObject<WmsCarrier>(model);
             if (id.IsEmptyZero())
             {
-
-                if (await _carrierService.IsAnyAsync(c => c.CarrierNo == carrierObject.CarrierNo || c.CarrierName == carrierObject.CarrierName))
+                var modelObject = JsonConvert.DeserializeObject<WmsCarrier>(model);
+                if (await _carrierService.IsAnyAsync(c => c.CarrierNo == modelObject.CarrierNo || c.CarrierName == modelObject.CarrierName))
                 {
-                    return new JsonResult((false, PubConst.Carrier1));
+                    return Ok((false, PubConst.Carrier1));
                 }
-                carrierObject.CarrierId = PubId.SnowflakeId;
-                carrierObject.CreateBy = UserDtoCache.UserId;
-                bool flag = await _carrierService.InsertAsync(carrierObject);
-                return new JsonResult((flag, PubConst.Add1));
+                modelObject.CarrierId = PubId.SnowflakeId;
+                modelObject.IsDel = 1;
+                modelObject.CreateBy = userId;
+                modelObject.CreateDate = DateTime.UtcNow;
+                modelObject.ModifiedBy = userId;
+                modelObject.ModifiedDate = DateTime.UtcNow;
+                bool flag = await _carrierService.InsertAsync(modelObject);
+                return Ok((flag, PubConst.Add1));
             }
             else
             {
-                carrierObject.CarrierId = id.ToInt64();
-                carrierObject.ModifiedBy = UserDtoCache.UserId;
-                carrierObject.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _carrierService.UpdateAsync(carrierObject);
-                return new JsonResult((flag, PubConst.Update1));
+                var modelObject = JsonConvert.DeserializeObject<CarrierDto>(model);
+                var entity = await _carrierService.QueryableToSingleAsync(c => c.CarrierId == id.ToInt64()&&c.IsDel==1);
+                entity.CarrierNo = modelObject.CarrierNo;
+                entity.CarrierName = modelObject.CarrierName;
+                entity.Address = modelObject.Address;
+                entity.Tel = modelObject.Tel;
+                entity.Email = modelObject.Email;
+                entity.CarrierNo = modelObject.CarrierNo;
+                entity.CarrierPerson = modelObject.CarrierPerson;
+                entity.CarrierLevel = modelObject.CarrierLevel;
+                entity.Remark = modelObject.Remark;
+
+                entity.ModifiedBy = userId;
+                entity.ModifiedDate = DateTime.UtcNow;
+                var flag = await _carrierService.UpdateAsync(entity);
+                return Ok((flag, PubConst.Update1));
             }
         }
 
@@ -100,10 +116,10 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var flag = await _carrierService.UpdateAsync(new WmsCarrier { CarrierId = id, IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
-            return new JsonResult((flag, PubConst.Delete1));
+            var flag = await _carrierService.UpdateAsync(new WmsCarrier { CarrierId = id, IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
+            return Ok((flag, PubConst.Delete1));
         }
 
         [HttpPost]
@@ -115,7 +131,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrap = new Bootstrap.BootstrapParams
             {

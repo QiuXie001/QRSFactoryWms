@@ -1,4 +1,6 @@
-﻿using DB.Models;
+﻿using AngleSharp.Dom;
+using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using IServices.Wms;
 using MediatR;
@@ -64,7 +66,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrap = new Bootstrap.BootstrapParams
             {
@@ -77,6 +79,22 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
             var json = await _customerService.PageListAsync(bootstrap);
             return Content(json);
         }
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.select)]
+        [Route("StockOut/List")]
+        public async Task<IActionResult> ListAsync([FromForm] string bootstrap, string token, long userId)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return Ok((false, PubConst.ValidateToken2));
+            }
+            var bootstrapObject = JsonConvert.DeserializeObject<PubParams.StockOutBootstrapParams>(bootstrap);
+            var sd = await _stockoutService.PageListAsync(bootstrapObject);
+            return Ok(sd);
+        }
 
         [HttpPost]
         [EnableCors("CorsPolicy")]
@@ -87,7 +105,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrap = new PubParams.InventoryBootstrapParams
             {
@@ -111,10 +129,10 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var sd = await _stockoutdetailService.PageListAsync(pid);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -127,32 +145,48 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var modelObject = JsonConvert.DeserializeObject<WmsStockout>(model);
-            if (Id.IsZero())
+            if (Id == 0)
             {
+                var modelObject = JsonConvert.DeserializeObject<WmsStockout>(model);
                 if (!modelObject.OrderNo.IsEmpty())
                 {
                     if (await _stockoutService.IsAnyAsync(c => c.OrderNo == modelObject.OrderNo))
                     {
-                        return new JsonResult((false, PubConst.StockIn1));
+                        return Ok((false, PubConst.StockIn1));
                     }
                 }
-                modelObject.StockOutNo = await _serialnumService.GetSerialnumAsync(UserDtoCache.UserId, "Wms_stockout");
                 modelObject.StockOutId = PubId.SnowflakeId;
+                modelObject.StockOutNo = modelObject.StockOutNo;
+                modelObject.OrderNo = modelObject.OrderNo;
+                modelObject.StockOutTypeId = modelObject.StockOutTypeId;
+                modelObject.CustomerId = modelObject.CustomerId;
+                modelObject.Remark = modelObject.Remark;
+
+                modelObject.IsDel = 1;
                 modelObject.StockOutStatus = StockInStatus.initial.ToByte();
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.CreateBy = userId;
+                modelObject.CreateDate = DateTime.UtcNow;
+                modelObject.ModifiedBy = userId;
+                modelObject.ModifiedDate = DateTime.UtcNow;
                 bool flag = await _stockoutService.InsertAsync(modelObject);
-                return new JsonResult((flag, flag ? PubConst.Add1 : PubConst.Add2));
+                return Ok((flag, flag ? PubConst.Add1 : PubConst.Add2));
             }
             else
             {
-                modelObject.StockOutId = Id;
-                modelObject.ModifiedBy = UserDtoCache.UserId;
-                modelObject.ModifiedDate = DateTimeExt.DateTime;
-                var flag = await _stockoutService.UpdateAsync(modelObject);
-                return new JsonResult((flag, flag ? PubConst.Update1 : PubConst.Update2));
+                var modelObject = JsonConvert.DeserializeObject<StockOutDto>(model);
+                var entity = await _stockoutService.QueryableToSingleAsync(so => so.StockOutId == modelObject.StockOutId && so.IsDel == 1);
+                entity.OrderNo = modelObject.OrderNo;
+                entity.StockOutNo = modelObject.StockOutNo;
+                entity.StockOutTypeId = modelObject.StockOutTypeId;
+                entity.CustomerId = modelObject.CustomerId;
+                entity.StockOutStatus = StockInStatus.initial.ToByte();
+                entity.Remark = modelObject.Remark;
+                entity.ModifiedBy = userId;
+                entity.ModifiedDate = DateTime.UtcNow;
+                var flag = await _stockoutService.UpdateAsync(entity);
+                return Ok((flag, flag ? PubConst.Update1 : PubConst.Update2));
             }
         }
 
@@ -166,24 +200,33 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var modelObject = JsonConvert.DeserializeObject<WmsStockoutdetail>(model);
             if (Id.IsZero())
             {
+                var modelObject = JsonConvert.DeserializeObject<WmsStockoutdetail>(model);
                 modelObject.StockOutDetailId = PubId.SnowflakeId;
+
+                modelObject.StoragerackId = 1;
+                modelObject.IsDel = 1;
                 modelObject.Status = StockInStatus.initial.ToByte();
-                modelObject.CreateBy = UserDtoCache.UserId;
+                modelObject.AuditinId = userId;
+                modelObject.AuditinTime = DateTime.UtcNow;
+                modelObject.CreateBy = userId;
+                modelObject.CreateDate = DateTime.UtcNow;
+                modelObject.ModifiedBy = userId;
+                modelObject.ModifiedDate = DateTime.UtcNow;
                 bool flag = await _stockoutdetailService.InsertAsync(modelObject);
-                return new JsonResult((flag, flag ? PubConst.Add1 : PubConst.Add2));
+                return Ok((flag, flag ? PubConst.Add1 : PubConst.Add2));
             }
             else
             {
-                modelObject.StockOutDetailId = Id;
-                modelObject.ModifiedBy = UserDtoCache.UserId;
-                modelObject.ModifiedDate = DateTimeExt.DateTime;
+                var modelObject = JsonConvert.DeserializeObject<WmsStockoutdetail>(model);
+                //modelObject.StockOutDetailId = Id;
+                //modelObject.ModifiedBy = userId;
+                //modelObject.ModifiedDate = DateTimeExt.DateTime;
                 var flag = await _stockoutdetailService.UpdateAsync(modelObject);
-                return new JsonResult((flag, flag ? PubConst.Update1 : PubConst.Update2));
+                return Ok((flag, flag ? PubConst.Update1 : PubConst.Update2));
             }
         }
 
@@ -197,15 +240,15 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var list = await _stockoutdetailService.QueryableToListAsync(c => c.IsDel == 1 && c.StockOutId == Id);
             if (!list.Any())
             {
-                return new JsonResult((false, PubConst.StockIn4));
+                return Ok((false, PubConst.StockIn4));
             }
-            var flag = await _stockoutService.AuditinAsync(UserDtoCache.UserId, Id);
-            return new JsonResult((flag, flag ? PubConst.StockIn2 : PubConst.StockIn3));
+            var flag = await _stockoutService.AuditinAsync(userId, Id);
+            return Ok((flag, flag ? PubConst.StockIn2 : PubConst.StockIn3));
         }
 
         [HttpPost]
@@ -218,28 +261,28 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var isExist = await _stockoutdetailService.IsAnyAsync(c => c.StockOutId == Id);
             if (isExist)
             {
-                return new JsonResult((false, PubConst.StockIn3));
+                return Ok((false, PubConst.StockIn3));
             }
             else
             {
                 var flag1 = await _stockoutdetailService.UpdateAsync(
-                     new WmsStockoutdetail { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
+                     new WmsStockoutdetail { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime },
                      c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                      c => c.StockOutId == Id
                  );
 
                 var flag2 = await _stockoutService.UpdateAsync(
-                    new WmsStockout { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
+                    new WmsStockout { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime },
                     c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                     c => c.StockOutId == Id
                 );
 
-                return new JsonResult(new { Success = flag1 && flag2, Message = flag1 && flag2 ? PubConst.Delete1 : PubConst.Delete2 });
+                return Ok(new { Success = flag1 && flag2, Message = flag1 && flag2 ? PubConst.Delete1 : PubConst.Delete2 });
             }
         }
 
@@ -253,10 +296,10 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var flag = await _stockoutdetailService.UpdateAsync(
-                 new WmsStockoutdetail { IsDel = 0, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTimeExt.DateTime },
+                 new WmsStockoutdetail { IsDel = 0, ModifiedBy = userId, ModifiedDate = DateTimeExt.DateTime },
                  c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate },
                  c => c.StockOutDetailId == SqlFunc.ToInt64(Id)
                  );
@@ -274,7 +317,7 @@ namespace QRSFactoryWmsAPI.Controllers.Wms
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var str = _stockoutService.PrintList(Id);
             return Content(str);

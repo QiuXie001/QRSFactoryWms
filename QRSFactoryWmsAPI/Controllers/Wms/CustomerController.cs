@@ -1,4 +1,5 @@
-﻿using DB.Models;
+﻿using DB.Dto;
+using DB.Models;
 using IServices.Sys;
 using IServices.Wms;
 using MediatR;
@@ -45,18 +46,34 @@ namespace KopSoftWms.Controllers
         [Authorize]
         [AllowAnonymous]
         [OperationLog(LogType.select)]
+        [Route("Customer/GetCustomerList")]
+        public async Task<IActionResult> GetCustomerListAsync( string token, long userId)
+        {
+            if (!await _identityService.ValidateToken(token, userId, NowUrl))
+            {
+                return Ok((false, PubConst.ValidateToken2));
+            }
+            var sd = await _customerService.GetCustomerList();
+            return Ok(sd);
+        }
+
+        [HttpPost]
+        [EnableCors("CorsPolicy")]
+        [Authorize]
+        [AllowAnonymous]
+        [OperationLog(LogType.select)]
         [Route("Customer/List")]
         public async Task<IActionResult> ListAsync([FromForm] string bootstrap, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             var bootstrapObject = JsonConvert.DeserializeObject<Bootstrap.BootstrapParams>(bootstrap);
             if (bootstrapObject == null || bootstrapObject._ == null)
                 bootstrapObject = PubConst.DefaultBootstrapParams;
             var sd = await _customerService.PageListAsync(bootstrapObject);
-            return new JsonResult(sd);
+            return Ok(sd);
         }
 
         [HttpPost]
@@ -69,24 +86,25 @@ namespace KopSoftWms.Controllers
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             if (model.IsEmpty())
             {
-                return new JsonResult(false, PubConst.Null);
+                return Ok((false, PubConst.Null));
             }
             var modelObject = JsonConvert.DeserializeObject<WmsCustomer>(model);
             if (await _customerService.IsAnyAsync(c => c.CustomerNo == modelObject.CustomerNo || c.CustomerName == modelObject.CustomerName))
             {
-                return new JsonResult((false, PubConst.Customer1));
+                return Ok((false, PubConst.Customer1));
             }
             modelObject.CustomerId = PubId.SnowflakeId;
-            modelObject.CreateBy = UserDtoCache.UserId;
+            modelObject.IsDel = 1;
+            modelObject.CreateBy = userId;
             modelObject.CreateDate = DateTime.UtcNow;
-            modelObject.ModifiedBy = UserDtoCache.UserId;
+            modelObject.ModifiedBy = userId;
             modelObject.ModifiedDate = DateTime.UtcNow;
             bool flag = await _customerService.InsertAsync(modelObject);
-            return new JsonResult((flag, PubConst.Add1));
+            return Ok((flag, PubConst.Add1));
 
         }
 
@@ -96,22 +114,31 @@ namespace KopSoftWms.Controllers
         [AllowAnonymous]
         [OperationLog(LogType.update)]
         [Route("Customer/Update")]
-        public async Task<IActionResult> UpdateAsync([FromForm] string model, string token, long userId, long Id)
+        public async Task<IActionResult> UpdateAsync([FromForm] string model, string token, long userId)
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             if (model.IsEmpty())
             {
-                return new JsonResult(false, PubConst.Null);
+                return Ok((false, PubConst.Null));
             }
-            var modelObject = JsonConvert.DeserializeObject<WmsCustomer>(model);
-            modelObject.CustomerId = Id;
-            modelObject.ModifiedBy = UserDtoCache.UserId;
-            modelObject.ModifiedDate = DateTime.UtcNow;
-            bool flag = await _customerService.UpdateAsync(modelObject);
-            return new JsonResult((flag, PubConst.Update1));
+            var modelObject = JsonConvert.DeserializeObject<CustomerDto>(model);
+            var entity = await _customerService.QueryableToSingleAsync(c => c.CustomerId == modelObject.CustomerId&&c.IsDel==1);
+            entity.CustomerNo = modelObject.CustomerNo;
+            entity.CustomerName = modelObject.CustomerName;
+            entity.Address = modelObject.Address;
+            entity.Tel = modelObject.Tel;
+            entity.Email = modelObject.Email;
+            entity.CustomerLevel = modelObject.CustomerLevel;
+            entity.CustomerPerson = modelObject.CustomerPerson;
+            entity.Remark = modelObject.Remark;
+
+            entity.ModifiedBy = userId;
+            entity.ModifiedDate = DateTime.UtcNow;
+            bool flag = await _customerService.UpdateAsync(entity);
+            return Ok((flag, PubConst.Update1));
 
         }
 
@@ -125,10 +152,10 @@ namespace KopSoftWms.Controllers
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
-            var flag = await _customerService.UpdateAsync(new WmsCustomer { CustomerId = Id, IsDel = 1, ModifiedBy = UserDtoCache.UserId, ModifiedDate = DateTime.UtcNow }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
-            return new JsonResult((flag, PubConst.Delete1));
+            var flag = await _customerService.UpdateAsync(new WmsCustomer { CustomerId = Id, IsDel = 1, ModifiedBy = userId, ModifiedDate = DateTime.UtcNow }, c => new { c.IsDel, c.ModifiedBy, c.ModifiedDate });
+            return Ok((flag, PubConst.Delete1));
         }
 
         [HttpPost]
@@ -151,16 +178,16 @@ namespace KopSoftWms.Controllers
         {
             if (!await _identityService.ValidateToken(token, userId, NowUrl))
             {
-                return new JsonResult(false, PubConst.ValidateToken2);
+                return Ok((false, PubConst.ValidateToken2));
             }
             if (file == null || file.Length <= 0)
             {
-                return new JsonResult((false, PubConst.File1));
+                return Ok((false, PubConst.File1));
             }
             string fileExt = Path.GetExtension(file.FileName).ToLower();
             if (!NpoiUtil.excel.Contains(fileExt))
             {
-                return new JsonResult((false, PubConst.File2));
+                return Ok((false, PubConst.File2));
             }
             var filepath = Path.Combine(WebRoot, "upload", PubId.GetUuid()) + fileExt;
             //1 直接通过流
@@ -170,10 +197,10 @@ namespace KopSoftWms.Controllers
                 {
                     file.CopyTo(st);
                     var dt = NpoiUtil.Import(st, fileExt);
-                    var json = _customerService.ImportAsync(dt, UserDtoCache.UserId).JilToJson();
-                    return new JsonResult(json);
+                    var json = _customerService.ImportAsync(dt, userId).JilToJson();
+                    return Ok(json);
                 }
-            }, new JsonResult((false, PubConst.File3))
+            }, Ok((false, PubConst.File3))
              );
         }
     }

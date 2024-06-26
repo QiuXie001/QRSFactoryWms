@@ -791,6 +791,16 @@ public partial class QrsfactoryWmsContext : DbContext
             entity.HasKey(e => e.StockOutId).HasName("PK__wms_stoc__C5308D7A76CDE9E0");
 
             modelBuilder.Entity<WmsStockout>()
+        .HasOne(d => d.StockOutType)
+        .WithMany(u => u.Stockouts)
+        .HasForeignKey(d => d.StockOutTypeId);
+
+            modelBuilder.Entity<WmsStockout>()
+        .HasOne(d => d.Customer)
+        .WithMany(u => u.Stockouts)
+        .HasForeignKey(d => d.CustomerId);
+
+            modelBuilder.Entity<WmsStockout>()
         .HasOne(d => d.CreateByUser)
         .WithMany(u => u.CreateStockouts)
         .HasForeignKey(d => d.CreateBy);
